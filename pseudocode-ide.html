@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CIE 9618 Pseudocode IDE - Mr Boyjonauth - Computer Science Educator,Mauritius- Tel no : +230 57155060</title>
+  <title>CIE Computer Science 9618 Pseudocode IDE</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -30,21 +30,59 @@
     }
 
     header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px 16px;
       padding: 12px 16px;
       border-bottom: 1px solid var(--border);
       background: var(--panel);
+    }
+
+    .header-titles {
+      min-width: 0;
     }
 
     h1 {
       margin: 0;
       font-size: 1.1rem;
       font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .header-line2,
+    .header-line3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 400;
+      line-height: 1.4;
+      margin-top: 4px;
+      color: var(--text);
     }
 
     .subtitle {
       color: var(--muted);
       font-size: 0.9rem;
-      margin-top: 4px;
+      margin-top: 8px;
+    }
+
+    .doc-link {
+      flex-shrink: 0;
+      align-self: center;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+
+    .doc-link:hover {
+      background: #1e293b;
+      color: #4ade80;
     }
 
     .layout {
@@ -83,7 +121,6 @@
     }
 
     #editor { height: 62vh; }
-    #inputValues { height: 100px; }
 
     .actions {
       display: flex;
@@ -127,8 +164,13 @@
 </head>
 <body>
   <header>
-    <h1>CIE 9618 Pseudocode IDE - Mr Boyjonauth - Computer Science Educator,Mauritius- Tel no : +230 57155060</h1>
-    <div class="subtitle">CIE 9618 style: procedures, functions, records (TYPE/ENDTYPE, dot fields), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Runs in the browser.</div>
+    <div class="header-titles">
+      <h1>CIE Computer Science 9618 Pseudocode IDE</h1>
+      <p class="header-line2">By Mr Boyjonauth, Computer Science Educator, Goodlands, Mauritius</p>
+      <p class="header-line3">Tel No: +230 57155060.      Email: boyjonauth@gmail.com</p>
+      <div class="subtitle">CIE 9618 style: procedures, functions, records (TYPE/ENDTYPE, dot fields), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Runs in the browser.</div>
+    </div>
+    <a id="readmeLink" class="doc-link" href="https://github.com/boyjonauth2021-netizen/pseudocodeIDE/blob/main/README.md" target="_blank" rel="noopener noreferrer">README</a>
   </header>
 
   <main class="layout">
@@ -143,19 +185,13 @@
     </section>
 
     <section class="panel">
-      <div class="label">Input values (for `INPUT`, one per line)</div>
-      <textarea id="inputValues" placeholder="Example:
-12
-5"></textarea>
-
-      <div class="label" style="margin-top:10px;">Output</div>
+      <div class="label">Output</div>
       <div id="output" class="console"></div>
     </section>
   </main>
 
   <script>
     const editor = document.getElementById("editor");
-    const inputValues = document.getElementById("inputValues");
     const output = document.getElementById("output");
     const runBtn = document.getElementById("runBtn");
     const loadExampleBtn = document.getElementById("loadExampleBtn");
@@ -186,12 +222,6 @@
     }
 
     function readNextInputValue(varName, ctx) {
-      if (ctx.inputIndex < ctx.inputValues.length) {
-        const value = ctx.inputValues[ctx.inputIndex];
-        ctx.inputIndex += 1;
-        return value;
-      }
-
       const lastOutput = ctx.output.length > 0 ? ctx.output[ctx.output.length - 1] : "";
       const promptText = lastOutput || `Enter value for ${varName}:`;
       const userValue = window.prompt(promptText, "");
@@ -1346,14 +1376,12 @@
       }
     }
 
-    function runPseudocode(source, inputsRaw) {
+    function runPseudocode(source) {
       const lines = source.split(/\r?\n/).map((x) => normalizeLine(x));
       const { mainLines, procedures, functions, types } = extractDefinitions(lines);
       const ctx = {
         vars: {},
         defs: { procedures, functions, types },
-        inputValues: inputsRaw.split(/\r?\n/).filter((x) => x.trim().length > 0),
-        inputIndex: 0,
         output: []
       };
       try {
@@ -1374,7 +1402,7 @@
 
     runBtn.addEventListener("click", () => {
       try {
-        const result = runPseudocode(editor.value, inputValues.value);
+        const result = runPseudocode(editor.value);
         printOutput(result || "(No output)", false);
       } catch (error) {
         const msg = error && error.message != null ? error.message : String(error);
@@ -1384,7 +1412,6 @@
 
     loadExampleBtn.addEventListener("click", () => {
       editor.value = exampleCode;
-      inputValues.value = "";
       printOutput("Example loaded. Click Run Code.", false);
     });
 
