@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE Computer Science 9618 Pseudocode IDE</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --border: #334155;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px 16px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .header-titles {
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .header-line2,
+    .header-line3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 400;
+      line-height: 1.4;
+      margin-top: 4px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .doc-link {
+      flex-shrink: 0;
+      align-self: center;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+
+    .doc-link:hover {
+      background: #1e293b;
+      color: #4ade80;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.92rem;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.secondary { background: #475569; }
+    button.success { background: var(--accent); color: #04130a; }
+
+    .console {
+      flex: 1;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #020617;
+      padding: 10px;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+    }
+
+    .error { color: var(--danger); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .pseudocode-editor .CodeMirror { min-height: 45vh; }
+    }
+
+    .pseudocode-editor {
+      min-height: 0;
+    }
+
+    .pseudocode-editor .CodeMirror {
+      height: 62vh;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+    }
+
+    .pseudocode-editor .CodeMirror-gutters {
+      background: #111827;
+      border-right: 1px solid var(--border);
+    }
+
+    .pseudocode-editor .CodeMirror-linenumber {
+      color: #64748b;
+    }
+
+    .cm-s-cie .CodeMirror-cursor {
+      border-left: 1px solid #e5e7eb;
+    }
+
+    .cm-s-cie.CodeMirror { background: #1e2937; color: #d4d4d4; }
+    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255, 255, 255, 0.04); }
+    .cm-s-cie .cm-keyword { color: #569cd6; }
+    .cm-s-cie .cm-atom { color: #569cd6; }
+    .cm-s-cie .cm-def { color: #4ec9b0; }
+    .cm-s-cie .cm-string { color: #ce9178; }
+    .cm-s-cie .cm-number { color: #b5cea8; }
+    .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
+    .cm-s-cie .cm-operator { color: #d4d4d4; }
+  </style>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css"
+  />
+</head>
+<body>
+  <header>
+    <div class="header-titles">
+      <h1>CIE Computer Science 9618 Pseudocode IDE</h1>
+      <p class="header-line2">By Mr Boyjonauth, Computer Science Educator, Goodlands, Mauritius</p>
+      <p class="header-line3">Tel No: +230 57155060.      Email: boyjonauth@gmail.com</p>
+      <div class="subtitle">CIE 9618 style: procedures, functions, records (TYPE/ENDTYPE, dot fields), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Runs in the browser.</div>
+    </div>
+    <a id="readmeLink" class="doc-link" href="https://github.com/boyjonauth2021-netizen/pseudocodeIDE/blob/main/README.md" target="_blank" rel="noopener noreferrer">README</a>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="label">Pseudocode Editor</div>
+      <div class="pseudocode-editor">
+        <textarea id="editor" spellcheck="false"></textarea>
+      </div>
+      <div class="actions">
+        <button class="success" id="runBtn">Run Code</button>
+        <button class="secondary" id="loadExampleBtn">Load Example</button>
+        <button class="secondary" id="clearBtn">Clear Output</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="label">Output</div>
+      <div id="output" class="console"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/mode/simple.js"></script>
+  <script>
+    const editorTextarea = document.getElementById("editor");
+    const output = document.getElementById("output");
+    const runBtn = document.getElementById("runBtn");
+    const loadExampleBtn = document.getElementById("loadExampleBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    const exampleCode = [
+      "DECLARE length, width : REAL",
+      "DECLARE area, perimeter : REAL",
+      'OUTPUT "Enter length of rectangle:"',
+      "INPUT length",
+      'OUTPUT "Enter width of rectangle:"',
+      "INPUT width",
+      "area <- length * width",
+      "perimeter <- (length + width) * 2",
+      'OUTPUT "Area = ", area',
+      'OUTPUT "Perimeter = ", perimeter'
+    ].join("\n");
+
+    try {
+    (function initCodeMirror() {
+      const PSEU_KW = [
+        "ENDPROCEDURE",
+        "ENDFUNCTION",
+        "ELSEIF",
+        "ENDCASE",
+        "ENDWHILE",
+        "ENDTYPE",
+        "DECLARE",
+        "CONSTANT",
+        "RETURNS",
+        "OTHERWISE",
+        "PROCEDURE",
+        "FUNCTION",
+        "REPEAT",
+        "UNTIL",
+        "WHILE",
+        "OUTPUT",
+        "PRINT",
+        "INPUT",
+        "ARRAY",
+        "OF",
+        "INTEGER",
+        "REAL",
+        "STRING",
+        "CHAR",
+        "BOOLEAN",
+        "DATE",
+        "CASE",
+        "IF",
+        "THEN",
+        "ELSE",
+        "ENDIF",
+        "FOR",
+        "TO",
+        "NEXT",
+        "STEP",
+        "AND",
+        "OR",
+        "NOT",
+        "TRUE",
+        "FALSE",
+        "MOD",
+        "DIV",
+        "CALL",
+        "BYREF",
+        "BYVAL",
+        "RETURN",
+        "TYPE",
+        "RECORD",
+        "DO"
+      ];
+      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "INT", "ASC", "CHR"];
+      const sortDesc = (a, b) => b.length - a.length;
+      const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const kws = [...new Set(PSEU_KW)].sort(sortDesc);
+      const bis = [...new Set(PSEU_BI)].sort(sortDesc);
+      const kwr = new RegExp(`\\b(${kws.map(esc).join("|")})\\b`, "i");
+      const bir = new RegExp(`\\b(${bis.map(esc).join("|")})\\b`, "i");
+
+      CodeMirror.defineSimpleMode("pseudocode", {
+        start: [
+          { regex: /\/\/.*/, token: "comment" },
+          { regex: /#.*/, token: "comment" },
+          { regex: /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/, token: "string" },
+          {
+            regex: /0x[a-f\d]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/i,
+            token: "number"
+          },
+          { regex: kwr, token: "keyword" },
+          { regex: bir, token: "def" },
+          { regex: /&/, token: "operator" }
+        ]
+      });
+
+      const codeMirror = CodeMirror.fromTextArea(editorTextarea, {
+        mode: "pseudocode",
+        theme: "cie",
+        lineNumbers: true,
+        lineWrapping: true,
+        tabSize: 2,
+        indentUnit: 2,
+        extraKeys: {
+          Tab: (cm) => {
+            const n = cm.getOption("indentUnit") || 2;
+            cm.replaceSelection(" ".repeat(n), "end");
+          }
+        }
+      });
+
+      window._pseudocodeCodeMirror = codeMirror;
+    })();
+    } catch (e) {
+      console.error("CodeMirror could not start; plain editor is used.", e);
+    }
+
+    function getEditorText() {
+      return window._pseudocodeCodeMirror
+        ? window._pseudocodeCodeMirror.getValue()
+        : editorTextarea.value;
+    }
+
+    function setEditorText(value) {
+      if (window._pseudocodeCodeMirror) {
+        window._pseudocodeCodeMirror.setValue(value);
+      } else {
+        editorTextarea.value = value;
+      }
+    }
+
+    function tokenizeValue(raw) {
+      const trimmed = String(raw ?? "").trim();
+      if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+        return trimmed.slice(1, -1);
+      }
+      if (/^-?\d+$/.test(trimmed)) return Number.parseInt(trimmed, 10);
+      if (/^-?\d+\.\d+$/.test(trimmed)) return Number.parseFloat(trimmed);
+      if (/^(TRUE|FALSE)$/i.test(trimmed)) return /^TRUE$/i.test(trimmed);
+      return trimmed;
+    }
+
+    function readNextInputValue(varName, ctx) {
+      const lastOutput = ctx.output.length > 0 ? ctx.output[ctx.output.length - 1] : "";
+      const promptText = lastOutput || `Enter value for ${varName}:`;
+      const userValue = window.prompt(promptText, "");
+      if (userValue === null) {
+        throw new Error(`Input cancelled for: ${varName}`);
+      }
+      return userValue;
+    }
+
+    function echoInputToOutput(ctx, val) {
+      if (val !== undefined && val !== null) {
+        ctx.output.push("  (entered) " + String(val));
+      }
+    }
+
+    function splitByCommaOutsideQuotes(text) {
+      const parts = [];
+      let current = "";
+      let inQuote = null;
+      let parenDepth = 0;
+      let bracketDepth = 0;
+      for (let i = 0; i < text.length; i += 1) {
+        const ch = text[i];
+        if ((ch === '"' || ch === "'") && text[i - 1] !== "\\") {
+          inQuote = inQuote === ch ? null : (inQuote || ch);
+          current += ch;
+        } else if (
+          ch === "," &&
+          !inQuote &&
+          parenDepth === 0 &&
+          bracketDepth === 0
+        ) {
+          parts.push(current.trim());
+          current = "";
+        } else {
+          if (!inQuote) {
+            if (ch === "(") parenDepth += 1;
+            else if (ch === ")") parenDepth = Math.max(0, parenDepth - 1);
+            else if (ch === "[") bracketDepth += 1;
+            else if (ch === "]") bracketDepth = Math.max(0, bracketDepth - 1);
+          }
+          current += ch;
+        }
+      }
+      if (current.trim().length > 0) parts.push(current.trim());
+      return parts;
+    }
+
+    function normalizeLine(raw) {
+      return String(raw ?? "")
+        .replace(/←/g, "<-")
+        .replace(/…/g, "...")
+        .replace(/[–—]/g, "-");
+    }
+
+    function defaultValueForType(typeText) {
+      const t = String(typeText || "").toUpperCase();
+      if (t.includes("INTEGER")) return 0;
+      if (t.includes("REAL")) return 0;
+      if (t.includes("BOOLEAN")) return false;
+      if (t.includes("STRING") || t.includes("CHAR")) return "";
+      return null;
+    }
+
+    function isRecordValue(v) {
+      return Boolean(v && v._record && v._data && typeof v._data === "object" && v._type);
+    }
+
+    function makeRecordValue(typeName, ctx) {
+      const def = ctx && ctx.defs && ctx.defs.types && ctx.defs.types[typeName];
+      if (!def) throw new Error(`Unknown type: ${typeName}`);
+      const data = {};
+      for (const f of def.fields) {
+        const ft = String(f.type || "").trim();
+        if (ctx && ctx.defs && ctx.defs.types && ctx.defs.types[ft]) {
+          data[f.name] = makeRecordValue(ft, ctx);
+        } else {
+          data[f.name] = defaultValueForType(ft);
+        }
+      }
+      return { _record: true, _type: typeName, _data: data };
+    }
+
+    function cellDefaultForType(ofType, ctx) {
+      const t = String(ofType || "").trim();
+      if (ctx && ctx.defs && ctx.defs.types && ctx.defs.types[t]) {
+        return makeRecordValue(t, ctx);
+      }
+      return defaultValueForType(t);
+    }
+
+    function deepCloneValue(v) {
+      if (isRecordValue(v)) {
+        return { _record: true, _type: v._type, _data: deepCloneData(v._data) };
+      }
+      if (v && v._arr1d) {
+        return {
+          _arr1d: true,
+          lo: v.lo,
+          hi: v.hi,
+          of: v.of,
+          cells: v.cells.map((c) => deepCloneValue(c))
+        };
+      }
+      if (v && v._arr2d) {
+        return {
+          _arr2d: true,
+          r0: v.r0,
+          r1: v.r1,
+          c0: v.c0,
+          c1: v.c1,
+          w: v.w,
+          of: v.of,
+          cells: v.cells.map((c) => deepCloneValue(c))
+        };
+      }
+      return v;
+    }
+
+    function deepCloneData(d) {
+      const o = {};
+      for (const k of Object.keys(d)) {
+        o[k] = deepCloneValue(d[k]);
+      }
+      return o;
+    }
+
+    function recDref(val, field) {
+      if (!isRecordValue(val)) {
+        throw new Error("Expected a record value");
+      }
+      if (!Object.prototype.hasOwnProperty.call(val._data, field)) {
+        throw new Error(`Unknown field: .${field}`);
+      }
+      return val._data[field];
+    }
+
+    function recGet(ctx, varName, field) {
+      const o = getVarObjectInScope(ctx, varName);
+      if (!isRecordValue(o)) {
+        throw new Error(`${varName} is not a record`);
+      }
+      if (!Object.prototype.hasOwnProperty.call(o._data, field)) {
+        throw new Error(`Unknown field: ${varName}.${field}`);
+      }
+      return o._data[field];
+    }
+
+    function recSet(ctx, varName, field, value) {
+      const o = getVarObjectInScope(ctx, varName);
+      if (!isRecordValue(o)) {
+        throw new Error(`${varName} is not a record`);
+      }
+      if (!Object.prototype.hasOwnProperty.call(o._data, field)) {
+        throw new Error(`Unknown field: ${varName}.${field}`);
+      }
+      o._data[field] = value;
+    }
+
+    function recChainSet(ctx, headVar, fields, value) {
+      if (fields.length === 0) {
+        return;
+      }
+      if (fields.length === 1) {
+        const v2 = isRecordValue(value) ? deepCloneValue(value) : value;
+        recSet(ctx, headVar, fields[0], v2);
+        return;
+      }
+      let cur = getVarObjectInScope(ctx, headVar);
+      for (let i = 0; i < fields.length - 1; i += 1) {
+        const f = fields[i];
+        if (!isRecordValue(cur)) {
+          throw new Error("Chained assign needs a record");
+        }
+        if (!Object.prototype.hasOwnProperty.call(cur._data, f)) {
+          throw new Error(`Unknown field: .${f}`);
+        }
+        cur = cur._data[f];
+      }
+      const last = fields[fields.length - 1];
+      if (!isRecordValue(cur)) {
+        throw new Error("Chained assign target must be a record");
+      }
+      if (!Object.prototype.hasOwnProperty.call(cur._data, last)) {
+        throw new Error(`Unknown field: .${last}`);
+      }
+      cur._data[last] = isRecordValue(value) ? deepCloneValue(value) : value;
+    }
+
+    function recChainGet(ctx, headVar, fields) {
+      let cur = getVarObjectInScope(ctx, headVar);
+      for (const f of fields) {
+        if (!isRecordValue(cur)) {
+          throw new Error("Field access needs a record");
+        }
+        if (!Object.prototype.hasOwnProperty.call(cur._data, f)) {
+          throw new Error(`Unknown field: .${f}`);
+        }
+        cur = cur._data[f];
+      }
+      return cur;
+    }
+
+    function formatOutputAtom(v) {
+      if (isRecordValue(v)) {
+        const bits = Object.keys(v._data).map(
+          (k) => `${k}=${formatOutputAtom(v._data[k])}`
+        );
+        return `${v._type}{${bits.join(", ")}}`;
+      }
+      if (v && v._arr1d) {
+        return "[array]";
+      }
+      if (v && v._arr2d) {
+        return "[array]";
+      }
+      return String(v);
+    }
+
+    function makeArray1d(low, high, ofType, ctx) {
+      const d = cellDefaultForType(ofType, ctx);
+      const n = high - low + 1;
+      if (n < 0 || n > 1e6) throw new Error("Invalid 1D array bounds or size");
+      return { _arr1d: true, lo: low, hi: high, of: ofType, cells: new Array(n).fill(d) };
+    }
+
+    function makeArray2d(r0, r1, c0, c1, ofType, ctx) {
+      const d = cellDefaultForType(ofType, ctx);
+      const rows = r1 - r0 + 1;
+      const cols = c1 - c0 + 1;
+      if (rows < 1 || cols < 1 || rows * cols > 1e6) throw new Error("Invalid 2D array bounds or size");
+      return { _arr2d: true, r0, r1, c0, c1, w: cols, of: ofType, cells: new Array(rows * cols).fill(d) };
+    }
+
+    function evalBoundToken(token, ctx) {
+      const t = String(token).trim();
+      if (/^\d+$/.test(t)) return Number.parseInt(t, 10);
+      return Number(evalExpression(t, ctx));
+    }
+
+    function splitIndexRangeSegment(segment) {
+      const s = String(segment).replace(/\s+/g, "");
+      if (s.includes(":")) {
+        const p = s.split(":");
+        if (p.length === 2) return [p[0], p[1]];
+      }
+      if (s.includes("..")) {
+        const p = s.split("..");
+        if (p.length === 2) return [p[0], p[1]];
+      }
+      return null;
+    }
+
+    function arrayFromTypeSpec(right, ctx) {
+      const t = String(right).trim();
+      const m = t.match(/^ARRAY\s*\[([\s\S]+?)\]\s*OF\s+(\w+)$/i);
+      if (!m) return null;
+      const inside = m[1].replace(/\s+/g, "");
+      const ofType = m[2];
+      if (inside.includes(",")) {
+        const parts = inside.split(",");
+        if (parts.length !== 2) return null;
+        const ra = splitIndexRangeSegment(parts[0]);
+        const ca = splitIndexRangeSegment(parts[1]);
+        if (!ra || !ca) return null;
+        const r0 = evalBoundToken(ra[0], ctx);
+        const r1 = evalBoundToken(ra[1], ctx);
+        const c0 = evalBoundToken(ca[0], ctx);
+        const c1 = evalBoundToken(ca[1], ctx);
+        return makeArray2d(r0, r1, c0, c1, ofType, ctx);
+      }
+      const p = splitIndexRangeSegment(inside);
+      if (!p) return null;
+      const lo = evalBoundToken(p[0], ctx);
+      const hi = evalBoundToken(p[1], ctx);
+      return makeArray1d(lo, hi, ofType, ctx);
+    }
+
+    function parseDeclare(line, ctx) {
+      const raw = line.slice(8).trim();
+      const colonIndex = raw.indexOf(":");
+      if (colonIndex === -1) return;
+
+      const left = raw.slice(0, colonIndex).trim();
+      const right = raw.slice(colonIndex + 1).trim();
+      const isArrayDecl = /^\s*ARRAY\s*\[/i.test(right);
+
+      const names = left
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
+
+      for (const name of names) {
+        const m = name.match(/^([A-Za-z_][A-Za-z0-9_]*)$/);
+        if (!m) continue;
+        const varName = m[1];
+        if (Object.prototype.hasOwnProperty.call(ctx.vars, varName)) continue;
+        if (isArrayDecl) {
+          const a = arrayFromTypeSpec(right, ctx);
+          if (!a) throw new Error(`Invalid ARRAY declaration: ${line}`);
+          ctx.vars[varName] = a;
+        } else {
+          const tName = right.trim();
+          if (ctx.defs && ctx.defs.types && ctx.defs.types[tName]) {
+            ctx.vars[varName] = makeRecordValue(tName, ctx);
+          } else {
+            ctx.vars[varName] = defaultValueForType(right);
+          }
+        }
+      }
+    }
+
+    function parseParamList(str) {
+      if (!str || !String(str).trim()) return [];
+      return splitByCommaOutsideQuotes(String(str)).map((p) => {
+        let part = p.trim();
+        let byref = false;
+        if (/^BYREF\s+/i.test(part)) {
+          byref = true;
+          part = part.replace(/^BYREF\s+/i, "").trim();
+        } else if (/^BYVAL\s+/i.test(part)) {
+          part = part.replace(/^BYVAL\s+/i, "").trim();
+        }
+        const m = part.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.+)$/i);
+        if (!m) throw new Error(`Invalid parameter: ${p}`);
+        return { name: m[1], type: m[2].trim(), byref };
+      });
+    }
+
+    function findSubroutineEnd(lines, start, kind) {
+      const startPrefix = kind === "procedure" ? "PROCEDURE " : "FUNCTION ";
+      const endWord = kind === "procedure" ? "ENDPROCEDURE" : "ENDFUNCTION";
+      let depth = 0;
+      for (let j = start; j < lines.length; j += 1) {
+        const t = normalizeLine(lines[j]).trim().toUpperCase().replace(/\s+/g, " ");
+        if (t.startsWith(startPrefix)) depth += 1;
+        if (t === endWord || t.startsWith(`${endWord} `)) {
+          depth -= 1;
+          if (depth === 0) return j;
+        }
+      }
+      return -1;
+    }
+
+    function findTypeEnd(lines, start) {
+      for (let j = start + 1; j < lines.length; j += 1) {
+        const t = normalizeLine(lines[j]).trim().toUpperCase().replace(/\s+/g, " ");
+        if (t === "ENDTYPE" || t.startsWith("ENDTYPE ")) {
+          return j;
+        }
+        if (t === "END TYPE" || t.startsWith("END TYPE ")) {
+          return j;
+        }
+      }
+      return -1;
+    }
+
+    function parseTypeDef(lines, start, end) {
+      const t0 = normalizeLine(lines[start]).trim().toUpperCase();
+      if (t0 !== "TYPE") {
+        throw new Error(`Invalid TYPE start: ${lines[start]}`);
+      }
+      let j = start + 1;
+      while (j < end) {
+        const s = normalizeLine(lines[j]).trim();
+        if (s) break;
+        j += 1;
+      }
+      if (j >= end) throw new Error("TYPE is missing a name and body");
+      const typeName = normalizeLine(lines[j]).trim();
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(typeName)) {
+        throw new Error(`Invalid TYPE name: ${typeName}`);
+      }
+      j += 1;
+      const fields = [];
+      for (; j < end; j += 1) {
+        const L = normalizeLine(lines[j]).trim();
+        if (!L) {
+          continue;
+        }
+        const up = L.toUpperCase();
+        if (
+          up === "ENDTYPE" ||
+          up.startsWith("ENDTYPE ") ||
+          up === "END TYPE" ||
+          up.startsWith("END TYPE ")
+        ) {
+          break;
+        }
+        const decl = L.match(/^DECLARE\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.+)$/i);
+        if (!decl) {
+          throw new Error(`Invalid line in type ${typeName}: ${L}`);
+        }
+        fields.push({ name: decl[1], type: decl[2].trim() });
+      }
+      return { name: typeName, fields };
+    }
+
+    function parseProcedureDef(lines, start, end) {
+      const header = normalizeLine(lines[start]).trim();
+      const m = header.match(/^PROCEDURE\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(([^)]*)\))?\s*$/i);
+      if (!m) throw new Error(`Invalid PROCEDURE header: ${header}`);
+      return {
+        name: m[1],
+        params: parseParamList(m[2]),
+        body: lines.slice(start + 1, end)
+      };
+    }
+
+    function parseFunctionDef(lines, start, end) {
+      const header = normalizeLine(lines[start]).trim();
+      let m = header.match(
+        /^FUNCTION\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s+RETURNS\s+(.+)$/i
+      );
+      if (m) {
+        return {
+          name: m[1],
+          params: parseParamList(m[2]),
+          returnType: m[3].trim(),
+          body: lines.slice(start + 1, end)
+        };
+      }
+      m = header.match(/^FUNCTION\s+([A-Za-z_][A-Za-z0-9_]*)\s+RETURNS\s+(.+)$/i);
+      if (m) {
+        return {
+          name: m[1],
+          params: [],
+          returnType: m[2].trim(),
+          body: lines.slice(start + 1, end)
+        };
+      }
+      m = header.match(/^FUNCTION\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*$/i);
+      if (m) {
+        return {
+          name: m[1],
+          params: parseParamList(m[2]),
+          returnType: "",
+          body: lines.slice(start + 1, end)
+        };
+      }
+      throw new Error(`Invalid FUNCTION header: ${header}`);
+    }
+
+    function extractDefinitions(lines) {
+      const mainLines = [];
+      const procedures = {};
+      const functions = {};
+      const types = {};
+      let i = 0;
+      while (i < lines.length) {
+        const raw = normalizeLine(lines[i]).trim();
+        if (!raw || raw.startsWith("//") || raw.startsWith("#")) {
+          i += 1;
+          continue;
+        }
+        const u = raw.toUpperCase();
+        if (u === "TYPE") {
+          const end = findTypeEnd(lines, i);
+          if (end === -1) {
+            throw new Error("Missing ENDTYPE");
+          }
+          const def = parseTypeDef(lines, i, end);
+          if (types[def.name]) {
+            throw new Error(`Duplicate TYPE name: ${def.name}`);
+          }
+          types[def.name] = def;
+          i = end + 1;
+          continue;
+        }
+        if (u.startsWith("PROCEDURE ")) {
+          const end = findSubroutineEnd(lines, i, "procedure");
+          if (end === -1) throw new Error("Missing ENDPROCEDURE");
+          const def = parseProcedureDef(lines, i, end);
+          if (procedures[def.name]) throw new Error(`Duplicate PROCEDURE name: ${def.name}`);
+          procedures[def.name] = def;
+          i = end + 1;
+          continue;
+        }
+        if (u.startsWith("FUNCTION ")) {
+          const end = findSubroutineEnd(lines, i, "function");
+          if (end === -1) throw new Error("Missing ENDFUNCTION");
+          const def = parseFunctionDef(lines, i, end);
+          if (functions[def.name]) throw new Error(`Duplicate FUNCTION name: ${def.name}`);
+          functions[def.name] = def;
+          i = end + 1;
+          continue;
+        }
+        mainLines.push(lines[i]);
+        i += 1;
+      }
+      return { mainLines, procedures, functions, types };
+    }
+
+    function collectVarsForEval(ctx) {
+      const chain = [];
+      let cur = ctx.vars;
+      while (cur && cur !== Object.prototype) {
+        chain.push(cur);
+        cur = Object.getPrototypeOf(cur);
+      }
+      const out = {};
+      for (const name of Object.keys(ctx.defs.functions)) {
+        out[name] = (...args) => invokeUserFunction(name, args, ctx);
+      }
+      for (let j = chain.length - 1; j >= 0; j -= 1) {
+        Object.assign(out, chain[j]);
+      }
+      return out;
+    }
+
+    function invokeProcedure(name, argExprs, ctx) {
+      const def = ctx.defs.procedures[name];
+      if (!def) throw new Error(`Unknown procedure: ${name}`);
+      if (argExprs.length !== def.params.length) {
+        throw new Error(`Procedure ${name} expects ${def.params.length} argument(s), got ${argExprs.length}`);
+      }
+      const parentVars = ctx.vars;
+      const inner = Object.create(parentVars);
+      for (let pi = 0; pi < def.params.length; pi += 1) {
+        const p = def.params[pi];
+        const raw = argExprs[pi].trim();
+        if (p.byref) {
+          const vm = raw.match(/^([A-Za-z_][A-Za-z0-9_]*)$/);
+          if (!vm) throw new Error("BYREF argument must be a simple variable name");
+          const outerName = vm[1];
+          Object.defineProperty(inner, p.name, {
+            get() {
+              return parentVars[outerName];
+            },
+            set(v) {
+              parentVars[outerName] = v;
+            },
+            enumerable: true,
+            configurable: true
+          });
+        } else {
+          inner[p.name] = evalExpression(raw, ctx);
+        }
+      }
+      const saved = ctx.vars;
+      ctx.vars = inner;
+      try {
+        executeBlock(def.body, 0, def.body.length - 1, ctx);
+      } catch (err) {
+        if (err && err.__return) {
+          if (err.value !== undefined) {
+            throw new Error("RETURN with a value is only valid inside a FUNCTION");
+          }
+          return;
+        }
+        throw err;
+      } finally {
+        ctx.vars = saved;
+      }
+    }
+
+    function invokeUserFunction(name, evaluatedArgs, ctx) {
+      const def = ctx.defs.functions[name];
+      if (!def) throw new Error(`Unknown function: ${name}`);
+      if (evaluatedArgs.length !== def.params.length) {
+        throw new Error(`Function ${name} expects ${def.params.length} argument(s), got ${evaluatedArgs.length}`);
+      }
+      const parentVars = ctx.vars;
+      const inner = Object.create(parentVars);
+      for (let pi = 0; pi < def.params.length; pi += 1) {
+        inner[def.params[pi].name] = evaluatedArgs[pi];
+      }
+      const saved = ctx.vars;
+      ctx.vars = inner;
+      try {
+        executeBlock(def.body, 0, def.body.length - 1, ctx);
+        throw new Error(`Function ${name} did not RETURN a value`);
+      } catch (err) {
+        if (err && err.__return) {
+          return err.value;
+        }
+        throw err;
+      } finally {
+        ctx.vars = saved;
+      }
+    }
+
+    function getVarObjectInScope(ctx, name) {
+      let cur = ctx.vars;
+      while (cur && cur !== Object.prototype) {
+        if (Object.prototype.hasOwnProperty.call(cur, name)) return cur[name];
+        cur = Object.getPrototypeOf(cur);
+      }
+      return undefined;
+    }
+
+    function ar1dGet(ctx, name, i) {
+      const o = getVarObjectInScope(ctx, name);
+      if (!o || !o._arr1d) throw new Error(`Not a 1D array: ${name}`);
+      const idx = Math.trunc(Number(i)) - o.lo;
+      if (Number.isNaN(idx) || idx < 0 || idx >= o.cells.length) {
+        throw new Error(`Subscript out of range for ${name}`);
+      }
+      return o.cells[idx];
+    }
+
+    function ar1dSet(ctx, name, i, v) {
+      const o = getVarObjectInScope(ctx, name);
+      if (!o || !o._arr1d) throw new Error(`Not a 1D array: ${name}`);
+      const idx = Math.trunc(Number(i)) - o.lo;
+      if (Number.isNaN(idx) || idx < 0 || idx >= o.cells.length) {
+        throw new Error(`Subscript out of range for ${name}`);
+      }
+      o.cells[idx] = isRecordValue(v) ? deepCloneValue(v) : v;
+    }
+
+    function ar2dGet(ctx, name, r, c) {
+      const o = getVarObjectInScope(ctx, name);
+      if (!o || !o._arr2d) throw new Error(`Not a 2D array: ${name}`);
+      const ri = Math.trunc(Number(r)) - o.r0;
+      const ci = Math.trunc(Number(c)) - o.c0;
+      if (ri < 0 || ri > o.r1 - o.r0 || ci < 0 || ci > o.c1 - o.c0) {
+        throw new Error(`Subscript out of range for ${name}`);
+      }
+      return o.cells[ri * o.w + ci];
+    }
+
+    function ar2dSet(ctx, name, r, c, v) {
+      const o = getVarObjectInScope(ctx, name);
+      if (!o || !o._arr2d) throw new Error(`Not a 2D array: ${name}`);
+      const ri = Math.trunc(Number(r)) - o.r0;
+      const ci = Math.trunc(Number(c)) - o.c0;
+      if (ri < 0 || ri > o.r1 - o.r0 || ci < 0 || ci > o.c1 - o.c0) {
+        throw new Error(`Subscript out of range for ${name}`);
+      }
+      o.cells[ri * o.w + ci] = isRecordValue(v) ? deepCloneValue(v) : v;
+    }
+
+    function applyArrayGetSyntax(s) {
+      let out = s;
+      for (let g = 0; g < 500; g += 1) {
+        const m = out.match(/\b([A-Za-z_][A-Za-z0-9_]*)\s*\[([^\]]*)\s*,\s*([^\]]*)\]/);
+        if (!m) break;
+        const [full, nm, a, b] = m;
+        out = out.replace(full, `__AR2D_GET__("${nm}",(${a.trim()}),(${b.trim()}))`);
+      }
+      for (let g = 0; g < 500; g += 1) {
+        const m = out.match(/\b([A-Za-z_][A-Za-z0-9_]*)\s*\[([^\]]+)\]/);
+        if (!m) break;
+        const [full, nm, a] = m;
+        out = out.replace(full, `__AR1D_GET__("${nm}",(${a.trim()}))`);
+      }
+      return out;
+    }
+
+    function applyArrayOfRecordGetSyntax(s) {
+      let out = s;
+      for (let g = 0; g < 500; g += 1) {
+        const m = out.match(
+          /__AR2D_GET__\("([^"]+)",\(([^)]+)\),\(([^)]+)\)\)\.([A-Za-z_][A-Za-z0-9_]*)/
+        );
+        if (!m) break;
+        const [full, nm, r, c, fld] = m;
+        out = out.replace(
+          full,
+          `__REC_DREF__(__AR2D_GET__("${nm}",(${r}),(${c})),"${fld}")`
+        );
+      }
+      for (let g = 0; g < 500; g += 1) {
+        const m = out.match(
+          /__AR1D_GET__\("([^"]+)",\(([^)]+)\)\)\.([A-Za-z_][A-Za-z0-9_]*)/
+        );
+        if (!m) break;
+        const [full, nm, idx, fld] = m;
+        out = out.replace(
+          full,
+          `__REC_DREF__(__AR1D_GET__("${nm}",(${idx})),"${fld}")`
+        );
+      }
+      return out;
+    }
+
+    function applyRecordIdentChain(s) {
+      return s.replace(
+        /\b([A-Za-z_][A-Za-z0-9_]*)(\.[A-Za-z_][A-Za-z0-9_]*)+\b/g,
+        (full) => {
+          const segs = full.split(".");
+          if (segs.length < 2) return full;
+          const first = segs[0];
+          const rest = segs.slice(1);
+          return `__REC_CHAIN__("${first}",${JSON.stringify(rest)})`;
+        }
+      );
+    }
+
+    function translateExpression(expr) {
+      let out = normalizeLine(expr);
+      out = out.replace(/<>/g, "!=");
+      out = out.replace(/(?<![<>!=])=(?![=])/g, "==");
+      out = applyArrayGetSyntax(out);
+      out = applyArrayOfRecordGetSyntax(out);
+      out = applyRecordIdentChain(out);
+      out = out.replace(/\bDIV\b/gi, "__DIV__");
+      out = out.replace(/\bMOD\b/gi, "__MOD__");
+      out = out.replace(/\bAND\b/gi, "&&");
+      out = out.replace(/\bOR\b/gi, "||");
+      out = out.replace(/\bNOT\b/gi, "!");
+      out = out.replace(/\bTRUE\b/gi, "true");
+      out = out.replace(/\bFALSE\b/gi, "false");
+      out = out.replace(/\bLENGTH\s*\(/gi, "__LENGTH__(");
+      out = out.replace(/\bLEFT\s*\(/gi, "__LEFT__(");
+      out = out.replace(/\bRIGHT\s*\(/gi, "__RIGHT__(");
+      out = out.replace(/\bMID\s*\(/gi, "__MID__(");
+      out = out.replace(/\bINT\s*\(/gi, "__INT__(");
+      out = out.replace(/\bASC\s*\(/gi, "__ASC__(");
+      out = out.replace(/\bCHR\s*\(/gi, "__CHR__(");
+      out = out.replace(/\bSQUAREROOT\s*\(/gi, "__SQRT__(");
+      out = out.replace(/ & /g, " + ");
+      return out;
+    }
+
+    function evalExpression(expr, ctx, extraVars) {
+      const vars = { ...collectVarsForEval(ctx), ...(extraVars || {}) };
+      const jsExpr = translateExpression(expr);
+      const names = Object.keys(vars);
+      const values = names.map((k) => vars[k]);
+      try {
+        return Function(
+          ...names,
+          "__DIV__",
+          "__MOD__",
+          "__LENGTH__",
+          "__LEFT__",
+          "__RIGHT__",
+          "__MID__",
+          "__INT__",
+          "__ASC__",
+          "__CHR__",
+          "__SQRT__",
+          "__AR1D_GET__",
+          "__AR2D_GET__",
+          "__REC_DREF__",
+          "__REC_CHAIN__",
+          `return (${jsExpr});`
+        )(
+          ...values,
+          (a, b) => {
+            if (Number(b) === 0) throw new Error("Division by zero");
+            return Math.trunc(Number(a) / Number(b));
+          },
+          (a, b) => {
+            if (Number(b) === 0) throw new Error("Division by zero");
+            return Number(a) % Number(b);
+          },
+          (s) => String(s ?? "").length,
+          (s, x) => String(s ?? "").substring(0, Number(x)),
+          (s, x) => {
+            const text = String(s ?? "");
+            const n = Number(x);
+            return text.substring(Math.max(0, text.length - n));
+          },
+          (s, x, y) => {
+            const text = String(s ?? "");
+            const start = Math.max(0, Number(x) - 1);
+            const len = Math.max(0, Number(y));
+            return text.substr(start, len);
+          },
+          (x) => Math.trunc(Number(x)),
+          (ch) => {
+            const text = String(ch ?? "");
+            return text.length ? text.charCodeAt(0) : 0;
+          },
+          (code) => String.fromCharCode(Number(code)),
+          (x) => {
+            const n = Number(x);
+            if (n < 0) throw new Error("Square root of negative number");
+            return Math.sqrt(n);
+          },
+          (arrName, idx) => ar1dGet(ctx, arrName, idx),
+          (arrName, r, c) => ar2dGet(ctx, arrName, r, c),
+          (v, f) => recDref(v, f),
+          (h, rest) => recChainGet(ctx, h, rest)
+        );
+      } catch (error) {
+        throw new Error(`Invalid expression: ${expr}`);
+      }
+    }
+
+    function findPaired(lines, startIndex, startToken, endToken) {
+      let depth = 0;
+      const st = startToken.toUpperCase();
+      const en = endToken.toUpperCase();
+      for (let i = startIndex; i < lines.length; i += 1) {
+        const t = normalizeLine(lines[i]).trim().toUpperCase();
+        if (t.startsWith(st)) depth += 1;
+        if (t.startsWith(en)) {
+          depth -= 1;
+          if (depth === 0) return i;
+        }
+      }
+      return -1;
+    }
+
+    function executeBlock(lines, start, end, ctx) {
+      let i = start;
+      while (i <= end) {
+        let line = normalizeLine(lines[i]).trim();
+        if (!line || line.startsWith("//") || line.startsWith("#")) {
+          i += 1;
+          continue;
+        }
+
+        const upper = line.toUpperCase();
+
+        if (upper.startsWith("DECLARE ")) {
+          parseDeclare(line, ctx);
+          i += 1;
+          continue;
+        }
+
+        if (upper.startsWith("OUTPUT ") || upper.startsWith("PRINT ")) {
+          const keywordLength = upper.startsWith("OUTPUT ") ? 7 : 6;
+          const exprs = splitByCommaOutsideQuotes(line.slice(keywordLength).trim());
+          const values = exprs.map((part) =>
+            formatOutputAtom(evalExpression(part, ctx))
+          );
+          ctx.output.push(values.join(" "));
+          i += 1;
+          continue;
+        }
+
+        if (upper.startsWith("CONSTANT ")) {
+          const m = line.match(/^CONSTANT\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:<-|=)\s*(.+)$/i);
+          if (!m) throw new Error(`Invalid CONSTANT syntax: ${line}`);
+          const [, varName, expr] = m;
+          if (!Object.prototype.hasOwnProperty.call(ctx.vars, varName)) {
+            ctx.vars[varName] = evalExpression(expr, ctx);
+          }
+          i += 1;
+          continue;
+        }
+
+        if (upper === "RETURN" || upper.startsWith("RETURN ")) {
+          const rest = line.slice(6).trim();
+          const value = rest ? evalExpression(rest, ctx) : undefined;
+          throw { __return: true, value };
+        }
+
+        if (upper.startsWith("CALL ")) {
+          const rest = line.slice(5).trim();
+          const m = rest.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(\s*([^)]*)\s*\))?\s*$/i);
+          if (!m) throw new Error(`Invalid CALL: ${line}`);
+          const procName = m[1];
+          const argStr = m[2];
+          const args = argStr ? splitByCommaOutsideQuotes(argStr) : [];
+          invokeProcedure(procName, args, ctx);
+          i += 1;
+          continue;
+        }
+
+        if (upper.startsWith("INPUT ")) {
+          const names = line
+            .slice(6)
+            .split(",")
+            .map((x) => x.trim())
+            .filter(Boolean);
+
+          if (names.length === 0) {
+            throw new Error("INPUT requires at least one variable.");
+          }
+
+          for (const partRaw of names) {
+            const part = partRaw.replace(/\s+/g, " ").trim();
+            const m2 = part.match(
+              /^([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*([^\],]+?)\s*,\s*([^\]]+?)\]\s*$/i
+            );
+            if (m2) {
+              const val = tokenizeValue(readNextInputValue(m2[1], ctx));
+              ar2dSet(
+                ctx,
+                m2[1],
+                evalExpression(m2[2].trim(), ctx),
+                evalExpression(m2[3].trim(), ctx),
+                val
+              );
+              echoInputToOutput(ctx, val);
+              continue;
+            }
+            const m1 = part.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*([^\],]+?)\s*\]\s*$/i);
+            if (m1) {
+              const val = tokenizeValue(readNextInputValue(m1[1], ctx));
+              ar1dSet(ctx, m1[1], evalExpression(m1[2].trim(), ctx), val);
+              echoInputToOutput(ctx, val);
+              continue;
+            }
+            const mDot = part.match(
+              /^([A-Za-z_][A-Za-z0-9_]*)((?:\.[A-Za-z_][A-Za-z0-9_])+)$/
+            );
+            if (mDot) {
+              const head = mDot[1];
+              const fields = mDot[2].slice(1).split(".");
+              const val = tokenizeValue(readNextInputValue(part, ctx));
+              recChainSet(ctx, head, fields, val);
+              echoInputToOutput(ctx, val);
+              continue;
+            }
+            if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(part)) {
+              throw new Error(`Invalid INPUT variable name: ${part}`);
+            }
+            {
+              const val = tokenizeValue(readNextInputValue(part, ctx));
+              ctx.vars[part] = val;
+              echoInputToOutput(ctx, val);
+            }
+          }
+          i += 1;
+          continue;
+        }
+
+        if ((upper.startsWith("CASE ") && upper.endsWith(" OF")) || upper.startsWith("CASE OF ")) {
+          const caseExpr = upper.startsWith("CASE OF ")
+            ? line.slice(8).trim()
+            : line.slice(5, -3).trim();
+          const caseValue = evalExpression(caseExpr, ctx);
+          const endIndex = findPaired(lines, i, "CASE ", "ENDCASE");
+          if (endIndex === -1) throw new Error("Missing ENDCASE");
+
+          const rawBlock = lines
+            .slice(i + 1, endIndex)
+            .map((x) => normalizeLine(x).trim())
+            .filter(Boolean);
+          let matched = false;
+
+          for (const caseLine of rawBlock) {
+            const upperCaseLine = caseLine.toUpperCase();
+            if (upperCaseLine.startsWith("OTHERWISE")) {
+              if (!matched) {
+                const rest = caseLine.replace(/^OTHERWISE\s*:?\s*/i, "");
+                if (rest) executeBlock([rest], 0, 0, ctx);
+              }
+              break;
+            }
+
+            const idx = caseLine.indexOf(":");
+            if (idx === -1) continue;
+            const criterion = caseLine.slice(0, idx).trim();
+            const action = caseLine.slice(idx + 1).trim();
+            const options = criterion.split(",").map((x) => x.trim()).filter(Boolean);
+
+            let thisCaseMatch = false;
+            for (const option of options) {
+              const rangeMatch = option.match(/^(.+)\.\.\.(.+)$/);
+              if (rangeMatch) {
+                const lo = Number(evalExpression(rangeMatch[1].trim(), ctx));
+                const hi = Number(evalExpression(rangeMatch[2].trim(), ctx));
+                const cv = Number(caseValue);
+                if (cv >= lo && cv <= hi) {
+                  thisCaseMatch = true;
+                  break;
+                }
+              } else if (/^(<=|>=|<>|=|<|>)/.test(option)) {
+                if (evalExpression(`__CASE__ ${option}`, ctx, { __CASE__: caseValue })) {
+                  thisCaseMatch = true;
+                  break;
+                }
+              } else if (caseValue === evalExpression(option, ctx)) {
+                thisCaseMatch = true;
+                break;
+              }
+            }
+
+            if (thisCaseMatch) {
+              matched = true;
+              if (action) executeBlock([action], 0, 0, ctx);
+              break;
+            }
+          }
+
+          i = endIndex + 1;
+          continue;
+        }
+
+        if (upper.startsWith("IF ")) {
+          let condition = "";
+          let thenLineIndex = i;
+          if (upper.endsWith(" THEN")) {
+            condition = line.slice(3, -5).trim();
+          } else {
+            condition = line.slice(3).trim();
+            let j = i + 1;
+            while (j <= end) {
+              const t = normalizeLine(lines[j]).trim();
+              if (!t) {
+                j += 1;
+                continue;
+              }
+              if (t.toUpperCase() === "THEN") {
+                thenLineIndex = j;
+                break;
+              }
+              throw new Error("IF must be followed by THEN");
+            }
+            if (thenLineIndex === i) throw new Error("Missing THEN for IF");
+          }
+
+          const endifIndex = findPaired(lines, i, "IF ", "ENDIF");
+          if (endifIndex === -1) throw new Error("Missing ENDIF");
+
+          const branches = [];
+          let elseIndex = -1;
+          let depth = 0;
+          let branchStart = thenLineIndex + 1;
+          let currentCondition = condition;
+
+          for (let j = i; j <= endifIndex; j += 1) {
+            const rawT = normalizeLine(lines[j]).trim();
+            const t = rawT.toUpperCase();
+            if (t.startsWith("IF ")) depth += 1;
+            if (t === "ENDIF") depth -= 1;
+            if (depth === 1 && t.startsWith("ELSEIF ") && t.endsWith(" THEN")) {
+              branches.push({ condition: currentCondition, start: branchStart, end: j - 1 });
+              currentCondition = rawT.slice(7, -5).trim();
+              branchStart = j + 1;
+              continue;
+            }
+            if (depth === 1 && t === "ELSE") {
+              branches.push({ condition: currentCondition, start: branchStart, end: j - 1 });
+              elseIndex = j;
+              branchStart = j + 1;
+              currentCondition = null;
+              continue;
+            }
+          }
+
+          if (elseIndex === -1) {
+            branches.push({ condition: currentCondition, start: branchStart, end: endifIndex - 1 });
+          }
+
+          let ran = false;
+          for (const branch of branches) {
+            if (evalExpression(branch.condition, ctx)) {
+              executeBlock(lines, branch.start, branch.end, ctx);
+              ran = true;
+              break;
+            }
+          }
+          if (!ran && elseIndex !== -1) {
+            executeBlock(lines, elseIndex + 1, endifIndex - 1, ctx);
+          }
+          i = endifIndex + 1;
+          continue;
+        }
+
+        if (upper.startsWith("WHILE ") && upper.endsWith(" DO")) {
+          const condition = line.slice(6, -3).trim();
+          const endIndex = findPaired(lines, i, "WHILE ", "ENDWHILE");
+          if (endIndex === -1) throw new Error("Missing ENDWHILE");
+
+          let guard = 0;
+          while (evalExpression(condition, ctx)) {
+            executeBlock(lines, i + 1, endIndex - 1, ctx);
+            guard += 1;
+            if (guard > 10000) throw new Error("Loop guard triggered. Check WHILE condition.");
+          }
+          i = endIndex + 1;
+          continue;
+        }
+
+        if (upper.startsWith("REPEAT")) {
+          const endIndex = findPaired(lines, i, "REPEAT", "UNTIL ");
+          if (endIndex === -1) throw new Error("Missing UNTIL condition");
+          const untilLine = lines[endIndex].trim();
+          const condition = untilLine.slice(6).trim();
+
+          let guard = 0;
+          do {
+            executeBlock(lines, i + 1, endIndex - 1, ctx);
+            guard += 1;
+            if (guard > 10000) throw new Error("Loop guard triggered. Check REPEAT/UNTIL condition.");
+          } while (!evalExpression(condition, ctx));
+
+          i = endIndex + 1;
+          continue;
+        }
+
+        if (upper.startsWith("FOR ")) {
+          const m = line.match(/^FOR\s+([A-Za-z_][A-Za-z0-9_]*)\s*<-\s*(.+?)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i);
+          if (!m) throw new Error(`Invalid FOR syntax: ${line}`);
+          const [, varName, startExpr, endExpr, stepExpr] = m;
+          const endIndex = findPaired(lines, i, "FOR ", "NEXT");
+          if (endIndex === -1) throw new Error("Missing NEXT");
+
+          const startValue = Number(evalExpression(startExpr, ctx));
+          const endValue = Number(evalExpression(endExpr, ctx));
+          const stepValue = stepExpr ? Number(evalExpression(stepExpr, ctx)) : 1;
+          if (stepValue === 0) throw new Error("FOR STEP cannot be zero");
+
+          for (ctx.vars[varName] = startValue;
+               stepValue > 0 ? ctx.vars[varName] <= endValue : ctx.vars[varName] >= endValue;
+               ctx.vars[varName] += stepValue) {
+            executeBlock(lines, i + 1, endIndex - 1, ctx);
+          }
+
+          i = endIndex + 1;
+          continue;
+        }
+
+        const sub2 = line.match(
+          /^([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*([^,]+?)\s*,\s*([^\]]+?)\]\s*(?:<-|=)\s*(.+)$/
+        );
+        if (sub2) {
+          const rhs = evalExpression(sub2[4], ctx);
+          ar2dSet(
+            ctx,
+            sub2[1],
+            evalExpression(sub2[2].trim(), ctx),
+            evalExpression(sub2[3].trim(), ctx),
+            rhs
+          );
+          i += 1;
+          continue;
+        }
+        const sub1 = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*([^\],]+?)\s*\]\s*(?:<-|=)\s*(.+)$/);
+        if (sub1) {
+          const rhs = evalExpression(sub1[3], ctx);
+          ar1dSet(
+            ctx,
+            sub1[1],
+            evalExpression(sub1[2].trim(), ctx),
+            rhs
+          );
+          i += 1;
+          continue;
+        }
+        const dotM = line.match(
+          /^([A-Za-z_][A-Za-z0-9_]*)((?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s*(?:<-|=)\s*(.+)$/
+        );
+        if (dotM) {
+          const head = dotM[1];
+          const pathStr = dotM[2].slice(1);
+          const fields = pathStr.split(".");
+          const val = evalExpression(dotM[3], ctx);
+          recChainSet(ctx, head, fields, val);
+          i += 1;
+          continue;
+        }
+        const assignMatch = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:<-|=)\s*(.+)$/);
+        if (assignMatch) {
+          const [, varName, expr] = assignMatch;
+          const ev = evalExpression(expr, ctx);
+          ctx.vars[varName] = isRecordValue(ev) ? deepCloneValue(ev) : ev;
+          i += 1;
+          continue;
+        }
+
+        throw new Error(`Unsupported or invalid statement: ${line}`);
+      }
+    }
+
+    function runPseudocode(source) {
+      const lines = source.split(/\r?\n/).map((x) => normalizeLine(x));
+      const { mainLines, procedures, functions, types } = extractDefinitions(lines);
+      const ctx = {
+        vars: {},
+        defs: { procedures, functions, types },
+        output: []
+      };
+      try {
+        executeBlock(mainLines, 0, mainLines.length - 1, ctx);
+      } catch (err) {
+        if (err && err.__return) {
+          throw new Error("RETURN can only be used inside a FUNCTION");
+        }
+        throw err;
+      }
+      return ctx.output.join("\n");
+    }
+
+    function printOutput(text, isError) {
+      output.textContent = text;
+      output.classList.toggle("error", Boolean(isError));
+    }
+
+    runBtn.addEventListener("click", () => {
+      try {
+        const result = runPseudocode(getEditorText());
+        printOutput(result || "(No output)", false);
+      } catch (error) {
+        const msg = error && error.message != null ? error.message : String(error);
+        printOutput(msg, true);
+      }
+    });
+
+    loadExampleBtn.addEventListener("click", () => {
+      setEditorText(exampleCode);
+      printOutput("Example loaded. Click Run Code.", false);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      printOutput("", false);
+    });
+
+    setEditorText(exampleCode);
+    printOutput("Ready. Click Run Code.", false);
+  </script>
+</body>
+</html>
