@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE 9618 Pseudocode — Language reference (classroom IDE)</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111827;
+      --card-border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --code-bg: #020617;
+      --code-border: #334155;
+      --warn-bg: rgba(251, 191, 36, 0.1);
+      --warn-border: rgba(251, 191, 36, 0.35);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 1.05rem;
+    }
+
+    .wrap {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    header.doc-head {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    header.doc-head h1 {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    header.doc-head .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    nav.toc {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    nav.toc h2 {
+      font-family: system-ui, sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+    }
+
+    nav.toc ol {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    nav.toc a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav.toc a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      margin-bottom: 2.75rem;
+    }
+
+    section h2 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 650;
+      margin: 0 0 1rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 2px solid var(--accent-soft);
+      color: #f1f5f9;
+    }
+
+    section h3 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.65rem;
+      color: #cbd5e1;
+    }
+
+    p {
+      margin: 0 0 1rem;
+    }
+
+    ul {
+      margin: 0 0 1rem;
+      padding-left: 1.35rem;
+    }
+
+    li { margin-bottom: 0.35rem; }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      margin: 1.25rem 0;
+      font-size: 0.98rem;
+    }
+
+    .note strong {
+      color: #fcd34d;
+    }
+
+    pre.example {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      overflow-x: auto;
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin: 0.75rem 0 1.25rem;
+      white-space: pre;
+    }
+
+    code.inline {
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 0.9em;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.12em 0.4em;
+      border-radius: 4px;
+      border: 1px solid var(--code-border);
+    }
+
+    footer.doc-foot {
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--card-border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .wrap { max-width: none; }
+      pre.example { border: 1px solid #ccc; background: #f8fafc; color: #0f172a; }
+      nav.toc { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="doc-head">
+      <h1>CIE 9618 pseudocode — language reference</h1>
+      <p class="meta">
+        Aligned with Cambridge International AS &amp; A Level Computer Science pseudocode conventions
+        (chapters 9–11 style). Examples match the classroom <strong>CIE 9618 Pseudocode IDE</strong> where noted.
+      </p>
+    </header>
+
+    <nav class="toc" aria-label="Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#structure">Structure of a pseudocode program</a></li>
+        <li><a href="#types">Data types</a></li>
+        <li><a href="#declare">Variables, constants, and arrays</a></li>
+        <li><a href="#output">Displaying output</a></li>
+        <li><a href="#format">Formatting output</a></li>
+        <li><a href="#procedures">Procedures</a></li>
+        <li><a href="#functions">Functions</a></li>
+        <li><a href="#call">Calling procedures and functions; by value and by reference</a></li>
+      </ol>
+    </nav>
+
+    <section id="structure">
+      <h2>1. Structure of a pseudocode program</h2>
+      <p>
+        A pseudocode solution is a sequence of steps using keywords such as <code class="inline">INPUT</code>,
+        <code class="inline">OUTPUT</code>, <code class="inline">IF</code>, <code class="inline">FOR</code>, and assignments.
+        There is no single global “main” keyword: you usually list <strong>declarations</strong> and
+        <strong>constants</strong> first, then define <strong>procedures</strong> and <strong>functions</strong> (if any),
+        then write the main algorithm that calls them.
+      </p>
+      <h3>Conventions used in this IDE</h3>
+      <ul>
+        <li><strong>Assignment</strong> uses <code class="inline">&lt;-</code> or the arrow character <code class="inline">←</code> (both accepted).</li>
+        <li><strong>Comments</strong>: lines starting with <code class="inline">//</code> or <code class="inline">#</code> are ignored.</li>
+        <li>Definitions: <code class="inline">PROCEDURE … ENDPROCEDURE</code> and <code class="inline">FUNCTION … ENDFUNCTION</code> are written at the <strong>top level</strong> (not nested inside another routine in the current tool).</li>
+      </ul>
+      <pre class="example">// Example skeleton
+DECLARE count : INTEGER
+CONSTANT maxVal &lt;- 100
+
+PROCEDURE showTitle
+  OUTPUT "My program"
+ENDPROCEDURE
+
+CALL showTitle
+count &lt;- 0</pre>
+    </section>
+
+    <section id="types">
+      <h2>2. Data types</h2>
+      <p>In examinations, types are written after a colon in <code class="inline">DECLARE</code> lines. Typical types:</p>
+      <ul>
+        <li><strong>INTEGER</strong> — whole numbers.</li>
+        <li><strong>REAL</strong> — decimal numbers.</li>
+        <li><strong>BOOLEAN</strong> — <code class="inline">TRUE</code> / <code class="inline">FALSE</code>.</li>
+        <li><strong>STRING</strong> — text (often in double quotes).</li>
+        <li><strong>CHAR</strong> — a single character.</li>
+      </ul>
+      <p>Expressions may use relational operators <code class="inline">=</code>, <code class="inline">&lt;&gt;</code>, <code class="inline">&lt;</code>, <code class="inline">&gt;</code>, <code class="inline">&lt;=</code>, <code class="inline">&gt;=</code>, and logic <code class="inline">AND</code>, <code class="inline">OR</code>, <code class="inline">NOT</code>. Integer division and remainder are written as <code class="inline">DIV</code> and <code class="inline">MOD</code> in pseudocode.</p>
+      <pre class="example">DECLARE score : INTEGER
+DECLARE ok : BOOLEAN
+score &lt;- 17
+ok &lt;- (score &gt;= 10) AND (score MOD 2 = 1)</pre>
+    </section>
+
+    <section id="declare">
+      <h2>3. Declaring variables, constants, and arrays</h2>
+
+      <h3>3.1 Variables</h3>
+      <p>Use <code class="inline">DECLARE</code> with one identifier or several separated by commas, each group sharing one type:</p>
+      <pre class="example">DECLARE total : INTEGER
+DECLARE firstName, lastName : STRING
+DECLARE done : BOOLEAN</pre>
+
+      <h3>3.2 Constants</h3>
+      <pre class="example">CONSTANT pi &lt;- 3.142
+CONSTANT appName &lt;- "Pseudocode IDE"</pre>
+
+      <h3>3.3 One-dimensional arrays (notation)</h3>
+      <p>
+        In CIE-style pseudocode, a 1D array is declared with a <strong>colon</strong> between the lower and upper index, for example
+        <code class="inline">ARRAY[lower:upper] OF type</code>. Elements are read or written with subscripts, e.g. <code class="inline">List[i]</code>.
+        (This classroom IDE also accepts <code class="inline">..</code> between bounds for compatibility.)
+      </p>
+      <pre class="example">DECLARE List : ARRAY[1:10] OF INTEGER
+DECLARE i : INTEGER
+
+FOR i &lt;- 1 TO 10
+  List[i] &lt;- i * 2
+NEXT i</pre>
+
+      <h3>3.4 Two-dimensional arrays (notation)</h3>
+      <p>A 2D array can be declared with two index ranges (rows and columns). Access uses two subscripts, e.g. <code class="inline">Grid[r, c]</code>.</p>
+      <pre class="example">DECLARE Grid : ARRAY[1:4,1:5] OF INTEGER
+DECLARE r : INTEGER
+DECLARE c : INTEGER
+
+FOR r &lt;- 1 TO 4
+  FOR c &lt;- 1 TO 5
+    Grid[r, c] &lt;- r + c
+  NEXT c
+NEXT r</pre>
+
+      <div class="note">
+        <strong>Note (classroom IDE):</strong> The reference above is the standard <em>paper</em> notation for CIE pseudocode.
+        The browser IDE runs <code class="inline">ARRAY[lo:hi] OF …</code> (and 2D with comma-separated ranges) with subscripted read/write.
+        For homework and exams, use the same notation on paper; test in the IDE when needed.
+      </div>
+    </section>
+
+    <section id="output">
+      <h2>4. Displaying output</h2>
+      <p>Use <code class="inline">OUTPUT</code> or <code class="inline">PRINT</code> (both are treated the same in the IDE). List one or more values separated by commas; they are shown on one line, separated by spaces.</p>
+      <pre class="example">OUTPUT "Hello"
+OUTPUT "Answer = ", total
+PRINT name, " ", score</pre>
+    </section>
+
+    <section id="format">
+      <h2>5. Formatting output</h2>
+      <ul>
+        <li><strong>Literal text</strong> — enclose in double quotes <code class="inline">"like this"</code> (single quotes are also accepted for simple literals in the IDE).</li>
+        <li><strong>Multiple values</strong> — separate with commas; the IDE prints them in order with spaces between.</li>
+        <li><strong>New lines</strong> — use a separate <code class="inline">OUTPUT</code> statement for each line you want on screen.</li>
+        <li><strong>Prompts before input</strong> — output a message on one line, then use <code class="inline">INPUT</code> on the next (in the IDE, the input box or prompt can follow the last message shown).</li>
+      </ul>
+      <pre class="example">OUTPUT "Name: ", userName
+OUTPUT "Score: ", marks
+OUTPUT ""
+OUTPUT "Done."</pre>
+    </section>
+
+    <section id="procedures">
+      <h2>6. Defining procedures</h2>
+      <p>
+        A <strong>procedure</strong> groups statements under a name. It does not return a value to an expression; use it for actions (printing, updating values passed by reference, etc.).
+      </p>
+      <pre class="example">PROCEDURE lineOfStars (count : INTEGER)
+  DECLARE j : INTEGER
+  FOR j &lt;- 1 TO count
+    OUTPUT "*"
+  NEXT j
+  OUTPUT ""
+ENDPROCEDURE</pre>
+      <p>Parameters are listed in parentheses with types. Use <code class="inline">BYREF</code> for reference parameters (see section 8).</p>
+      <pre class="example">PROCEDURE reset (BYREF value : INTEGER)
+  value &lt;- 0
+ENDPROCEDURE</pre>
+    </section>
+
+    <section id="functions">
+      <h2>7. Defining functions</h2>
+      <p>
+        A <strong>function</strong> returns a single value. The header ends with <code class="inline">RETURNS type</code>. Inside the function, <code class="inline">RETURN</code> followed by an expression sends the value back.
+      </p>
+      <pre class="example">FUNCTION doubleIt (n : INTEGER) RETURNS INTEGER
+  RETURN n * 2
+ENDFUNCTION
+
+FUNCTION areaOfRectangle (width : REAL, height : REAL) RETURNS REAL
+  RETURN width * height
+ENDFUNCTION</pre>
+      <p>A function with no parameters:</p>
+      <pre class="example">FUNCTION readPinCode RETURNS INTEGER
+  DECLARE code : INTEGER
+  OUTPUT "Enter code"
+  INPUT code
+  RETURN code
+ENDFUNCTION</pre>
+    </section>
+
+    <section id="call">
+      <h2>8. Calling procedures and functions; by value and by reference</h2>
+
+      <h3>8.1 Calling procedures — <code class="inline">CALL</code></h3>
+      <p>Use <code class="inline">CALL</code> followed by the procedure name. Parentheses are optional when there are no arguments.</p>
+      <pre class="example">CALL lineOfStars (10)
+CALL lineOfStars(5)
+CALL showTitle</pre>
+
+      <h3>8.2 Calling functions — use the name in an expression</h3>
+      <p>Functions are called like built-in functions: use their name and arguments where a value is needed.</p>
+      <pre class="example">DECLARE x : INTEGER
+x &lt;- doubleIt(7)
+OUTPUT "Twice 7 = ", x
+OUTPUT "Area = ", areaOfRectangle(4.0, 5.5)</pre>
+
+      <h3>8.3 Parameters by value (default)</h3>
+      <p>
+        If a parameter is declared without <code class="inline">BYREF</code>, the argument expression is evaluated and the procedure or function receives a <strong>copy</strong>. Changing the parameter inside the routine does not change the caller’s variable.
+      </p>
+      <pre class="example">PROCEDURE tryChange (n : INTEGER)
+  n &lt;- 99
+ENDPROCEDURE
+
+DECLARE a : INTEGER
+a &lt;- 1
+CALL tryChange(a)
+OUTPUT a        // still 1</pre>
+
+      <h3>8.4 Parameters by reference — <code class="inline">BYREF</code></h3>
+      <p>
+        With <code class="inline">BYREF</code>, the caller passes a <strong>variable name</strong> (not a complex expression). The routine works on the same storage as that variable, so updates are visible after the call. In the IDE, the argument must be a simple identifier.
+      </p>
+      <pre class="example">PROCEDURE addBonus (BYREF score : INTEGER)
+  score &lt;- score + 10
+ENDPROCEDURE
+
+DECLARE mark : INTEGER
+mark &lt;- 40
+CALL addBonus(mark)
+OUTPUT mark        // 50</pre>
+
+      <h3>8.5 Mixing by-value and by-reference</h3>
+      <pre class="example">PROCEDURE adjust (value : INTEGER, BYREF total : INTEGER)
+  total &lt;- total + value
+ENDPROCEDURE
+
+DECLARE sum : INTEGER
+sum &lt;- 100
+CALL adjust(25, sum)
+OUTPUT sum        // 125</pre>
+    </section>
+
+    <footer class="doc-foot">
+      <p>
+        CIE 9618 Pseudocode IDE — reference for teaching. For examination answers, follow the mark scheme and the
+        pseudocode style shown in your approved textbook.
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
