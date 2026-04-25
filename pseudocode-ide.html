@@ -120,8 +120,6 @@
       resize: vertical;
     }
 
-    #editor { height: 62vh; }
-
     .actions {
       display: flex;
       gap: 8px;
@@ -158,9 +156,47 @@
 
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
-      #editor { height: 45vh; }
+      .pseudocode-editor .CodeMirror { min-height: 45vh; }
     }
+
+    .pseudocode-editor {
+      min-height: 0;
+    }
+
+    .pseudocode-editor .CodeMirror {
+      height: 62vh;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+    }
+
+    .pseudocode-editor .CodeMirror-gutters {
+      background: #111827;
+      border-right: 1px solid var(--border);
+    }
+
+    .pseudocode-editor .CodeMirror-linenumber {
+      color: #64748b;
+    }
+
+    .cm-s-cie .CodeMirror-cursor {
+      border-left: 1px solid #e5e7eb;
+    }
+
+    .cm-s-cie.CodeMirror { background: #1e2937; color: #d4d4d4; }
+    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255, 255, 255, 0.04); }
+    .cm-s-cie .cm-keyword { color: #569cd6; }
+    .cm-s-cie .cm-atom { color: #569cd6; }
+    .cm-s-cie .cm-def { color: #4ec9b0; }
+    .cm-s-cie .cm-string { color: #ce9178; }
+    .cm-s-cie .cm-number { color: #b5cea8; }
+    .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
+    .cm-s-cie .cm-operator { color: #d4d4d4; }
   </style>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css"
+  />
 </head>
 <body>
   <header>
@@ -176,7 +212,9 @@
   <main class="layout">
     <section class="panel">
       <div class="label">Pseudocode Editor</div>
-      <textarea id="editor"></textarea>
+      <div class="pseudocode-editor">
+        <textarea id="editor" spellcheck="false"></textarea>
+      </div>
       <div class="actions">
         <button class="success" id="runBtn">Run Code</button>
         <button class="secondary" id="loadExampleBtn">Load Example</button>
@@ -190,8 +228,10 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/mode/simple.js"></script>
   <script>
-    const editor = document.getElementById("editor");
+    const editorTextarea = document.getElementById("editor");
     const output = document.getElementById("output");
     const runBtn = document.getElementById("runBtn");
     const loadExampleBtn = document.getElementById("loadExampleBtn");
@@ -209,6 +249,117 @@
       'OUTPUT "Area = ", area',
       'OUTPUT "Perimeter = ", perimeter'
     ].join("\n");
+
+    try {
+    (function initCodeMirror() {
+      const PSEU_KW = [
+        "ENDPROCEDURE",
+        "ENDFUNCTION",
+        "ELSEIF",
+        "ENDCASE",
+        "ENDWHILE",
+        "ENDTYPE",
+        "DECLARE",
+        "CONSTANT",
+        "RETURNS",
+        "OTHERWISE",
+        "PROCEDURE",
+        "FUNCTION",
+        "REPEAT",
+        "UNTIL",
+        "WHILE",
+        "OUTPUT",
+        "PRINT",
+        "INPUT",
+        "ARRAY",
+        "OF",
+        "INTEGER",
+        "REAL",
+        "STRING",
+        "CHAR",
+        "BOOLEAN",
+        "DATE",
+        "CASE",
+        "IF",
+        "THEN",
+        "ELSE",
+        "ENDIF",
+        "FOR",
+        "TO",
+        "NEXT",
+        "STEP",
+        "AND",
+        "OR",
+        "NOT",
+        "TRUE",
+        "FALSE",
+        "MOD",
+        "DIV",
+        "CALL",
+        "BYREF",
+        "BYVAL",
+        "RETURN",
+        "TYPE",
+        "RECORD",
+        "DO"
+      ];
+      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "INT", "ASC", "CHR"];
+      const sortDesc = (a, b) => b.length - a.length;
+      const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const kws = [...new Set(PSEU_KW)].sort(sortDesc);
+      const bis = [...new Set(PSEU_BI)].sort(sortDesc);
+      const kwr = new RegExp(`\\b(${kws.map(esc).join("|")})\\b`, "i");
+      const bir = new RegExp(`\\b(${bis.map(esc).join("|")})\\b`, "i");
+
+      CodeMirror.defineSimpleMode("pseudocode", {
+        start: [
+          { regex: /\/\/.*/, token: "comment" },
+          { regex: /#.*/, token: "comment" },
+          { regex: /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/, token: "string" },
+          {
+            regex: /0x[a-f\d]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/i,
+            token: "number"
+          },
+          { regex: kwr, token: "keyword" },
+          { regex: bir, token: "def" },
+          { regex: /&/, token: "operator" }
+        ]
+      });
+
+      const codeMirror = CodeMirror.fromTextArea(editorTextarea, {
+        mode: "pseudocode",
+        theme: "cie",
+        lineNumbers: true,
+        lineWrapping: true,
+        tabSize: 2,
+        indentUnit: 2,
+        extraKeys: {
+          Tab: (cm) => {
+            const n = cm.getOption("indentUnit") || 2;
+            cm.replaceSelection(" ".repeat(n), "end");
+          }
+        }
+      });
+
+      window._pseudocodeCodeMirror = codeMirror;
+    })();
+    } catch (e) {
+      console.error("CodeMirror could not start; plain editor is used.", e);
+    }
+
+    function getEditorText() {
+      return window._pseudocodeCodeMirror
+        ? window._pseudocodeCodeMirror.getValue()
+        : editorTextarea.value;
+    }
+
+    function setEditorText(value) {
+      if (window._pseudocodeCodeMirror) {
+        window._pseudocodeCodeMirror.setValue(value);
+      } else {
+        editorTextarea.value = value;
+      }
+    }
 
     function tokenizeValue(raw) {
       const trimmed = String(raw ?? "").trim();
@@ -1402,7 +1553,7 @@
 
     runBtn.addEventListener("click", () => {
       try {
-        const result = runPseudocode(editor.value);
+        const result = runPseudocode(getEditorText());
         printOutput(result || "(No output)", false);
       } catch (error) {
         const msg = error && error.message != null ? error.message : String(error);
@@ -1411,7 +1562,7 @@
     });
 
     loadExampleBtn.addEventListener("click", () => {
-      editor.value = exampleCode;
+      setEditorText(exampleCode);
       printOutput("Example loaded. Click Run Code.", false);
     });
 
@@ -1419,7 +1570,7 @@
       printOutput("", false);
     });
 
-    editor.value = exampleCode;
+    setEditorText(exampleCode);
     printOutput("Ready. Click Run Code.", false);
   </script>
 </body>
