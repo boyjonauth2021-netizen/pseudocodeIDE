@@ -339,6 +339,12 @@
         "MOD",
         "DIV",
         "CALL",
+        "OPENFILE",
+        "READFILE",
+        "WRITEFILE",
+        "CLOSEFILE",
+        "OPEN",
+        "EOF",
         "BYREF",
         "BYVAL",
         "BYVALUE",
@@ -429,6 +435,80 @@
     function echoInputToOutput(ctx, val) {
       if (val !== undefined && val !== null) {
         ctx.output.push("  (entered) " + String(val));
+      }
+    }
+
+    function scanOpenReadFilenames(sourceLines) {
+      const names = [];
+      const seen = new Set();
+      for (const line of sourceLines) {
+        const t = normalizeLine(line).trim();
+        if (!t || t.startsWith("//") || t.startsWith("#")) continue;
+        const m = t.match(
+          /^(?:OPENFILE|OPEN)\s+("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\s+FOR\s+READ\s*$/i
+        );
+        if (m) {
+          const name = tokenizeValue(m[1]);
+          if (!seen.has(name)) {
+            seen.add(name);
+            names.push(name);
+          }
+        }
+      }
+      return names;
+    }
+
+    function promptFileContentsForRead(displayName) {
+      const text = window.prompt(
+        `Enter the contents of file ${displayName} (one line after another, separated by commas — e.g. paul, leal, jean, mariam):`,
+        ""
+      );
+      if (text === null) {
+        throw new Error(`File input cancelled: ${displayName}`);
+      }
+      if (text === "") {
+        return [];
+      }
+      return text.split(",").map((s) => s.trim());
+    }
+
+    function initSimulatedFilesFromSource(source, ctx) {
+      ctx.filesRead = {};
+      ctx.fileReadCursors = {};
+      ctx.filesWrite = {};
+      ctx.writeOrder = [];
+      const sourceLines = source.split(/\r?\n/).map((x) => normalizeLine(x));
+      const readNames = scanOpenReadFilenames(sourceLines);
+      for (const name of readNames) {
+        ctx.filesRead[name] = promptFileContentsForRead(name);
+        ctx.fileReadCursors[name] = 0;
+      }
+    }
+
+    function resolveFileNameToken(token, ctx) {
+      const t = String(token ?? "").trim();
+      if (
+        (t.startsWith('"') && t.endsWith('"')) ||
+        (t.startsWith("'") && t.endsWith("'"))
+      ) {
+        return tokenizeValue(t);
+      }
+      return String(evalExpression(t, ctx) ?? "");
+    }
+
+    function ensureReadFileSlot(ctx, name) {
+      if (!Object.prototype.hasOwnProperty.call(ctx.filesRead, name)) {
+        ctx.filesRead[name] = [];
+        ctx.fileReadCursors[name] = 0;
+      }
+    }
+
+    function appendWrittenFileOutput(ctx) {
+      if (!ctx.writeOrder || ctx.writeOrder.length === 0) return;
+      for (const name of ctx.writeOrder) {
+        const lines = ctx.filesWrite[name] || [];
+        ctx.output.push(`Contents of ${name}`);
+        ctx.output.push(lines.join("\n"));
       }
     }
 
@@ -1112,16 +1192,36 @@
       return out;
     }
 
-    function applyRecordIdentChain(s) {
-      return s.replace(
-        /\b([A-Za-z_][A-Za-z0-9_]*)(\.[A-Za-z_][A-Za-z0-9_]*)+\b/g,
-        (full) => {
-          const segs = full.split(".");
-          if (segs.length < 2) return full;
-          const first = segs[0];
-          const rest = segs.slice(1);
-          return `__REC_CHAIN__("${first}",${JSON.stringify(rest)})`;
+    function transformOutsideStringLiterals(s, transformChunk) {
+      const re = /"([^"\\]|\\.)*"|'([^'\\]|\\.)*'/g;
+      const parts = [];
+      let last = 0;
+      let m;
+      while ((m = re.exec(s)) !== null) {
+        if (m.index > last) {
+          parts.push(transformChunk(s.slice(last, m.index)));
         }
+        parts.push(m[0]);
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) {
+        parts.push(transformChunk(s.slice(last)));
+      }
+      return parts.join("");
+    }
+
+    function applyRecordIdentChain(s) {
+      return transformOutsideStringLiterals(s, (chunk) =>
+        chunk.replace(
+          /\b([A-Za-z_][A-Za-z0-9_]*)(\.[A-Za-z_][A-Za-z0-9_]*)+\b/g,
+          (full) => {
+            const segs = full.split(".");
+            if (segs.length < 2) return full;
+            const first = segs[0];
+            const rest = segs.slice(1);
+            return `__REC_CHAIN__("${first}",${JSON.stringify(rest)})`;
+          }
+        )
       );
     }
 
@@ -1147,6 +1247,7 @@
       out = out.replace(/\bASC\s*\(/gi, "__ASC__(");
       out = out.replace(/\bCHR\s*\(/gi, "__CHR__(");
       out = out.replace(/\bSQUAREROOT\s*\(/gi, "__SQRT__(");
+      out = out.replace(/\bEOF\s*\(/gi, "__EOF__(");
       out = out.replace(/ & /g, " + ");
       return out;
     }
@@ -1169,6 +1270,7 @@
           "__ASC__",
           "__CHR__",
           "__SQRT__",
+          "__EOF__",
           "__AR1D_GET__",
           "__AR2D_GET__",
           "__REC_DREF__",
@@ -1207,6 +1309,13 @@
             const n = Number(x);
             if (n < 0) throw new Error("Square root of negative number");
             return Math.sqrt(n);
+          },
+          (fileKey) => {
+            const key = String(fileKey ?? "");
+            const lines = ctx.filesRead[key];
+            if (!lines) return true;
+            const pos = ctx.fileReadCursors[key] ?? 0;
+            return pos >= lines.length;
           },
           (arrName, idx) => ar1dGet(ctx, arrName, idx),
           (arrName, r, c) => ar2dGet(ctx, arrName, r, c),
@@ -1345,6 +1454,75 @@
               echoInputToOutput(ctx, val);
             }
           }
+          i += 1;
+          continue;
+        }
+
+        if (upper.startsWith("CLOSEFILE")) {
+          i += 1;
+          continue;
+        }
+
+        const openLineM = line.match(
+          /^(?:OPENFILE|OPEN)\s+(.+?)\s+FOR\s+(READ|WRITE|APPEND)\s*$/i
+        );
+        if (openLineM) {
+          const mode = openLineM[2].toUpperCase();
+          const filePart = openLineM[1].trim();
+          if (mode === "READ") {
+            const name = resolveFileNameToken(filePart, ctx);
+            ensureReadFileSlot(ctx, name);
+            ctx.fileReadCursors[name] = 0;
+          } else {
+            const name = resolveFileNameToken(filePart, ctx);
+            if (!ctx.filesWrite[name]) {
+              ctx.filesWrite[name] = [];
+              ctx.writeOrder.push(name);
+            }
+          }
+          i += 1;
+          continue;
+        }
+
+        if (upper.startsWith("READFILE ")) {
+          const rest = line.slice(8).trim();
+          const parts = splitByCommaOutsideQuotes(rest);
+          if (parts.length !== 2) {
+            throw new Error(`READFILE requires file name and variable: ${line}`);
+          }
+          const fileTok = parts[0].trim();
+          const varName = parts[1].trim();
+          if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(varName)) {
+            throw new Error(`Invalid READFILE variable: ${varName}`);
+          }
+          const name = resolveFileNameToken(fileTok, ctx);
+          ensureReadFileSlot(ctx, name);
+          const lines = ctx.filesRead[name];
+          const pos = ctx.fileReadCursors[name] ?? 0;
+          if (pos >= lines.length) {
+            throw new Error(`READFILE past end of file: ${name}`);
+          }
+          ctx.vars[varName] = lines[pos];
+          ctx.fileReadCursors[name] = pos + 1;
+          i += 1;
+          continue;
+        }
+
+        if (upper.startsWith("WRITEFILE ")) {
+          const rest = line.slice(9).trim();
+          const parts = splitByCommaOutsideQuotes(rest);
+          if (parts.length < 2) {
+            throw new Error(`WRITEFILE requires file name and value: ${line}`);
+          }
+          const fileTok = parts[0].trim();
+          const expr = parts.slice(1).join(",").trim();
+          const name = resolveFileNameToken(fileTok, ctx);
+          if (!ctx.filesWrite[name]) {
+            ctx.filesWrite[name] = [];
+            ctx.writeOrder.push(name);
+          }
+          const val = evalExpression(expr, ctx);
+          ctx.filesWrite[name].push(String(val ?? ""));
           i += 1;
           continue;
         }
@@ -1597,6 +1775,7 @@
         defs: { procedures, functions, types },
         output: []
       };
+      initSimulatedFilesFromSource(source, ctx);
       try {
         executeBlock(mainLines, 0, mainLines.length - 1, ctx);
       } catch (err) {
@@ -1605,6 +1784,7 @@
         }
         throw err;
       }
+      appendWrittenFileOutput(ctx);
       return ctx.output.join("\n");
     }
 
