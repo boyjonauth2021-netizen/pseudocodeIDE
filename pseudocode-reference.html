@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CIE 9618 Pseudocode — Language reference (classroom IDE)</title>
+  <title>CIE 9618 pseudocode — language reference</title>
   <style>
     :root {
       --bg: #0b1220;
@@ -119,6 +119,16 @@
 
     li { margin-bottom: 0.35rem; }
 
+    .source {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
     .note {
       background: var(--warn-bg);
       border: 1px solid var(--warn-border);
@@ -139,7 +149,7 @@
       padding: 1rem 1.15rem;
       overflow-x: auto;
       font-family: "Consolas", "Monaco", "Courier New", monospace;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       line-height: 1.45;
       margin: 0.75rem 0 1.25rem;
       white-space: pre;
@@ -152,6 +162,24 @@
       padding: 0.12em 0.4em;
       border-radius: 4px;
       border: 1px solid var(--code-border);
+    }
+
+    table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    table.ref th,
+    table.ref td {
+      border: 1px solid var(--code-border);
+      padding: 0.4rem 0.55rem;
+      text-align: left;
+    }
+
+    table.ref th {
+      background: rgba(15, 23, 42, 0.85);
     }
 
     footer.doc-foot {
@@ -173,234 +201,594 @@
 <body>
   <div class="wrap">
     <header class="doc-head">
-      <h1>CIE 9618 pseudocode — language reference</h1>
+      <h1>Pseudocode — language reference</h1>
       <p class="meta">
-        Aligned with Cambridge International AS &amp; A Level Computer Science pseudocode conventions
-        (chapters 9–11 style). Examples match the classroom <strong>CIE 9618 Pseudocode IDE</strong> where noted.
+        Syntax, structure, and examples for CIE 9618–style pseudocode. These notes describe the common
+        notation for teaching and written exams, not a specific programming environment.
       </p>
     </header>
+
+    <p class="source">
+      For assessments, use the form of pseudocode and identifier tables required by the mark scheme.
+      The examples here are not tied to any particular interpreter or online IDE.
+    </p>
 
     <nav class="toc" aria-label="Contents">
       <h2>Contents</h2>
       <ol>
-        <li><a href="#structure">Structure of a pseudocode program</a></li>
-        <li><a href="#types">Data types</a></li>
-        <li><a href="#declare">Variables, constants, and arrays</a></li>
-        <li><a href="#output">Displaying output</a></li>
-        <li><a href="#format">Formatting output</a></li>
-        <li><a href="#procedures">Procedures</a></li>
-        <li><a href="#functions">Functions</a></li>
-        <li><a href="#call">Calling procedures and functions; by value and by reference</a></li>
+        <li><a href="#conventions">Layout and identifier rules</a></li>
+        <li><a href="#basic-stmts">Input, output, assignment, operators</a></li>
+        <li><a href="#selection">Relational, logic, IF, CASE</a></li>
+        <li><a href="#iteration">FOR, REPEAT, WHILE</a></li>
+        <li><a href="#data-types">Data types and <code class="inline">DECLARE</code></a></li>
+        <li><a href="#records">Records: <code class="inline">TYPE</code> / <code class="inline">ENDTYPE</code></a></li>
+        <li><a href="#arrays">Arrays 1D and 2D</a></li>
+        <li><a href="#search-sort">Linear search and bubble sort</a></li>
+        <li><a href="#files">Text files</a></li>
+        <li><a href="#adts">Stacks, queues, linked lists (advanced)</a></li>
+        <li><a href="#linked-list">Linked list set-up</a></li>
+        <li><a href="#string-div">String functions, DIV, MOD, INT</a></li>
+        <li><a href="#procedures">Procedures, <code class="inline">BYREF</code>, <code class="inline">BYVALUE</code>, <code class="inline">CALL</code></a></li>
+        <li><a href="#functions">Functions, <code class="inline">RETURNS</code>, <code class="inline">RETURN</code></a></li>
+        <li><a href="#worked-menu">Worked menu fragment</a></li>
       </ol>
     </nav>
 
-    <section id="structure">
-      <h2>1. Structure of a pseudocode program</h2>
+    <section id="conventions">
+      <h2>1. Layout and identifier rules</h2>
       <p>
-        A pseudocode solution is a sequence of steps using keywords such as <code class="inline">INPUT</code>,
-        <code class="inline">OUTPUT</code>, <code class="inline">IF</code>, <code class="inline">FOR</code>, and assignments.
-        There is no single global “main” keyword: you usually list <strong>declarations</strong> and
-        <strong>constants</strong> first, then define <strong>procedures</strong> and <strong>functions</strong> (if any),
-        then write the main algorithm that calls them.
+        Each line of pseudocode is usually a single step. Use a fixed-pitch
+        style with <strong>indentation of four spaces</strong> where required; the keywords
+        <code class="inline">THEN</code>, <code class="inline">ELSE</code> and <code class="inline">CASE</code> clauses are only
+        <strong>indented by two spaces</strong> from the keyword line above.
       </p>
-      <h3>Conventions used in this IDE</h3>
-      <ul>
-        <li><strong>Assignment</strong> uses <code class="inline">&lt;-</code> or the arrow character <code class="inline">←</code> (both accepted).</li>
-        <li><strong>Comments</strong>: lines starting with <code class="inline">//</code> or <code class="inline">#</code> are ignored.</li>
-        <li>Definitions: <code class="inline">PROCEDURE … ENDPROCEDURE</code> and <code class="inline">FUNCTION … ENDFUNCTION</code> are written at the <strong>top level</strong> (not nested inside another routine in the current tool).</li>
-      </ul>
-      <pre class="example">// Example skeleton
-DECLARE count : INTEGER
-CONSTANT maxVal &lt;- 100
-
-PROCEDURE showTitle
-  OUTPUT "My program"
-ENDPROCEDURE
-
-CALL showTitle
-count &lt;- 0</pre>
-    </section>
-
-    <section id="types">
-      <h2>2. Data types</h2>
-      <p>In examinations, types are written after a colon in <code class="inline">DECLARE</code> lines. Typical types:</p>
-      <ul>
-        <li><strong>INTEGER</strong> — whole numbers.</li>
-        <li><strong>REAL</strong> — decimal numbers.</li>
-        <li><strong>BOOLEAN</strong> — <code class="inline">TRUE</code> / <code class="inline">FALSE</code>.</li>
-        <li><strong>STRING</strong> — text (often in double quotes).</li>
-        <li><strong>CHAR</strong> — a single character.</li>
-      </ul>
-      <p>Expressions may use relational operators <code class="inline">=</code>, <code class="inline">&lt;&gt;</code>, <code class="inline">&lt;</code>, <code class="inline">&gt;</code>, <code class="inline">&lt;=</code>, <code class="inline">&gt;=</code>, and logic <code class="inline">AND</code>, <code class="inline">OR</code>, <code class="inline">NOT</code>. Integer division and remainder are written as <code class="inline">DIV</code> and <code class="inline">MOD</code> in pseudocode.</p>
-      <pre class="example">DECLARE score : INTEGER
-DECLARE ok : BOOLEAN
-score &lt;- 17
-ok &lt;- (score &gt;= 10) AND (score MOD 2 = 1)</pre>
-    </section>
-
-    <section id="declare">
-      <h2>3. Declaring variables, constants, and arrays</h2>
-
-      <h3>3.1 Variables</h3>
-      <p>Use <code class="inline">DECLARE</code> with one identifier or several separated by commas, each group sharing one type:</p>
-      <pre class="example">DECLARE total : INTEGER
-DECLARE firstName, lastName : STRING
-DECLARE done : BOOLEAN</pre>
-
-      <h3>3.2 Constants</h3>
-      <pre class="example">CONSTANT pi &lt;- 3.142
-CONSTANT appName &lt;- "Pseudocode IDE"</pre>
-
-      <h3>3.3 One-dimensional arrays (notation)</h3>
       <p>
-        In CIE-style pseudocode, a 1D array is declared with a <strong>colon</strong> between the lower and upper index, for example
-        <code class="inline">ARRAY[lower:upper] OF type</code>. Elements are read or written with subscripts, e.g. <code class="inline">List[i]</code>.
-        (This classroom IDE also accepts <code class="inline">..</code> between bounds for compatibility.)
+        Identifier names should be <strong>meaningful</strong>. They use only
+        <code class="inline">A–Z</code>, <code class="inline">a–z</code> and <code class="inline">0–9</code> and
+        <strong>start with a letter</strong>. In pseudocode, identifiers are usually
+        <strong>case-insensitive</strong> (unlike in many real programming languages). Use an
+        <strong>identifier table</strong> in solutions when asked.
       </p>
-      <pre class="example">DECLARE List : ARRAY[1:10] OF INTEGER
-DECLARE i : INTEGER
-
-FOR i &lt;- 1 TO 10
-  List[i] &lt;- i * 2
-NEXT i</pre>
-
-      <h3>3.4 Two-dimensional arrays (notation)</h3>
-      <p>A 2D array can be declared with two index ranges (rows and columns). Access uses two subscripts, e.g. <code class="inline">Grid[r, c]</code>.</p>
-      <pre class="example">DECLARE Grid : ARRAY[1:4,1:5] OF INTEGER
-DECLARE r : INTEGER
-DECLARE c : INTEGER
-
-FOR r &lt;- 1 TO 4
-  FOR c &lt;- 1 TO 5
-    Grid[r, c] &lt;- r + c
-  NEXT c
-NEXT r</pre>
-
-      <div class="note">
-        <strong>Note (classroom IDE):</strong> The reference above is the standard <em>paper</em> notation for CIE pseudocode.
-        The browser IDE runs <code class="inline">ARRAY[lo:hi] OF …</code> (and 2D with comma-separated ranges) with subscripted read/write.
-        For homework and exams, use the same notation on paper; test in the IDE when needed.
-      </div>
+      <p>
+        End-of-line comments starting with <code class="inline">//</code> are used in longer worked
+        examples (e.g. linked list initialisation).
+      </p>
     </section>
 
-    <section id="output">
-      <h2>4. Displaying output</h2>
-      <p>Use <code class="inline">OUTPUT</code> or <code class="inline">PRINT</code> (both are treated the same in the IDE). List one or more values separated by commas; they are shown on one line, separated by spaces.</p>
-      <pre class="example">OUTPUT "Hello"
-OUTPUT "Answer = ", total
-PRINT name, " ", score</pre>
+    <section id="basic-stmts">
+      <h2>2. Input, output, assignment, operators</h2>
+      <h3>2.1 Input and output</h3>
+      <p>To input a value (identifier only on the <code class="inline">INPUT</code> line in typical patterns):</p>
+      <pre class="example">INPUT StudentName</pre>
+      <p>To output a message, a value, or a combination of several items:</p>
+      <pre class="example">OUTPUT "You have made an error"
+OUTPUT StudentName
+OUTPUT "Student name is ", StudentName</pre>
+      <p>
+        <code class="inline">PRINT</code> can be used in the same way as another output form; for example, an
+        “average of integers” solution may use
+        <code class="inline">PRINT</code> in parallel with <code class="inline">INPUT</code> in the same algorithm.
+      </p>
+
+      <h3>2.2 Assignment</h3>
+      <p>Assignment uses the left arrow. Examples:</p>
+      <pre class="example">Counter ← 1
+Counter ← Counter + 1
+MyChar ← "A"
+LetterValue ← ASC(MyChar)
+StudentMark ← 40
+Percentage ← (StudentMark / 80) * 100
+Oldstring ← "Your mark is"
+NewString ← Oldstring &amp; " ninety-seven"</pre>
+      <p>
+        <code class="inline">ASC</code> returns the (ASCII) value of a character.
+        String join uses <code class="inline">&amp;</code> (and <code class="inline">+</code> appears in exam-style expressions elsewhere).
+      </p>
+
+      <h3>2.3 Arithmetic in expressions</h3>
+      <p>Operators listed with assignment: addition <code class="inline">+</code>, subtraction <code class="inline">-</code>,
+        multiplication <code class="inline">*</code>, division <code class="inline">/</code>, string concatenation <code class="inline">&amp;</code>,
+        assignment <code class="inline">←</code>.</p>
     </section>
 
-    <section id="format">
-      <h2>5. Formatting output</h2>
-      <ul>
-        <li><strong>Literal text</strong> — enclose in double quotes <code class="inline">"like this"</code> (single quotes are also accepted for simple literals in the IDE).</li>
-        <li><strong>Multiple values</strong> — separate with commas; the IDE prints them in order with spaces between.</li>
-        <li><strong>New lines</strong> — use a separate <code class="inline">OUTPUT</code> statement for each line you want on screen.</li>
-        <li><strong>Prompts before input</strong> — output a message on one line, then use <code class="inline">INPUT</code> on the next (in the IDE, the input box or prompt can follow the last message shown).</li>
-      </ul>
-      <pre class="example">OUTPUT "Name: ", userName
-OUTPUT "Score: ", marks
-OUTPUT ""
-OUTPUT "Done."</pre>
+    <section id="selection">
+      <h2>3. Relational, logic, IF, CASE</h2>
+      <h3>3.1 Relational operators (selection and conditions)</h3>
+      <p>= equal to, &lt;&gt; not equal to, &gt; greater than, &lt; less than,
+        &gt;= greater than or equal to, &lt;= less than or equal to.</p>
+      <h3>3.2 Boolean logic</h3>
+      <p>Comparisons combined with <code class="inline">AND</code>, <code class="inline">OR</code>, and <code class="inline">NOT</code> (e.g. validation
+        with brackets).</p>
+      <h3>3.3 IF — single choice, with alternative, nested</h3>
+      <pre class="example">IF MyValue &gt; YourValue
+THEN
+  OUTPUT "I win"
+ENDIF</pre>
+      <pre class="example">IF MyValue &gt; YourValue
+THEN
+  OUTPUT "I win"
+ELSE
+  OUTPUT "You win"
+ENDIF</pre>
+      <p>Nested exam-grade example:</p>
+      <pre class="example">OUTPUT "Enter your exam mark"
+INPUT Mark
+IF Mark &lt; 40
+THEN
+  Grade ← "Fail"
+ELSE
+  IF Mark &lt; 60
+  THEN
+    Grade ← "Pass"
+  ELSE
+    IF Mark &lt; 80
+    THEN
+      Grade ← "Merit"
+    ELSE
+      Grade ← "Distinction"
+    ENDIF
+  ENDIF
+ENDIF
+OUTPUT "Your grade is ", Grade</pre>
+
+      <h3>3.4 CASE — multiple choices, with OTHERWISE</h3>
+      <p>Map directions example:</p>
+      <pre class="example">CASE OF Direction
+  "N": Y ← Y + 1
+  "S": Y ← Y – 1
+  "E": X ← X + 1
+  "W": X ← X – 1
+ENDCASE
+
+CASE OF Direction
+  "N": Y ← Y + 1
+  "S": Y ← Y – 1
+  "E": X ← X + 1
+  "W": X ← X – 1
+OTHERWISE : OUTPUT "Error"
+ENDCASE</pre>
+      <p>Integer menu example — value, range, condition, and <code class="inline">OTHERWISE</code>:</p>
+      <pre class="example">DECLARE choice : INTEGER
+OUTPUT "Please enter your choice "
+INPUT choice
+CASE OF choice
+  1 : OUTPUT "Routine 1 "
+  2 : OUTPUT "Routine 2 "
+  3 : OUTPUT "Routine 3 "
+  4 … 6 : OUTPUT "Routine not written"
+  10 : Exit
+  OTHERWISE OUTPUT "Incorrect choice"
+ENDCASE</pre>
+    </section>
+
+    <section id="iteration">
+      <h2>4. FOR, REPEAT, WHILE</h2>
+      <h3>4.1 FOR — fixed repeats; optional STEP</h3>
+      <p>In a <code class="inline">FOR</code> loop, <code class="inline">STEP</code> is optional and must be a whole number. Examples:</p>
+      <pre class="example">Total ← 0
+FOR Counter ← 1 TO 10
+  OUTPUT "Enter a number "
+  INPUT Number
+  Total ← Total + Number
+NEXT Counter
+OUTPUT "The total is ", Total
+
+FOR Counter ← 1 TO 10 STEP 2
+  OUTPUT Counter
+NEXT Counter</pre>
+      <p>
+        Some algorithms use <code class="inline">=</code> in the <code class="inline">FOR</code> line (e.g. bubble sort) instead of
+        <code class="inline">←</code>. Use the form your course or mark scheme expects; both forms appear in past material.
+      </p>
+      <h3>4.2 REPEAT — UNTIL (post-condition)</h3>
+      <pre class="example">REPEAT
+  OUTPUT "Please enter a positive number "
+  INPUT Number
+UNTIL Number &gt; 0
+
+Number ← 0
+WHILE Number &gt;= 0 DO
+  OUTPUT "Please enter a negative number "
+  INPUT Number
+ENDWHILE</pre>
+      <h3>4.3 REPEAT/UNTIL and INT for validation</h3>
+      <pre class="example">REPEAT
+  OUTPUT "Please enter a positive number less than fifty"
+  INPUT Number
+UNTIL (Number &gt; 0) AND (Number &lt; 50)
+Total ← 0
+REPEAT
+  PRINT "Enter the number of values to average"
+  INPUT Number
+UNTIL (Number &gt; 0) AND (Number = INT(Number))
+FOR Counter ← 1 TO Number
+  REPEAT
+    PRINT "Enter an integer value "
+    INPUT Value
+  UNTIL Value = INT(Value)
+  Total ← Total + Value
+NEXT Counter
+Average ← Total / Number
+PRINT "The average of ", Number, " values is ", Average</pre>
+      <h3>4.4 WHILE — DO — ENDWHILE</h3>
+      <pre class="example">OUTPUT "Please enter the radius of the sphere "
+INPUT radius
+WHILE radius &lt;= 0 DO
+  OUTPUT "Please enter a positive number "
+  INPUT radius
+ENDWHILE</pre>
+      <h3>4.5 Validation loop</h3>
+      <p>REPEAT until value is in range (0–10 inclusive) — two equivalent patterns:</p>
+      <pre class="example">REPEAT
+  OUTPUT "Enter value "
+  INPUT value
+UNTIL value &lt; 0 OR value &gt; 10
+
+OUTPUT "Enter value "
+INPUT value
+WHILE value &lt; 0 OR value &gt; 10 DO
+  OUTPUT "Enter value "
+  INPUT value
+ENDWHILE</pre>
+    </section>
+
+    <section id="data-types">
+      <h2>5. Data types and <code class="inline">DECLARE</code></h2>
+      <p>Basic types you need in pseudocode:</p>
+      <table class="ref" aria-label="Basic data types">
+        <thead>
+          <tr><th>Data type</th><th>Description (short)</th><th>Pseudocode</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Boolean</td><td>True / False</td><td>BOOLEAN</td></tr>
+          <tr><td>char</td><td>Single character</td><td>CHAR</td></tr>
+          <tr><td>date</td><td>Date</td><td>DATE</td></tr>
+          <tr><td>integer</td><td>Whole number</td><td>INTEGER</td></tr>
+          <tr><td>real</td><td>Number with a decimal point</td><td>REAL</td></tr>
+          <tr><td>string</td><td>Sequence of characters</td><td>STRING</td></tr>
+        </tbody>
+      </table>
+      <p>Declaration form in pseudocode:</p>
+      <pre class="example">DECLARE &lt;identifier&gt; : &lt;data type&gt;
+DECLARE h, w, r, Perimeter, Area : REAL
+DECLARE A, B, C, D, E  : BOOLEAN
+DECLARE myBirthday : DATE</pre>
+      <p>Constants:</p>
+      <pre class="example">CONSTANT pi ← 3.142</pre>
+    </section>
+
+    <section id="records">
+      <h2>6. Records: <code class="inline">TYPE</code> / <code class="inline">ENDTYPE</code></h2>
+      <p>Composite type definition; each field is declared inside with <code class="inline">DECLARE</code>.
+        A generic type definition can use <code class="inline">::</code> on its own line between field groups (as in some course materials).
+        Example (<code class="inline">TbookRecord</code>) — field access uses <code class="inline">.</code> (dot) after declaring a
+        <code class="inline">Book</code> of that type.</p>
+      <pre class="example">TYPE
+TbookRecord
+  DECLARE title : STRING
+  DECLARE author : STRING
+  DECLARE publisher : STRING
+  DECLARE noPages : INTEGER
+  DECLARE fiction : BOOLEAN
+ENDTYPE
+
+DECLARE Book : TbookRecord
+Book.author ← "David Watson"
+Book.fiction ← FALSE</pre>
+    </section>
+
+    <section id="arrays">
+      <h2>7. Arrays 1D and 2D</h2>
+      <h3>7.1 One-dimensional (list)</h3>
+      <pre class="example">DECLARE myList : ARRAY[0:8] OF INTEGER
+myList[7] ← 16</pre>
+      <h3>7.2 Two-dimensional (table)</h3>
+      <pre class="example">DECLARE myArray : ARRAY[0:8,0:2] OF INTEGER
+myArray[7,0] ← 16</pre>
+    </section>
+
+    <section id="search-sort">
+      <h2>8. Linear search and bubble sort</h2>
+      <h3>8.1 Linear search</h3>
+      <pre class="example">DECLARE myList : ARRAY[0:8] OF INTEGER
+DECLARE upperBound : INTEGER
+DECLARE lowerBound : INTEGER
+DECLARE index : INTEGER
+DECLARE item : INTEGER
+DECLARE found : BOOLEAN
+upperBound ← 8
+lowerBound ← 0
+OUTPUT "Please enter item to be found"
+INPUT item
+found ← FALSE
+index ← lowerBound
+REPEAT
+  IF item = myList[index]
+  THEN
+    found ← TRUE
+  ENDIF
+  index ← index + 1
+UNTIL (found = TRUE) OR (index &gt; upperBound)
+IF found
+THEN
+  OUTPUT "Item found"
+ELSE
+  OUTPUT "Item not found"
+ENDIF</pre>
+      <h3>8.2 Bubble sort (note <code class="inline">=</code> in <code class="inline">FOR</code> and assignment with array elements)</h3>
+      <pre class="example">DECLARE myList : ARRAY[0:8] OF INTEGER
+DECLARE upperBound : INTEGER
+DECLARE lowerBound : INTEGER
+DECLARE index : INTEGER
+DECLARE swap : BOOLEAN
+DECLARE temp : INTEGER
+DECLARE top : INTEGER
+upperBound ← 8
+lowerBound ← 0
+top ← upperBound
+REPEAT
+  FOR index = lowerBound TO top - 1
+    Swap ← FALSE
+    IF myList[index] &gt; myList[index + 1]
+    THEN
+      temp ← myList[index]
+      myList[index] ← myList[index + 1]
+      myList[index + 1] ← temp
+      swap ← TRUE
+    ENDIF
+  NEXT
+  top ← top - 1
+UNTIL (NOT swap) OR (top = 0)</pre>
+    </section>
+
+    <section id="files">
+      <h2>9. Text files</h2>
+      <p>Open modes: <code class="inline">READ</code>, <code class="inline">WRITE</code> (overwrites), <code class="inline">APPEND</code> (end of file). Variable for a line
+        is <code class="inline">STRING</code>. <code class="inline">EOF(&lt;file identifier&gt;)</code> is boolean.</p>
+      <p>Typical form (commas and identifiers must match your question; ask your teacher if uncertain):</p>
+      <pre class="example">OPEN &lt;file identifier&gt; FOR READ
+READFILE &lt;file identifier&gt;, &lt;variable&gt;
+OPEN &lt;file identifier&gt; FOR WRITE
+WRITEFILE &lt;file identifier&gt;, &lt;variable&gt;
+WRITEFILE &lt;file identifier&gt;, &lt;variable&gt;   // APPEND context in activities
+EOF(&lt;file identifier&gt;)
+CLOSEFILE &lt;file identifier&gt;</pre>
+    </section>
+
+    <section id="adts">
+      <h2>10. Stacks, queues, linked lists (advanced)</h2>
+      <p>Overview and pointer diagrams; stack and queue algorithms in pseudocode appear in full
+        advanced courses. Full linked-list <strong>implementation</strong> is often for reference; at AS you may only
+        need to explain adding and removing items. Examples include:</p>
+      <h3>10.1 Stack</h3>
+      <h4>To set up a stack</h4>
+      <pre class="example">DECLARE stack ARRAY[1:10] OF INTEGER
+DECLARE topPointer : INTEGER
+DECLARE basePointer : INTEGER
+DECLARE stackful : INTEGER
+basePointer ← 1
+topPointer ← 0
+stackful ← 10</pre>
+      <h4>To push an item, stored in item, onto a stack</h4>
+      <pre class="example">IF topPointer &lt; stackful
+THEN
+  topPointer ← topPointer + 1
+  stack[topPointer] ← item
+ELSE
+  OUTPUT "Stack is full, cannot push"
+ENDIF</pre>
+      <h4>To pop an item, stored in item, from the stack</h4>
+      <pre class="example">IF topPointer = basePointer - 1
+THEN
+  OUTPUT "Stack is empty, cannot pop"
+ELSE
+  Item ← stack[topPointer]
+  topPointer ← topPointer - 1
+ENDIF</pre>
+      <h3>10.2 Queue (circular)</h3>
+      <p>
+        In this set-up, <code class="inline">endPointer ← 0</code> appears in the initialisation, while enqueue and dequeue
+        use <code class="inline">rearPointer</code> (check your course notes for the exact naming your examiner uses).
+      </p>
+      <h4>10.2.1 To set up a queue</h4>
+      <pre class="example">DECLARE queue ARRAY[1:10] OF INTEGER
+DECLARE rearPointer : INTEGER
+DECLARE frontPointer : INTEGER
+DECLARE queueful : INTEGER
+DECLARE queueLength : INTEGER
+frontPointer ← 1
+endPointer ← 0
+upperBound ← 10
+queueful ← 10
+queueLength ← 0</pre>
+      <h4>10.2.2 To add an item, stored in item, onto a queue</h4>
+      <pre class="example">IF queueLength &lt; queueful
+THEN
+  IF rearPointer &lt; upperBound
+  THEN
+    rearPointer ← rearPointer + 1
+  ELSE
+    rearPointer ← 1
+  ENDIF
+  queueLength ← queueLength + 1
+  queue[rearPointer] ← item
+ELSE
+  OUTPUT "Queue is full, cannot enqueue"
+ENDIF</pre>
+      <h4>10.2.3 To remove an item from the queue and store in item</h4>
+      <pre class="example">IF queueLength = 0
+THEN
+  OUTPUT "Queue is empty, cannot dequeue"
+ELSE
+  Item ← queue[frontPointer]
+  IF frontPointer = upperBound
+  THEN
+    frontPointer ← 1
+  ELSE
+    frontPointer ← frontPointer + 1
+  ENDIF
+  queueLength ← queueLength - 1
+ENDIF</pre>
+
+      <h3 id="linked-list">10.3 Linked list — set-up</h3>
+      <p>
+        This code <strong>sets up a linked list</strong> using two parallel arrays (data and next-pointers) and
+        pointer variables. At AS you may not need to write a full implementation, but you should
+        understand how items are added and removed.
+      </p>
+      <p><em>To set up a linked list</em> (note: the first <code class="inline">DECLARE</code> uses
+        <code class="inline">mylinkedList</code>; the identifier table below uses
+        <code class="inline">myLinkedList</code> — match the spelling your question uses):</p>
+      <pre class="example">DECLARE mylinkedList ARRAY[0:11] OF INTEGER
+DECLARE myLinkedListPointers ARRAY[0:11] OF INTEGER
+DECLARE startPointer : INTEGER
+DECLARE heapStartPointer : INTEGER
+DECLARE index : INTEGER
+heapStartPointer ← 0
+startPointer ← -1 // list empty
+FOR index ← 0 TO 11
+  myLinkedListPointers[index] ← index + 1
+NEXT index
+// the linked list heap is a linked list of all the
+// spaces in the linked list, this is set up when the
+// linked list is initialised
+myLinkedListPointers[11] ← -1
+// the final heap pointer is set to -1 to show no
+// further links</pre>
+      <p>Identifier table:</p>
+      <table class="ref" aria-label="Linked list identifiers">
+        <thead>
+          <tr><th>Identifier</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code class="inline">myLinkedList</code></td><td>Linked list to be searched</td></tr>
+          <tr><td><code class="inline">myLinkedListPointers</code></td><td>Pointers for linked list</td></tr>
+          <tr><td><code class="inline">startPointer</code></td><td>Start of the linked list</td></tr>
+          <tr><td><code class="inline">heapStartPointer</code></td><td>Start of the heap</td></tr>
+          <tr><td><code class="inline">index</code></td><td>Pointer to current element in the linked list</td></tr>
+        </tbody>
+      </table>
+
+      <h3>10.4 <code class="inline">BYVALUE</code> with procedures (examination-style)</h3>
+      <pre class="example">PROCEDURE AddName(BYVALUE NewName : STRING)
+  // ... body as required by the question
+ENDPROCEDURE</pre>
+    </section>
+
+    <section id="string-div">
+      <h2>11. String functions, DIV, MOD, INT, library</h2>
+      <h3>11.1 DIV and MOD</h3>
+      <p>Example: <code class="inline">DIV(10,3)</code> returns 3, <code class="inline">MOD(10,3)</code> returns 1. Use the form your
+        examination paper uses. <code class="inline">INT(x)</code> gives the integer part of a real <code class="inline">x</code>.</p>
+      <h3>11.2 String functions</h3>
+      <pre class="example">LENGTH(anyString : STRING) RETURNS INTEGER
+RIGHT(anyString: STRING, x : INTEGER) RETURNS STRING
+LEFT(anyString: STRING, x : INTEGER) RETURNS STRING
+MID(anyString: STRING, x : INTEGER, y : INTEGER) RETURNS STRING</pre>
+      <p>Function header example: <code class="inline">SQUAREROOT(anyPosVal : REAL) RETURNS REAL</code></p>
     </section>
 
     <section id="procedures">
-      <h2>6. Defining procedures</h2>
-      <p>
-        A <strong>procedure</strong> groups statements under a name. It does not return a value to an expression; use it for actions (printing, updating values passed by reference, etc.).
-      </p>
-      <pre class="example">PROCEDURE lineOfStars (count : INTEGER)
-  DECLARE j : INTEGER
-  FOR j &lt;- 1 TO count
+      <h2>12. Procedures, <code class="inline">BYREF</code>, <code class="inline">CALL</code></h2>
+      <h3>12.1 No parameters</h3>
+      <pre class="example">PROCEDURE &lt;identifier&gt;
+  &lt;statements&gt;
+ENDPROCEDURE
+
+CALL &lt;identifier&gt;</pre>
+      <h3>12.2 With parameters (by value) — form and call</h3>
+      <pre class="example">PROCEDURE &lt;identifier&gt;(&lt;parameter1&gt;:&lt;datatype&gt;, &lt;parameter2&gt;:&lt;datatype&gt;...)
+  &lt;statements&gt;
+ENDPROCEDURE
+
+CALL &lt;identifier&gt; (Value1, Value2...)</pre>
+      <h3>12.3 Example: line of stars</h3>
+      <p>Some handouts omit the arrow in the <code class="inline">FOR</code> line; the usual pattern is:</p>
+      <pre class="example">PROCEDURE stars (Number : INTEGER)
+  FOR Counter ← 1 TO Number
     OUTPUT "*"
-  NEXT j
-  OUTPUT ""
-ENDPROCEDURE</pre>
-      <p>Parameters are listed in parentheses with types. Use <code class="inline">BYREF</code> for reference parameters (see section 8).</p>
-      <pre class="example">PROCEDURE reset (BYREF value : INTEGER)
-  value &lt;- 0
+  NEXT Counter
+ENDPROCEDURE
+
+CALL stars (7)
+// or
+myNumber ← 7
+CALL stars (myNumber)</pre>
+      <h3>12.4 By reference</h3>
+      <pre class="example">PROCEDURE celsius(BYREF temperature : REAL)
+  temperature ← (temperature – 32) / 1.8
+ENDPROCEDURE
+
+CALL celsius(myTemp)</pre>
+      <p>General form (parameters may mix <code class="inline">BYREF</code> and by value):</p>
+      <pre class="example">PROCEDURE &lt;identifier&gt; (BYREF &lt;parameter1&gt;:&lt;datatype&gt;, &lt;parameter2&gt;:&lt;datatype&gt;...)
+  &lt;statements&gt;
 ENDPROCEDURE</pre>
     </section>
 
     <section id="functions">
-      <h2>7. Defining functions</h2>
-      <p>
-        A <strong>function</strong> returns a single value. The header ends with <code class="inline">RETURNS type</code>. Inside the function, <code class="inline">RETURN</code> followed by an expression sends the value back.
-      </p>
-      <pre class="example">FUNCTION doubleIt (n : INTEGER) RETURNS INTEGER
-  RETURN n * 2
+      <h2>13. Functions, <code class="inline">RETURNS</code>, <code class="inline">RETURN</code></h2>
+      <h3>13.1 No parameters</h3>
+      <pre class="example">FUNCTION &lt;identifier&gt; RETURNS &lt;data type&gt;
+  &lt;statements&gt;
+ENDFUNCTION</pre>
+      <h3>13.2 With parameters</h3>
+      <pre class="example">FUNCTION &lt;identifier&gt;(&lt;parameter1&gt;:&lt;datatype&gt;, &lt;parameter2&gt;:&lt;datatype&gt;...)
+  RETURNS &lt;data type&gt;
+  &lt;statements&gt;
+ENDFUNCTION</pre>
+      <h3>13.3 Temperature as function; substring example with RETURN</h3>
+      <pre class="example">FUNCTION celsius (temperature : REAL) RETURNS REAL
+  RETURN (temperature – 32) / 1.8
 ENDFUNCTION
 
-FUNCTION areaOfRectangle (width : REAL, height : REAL) RETURNS REAL
-  RETURN width * height
-ENDFUNCTION</pre>
-      <p>A function with no parameters:</p>
-      <pre class="example">FUNCTION readPinCode RETURNS INTEGER
-  DECLARE code : INTEGER
-  OUTPUT "Enter code"
-  INPUT code
-  RETURN code
+myTemp ← celsius(myTemp)
+
+FUNCTION substring (myString : STRING, start : INTEGER, length : INTEGER)
+  RETURNS STRING
+  IF LENGTH (myString) &gt;= length + start
+  THEN
+    RETURN MID (myString, start, length)
+  ELSE
+    RETURN ""
+  ENDIF
 ENDFUNCTION</pre>
     </section>
 
-    <section id="call">
-      <h2>8. Calling procedures and functions; by value and by reference</h2>
-
-      <h3>8.1 Calling procedures — <code class="inline">CALL</code></h3>
-      <p>Use <code class="inline">CALL</code> followed by the procedure name. Parentheses are optional when there are no arguments.</p>
-      <pre class="example">CALL lineOfStars (10)
-CALL lineOfStars(5)
-CALL showTitle</pre>
-
-      <h3>8.2 Calling functions — use the name in an expression</h3>
-      <p>Functions are called like built-in functions: use their name and arguments where a value is needed.</p>
-      <pre class="example">DECLARE x : INTEGER
-x &lt;- doubleIt(7)
-OUTPUT "Twice 7 = ", x
-OUTPUT "Area = ", areaOfRectangle(4.0, 5.5)</pre>
-
-      <h3>8.3 Parameters by value (default)</h3>
-      <p>
-        If a parameter is declared without <code class="inline">BYREF</code>, the argument expression is evaluated and the procedure or function receives a <strong>copy</strong>. Changing the parameter inside the routine does not change the caller’s variable.
-      </p>
-      <pre class="example">PROCEDURE tryChange (n : INTEGER)
-  n &lt;- 99
-ENDPROCEDURE
-
-DECLARE a : INTEGER
-a &lt;- 1
-CALL tryChange(a)
-OUTPUT a        // still 1</pre>
-
-      <h3>8.4 Parameters by reference — <code class="inline">BYREF</code></h3>
-      <p>
-        With <code class="inline">BYREF</code>, the caller passes a <strong>variable name</strong> (not a complex expression). The routine works on the same storage as that variable, so updates are visible after the call. In the IDE, the argument must be a simple identifier.
-      </p>
-      <pre class="example">PROCEDURE addBonus (BYREF score : INTEGER)
-  score &lt;- score + 10
-ENDPROCEDURE
-
-DECLARE mark : INTEGER
-mark &lt;- 40
-CALL addBonus(mark)
-OUTPUT mark        // 50</pre>
-
-      <h3>8.5 Mixing by-value and by-reference</h3>
-      <pre class="example">PROCEDURE adjust (value : INTEGER, BYREF total : INTEGER)
-  total &lt;- total + value
-ENDPROCEDURE
-
-DECLARE sum : INTEGER
-sum &lt;- 100
-CALL adjust(25, sum)
-OUTPUT sum        // 125</pre>
+    <section id="worked-menu">
+      <h2>14. Worked program fragment (examination style)</h2>
+      <p>REPEAT/IF/ENDIF structure: temperature conversion menu (with line numbers as in a past paper
+        style):</p>
+      <pre class="example">01  REPEAT
+02    OUTPUT "Menu Temperature Conversion"
+03    OUTPUT "Celsius to Fahrenheit  1"
+04    OUTPUT "Fahrenheit to Celsius  2"
+05    OUTPUT "Exit  3"
+06    OUTPUT "Enter choice"
+07    IF Choice = 1 OR Choice = 2
+08    THEN
+09      OUTPUT "Enter temperature"
+10      INPUT Temperature
+11      IF Choice = 1
+12      THEN
+13        ConvertedTemperature ← 1.8*Temperature + 32
+14      ELSE
+15        ConvertedTemperature ← (Temperature – 32) * 5 / 9
+16      ENDIF
+17      OUTPUT "Converted temperature is ", ConvertedTemperature
+18    ELSE
+19      IF Choice &lt;&gt; 3
+20      THEN
+21        OUTPUT "Error in choice"
+22      ENDIF
+23    ENDIF
+24  UNTIL Choice = 3</pre>
     </section>
 
     <footer class="doc-foot">
       <p>
-        CIE 9618 Pseudocode IDE — reference for teaching. For examination answers, follow the mark scheme and the
-        pseudocode style shown in your approved textbook.
+        Your teacher or centre may provide a formal pseudocode guide; use that for assessed work if it
+        differs from any detail here.
       </p>
     </footer>
   </div>
