@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /pics/
+Disallow: /scripts/
+Disallow: /server/
+
+Sitemap: https://pseudocode-web.com/sitemap.xml
