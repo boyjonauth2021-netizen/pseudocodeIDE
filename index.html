@@ -12,7 +12,7 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://pseudocode-web.com/" />
 
-  <!-- Favicon (inline SVG — no extra file needed) -->
+  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='72' x='50' text-anchor='middle' font-size='58' font-family='monospace' fill='%2322c55e'>&lt;/&gt;</text></svg>" />
 
   <!-- Open Graph / Facebook / WhatsApp -->
@@ -36,10 +36,6 @@
     gtag("js", new Date());
     gtag("config", "G-2CV8GCXGK4");
   </script>
-
-  <!-- CodeMirror -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css" />
-
   <style>
     :root {
       color-scheme: light dark;
@@ -76,7 +72,9 @@
       background: var(--panel);
     }
 
-    .header-titles { min-width: 0; }
+    .header-titles {
+      min-width: 0;
+    }
 
     h1 {
       margin: 0;
@@ -114,7 +112,10 @@
       background: var(--panel-2);
     }
 
-    .doc-link:hover { background: #1e293b; color: #4ade80; }
+    .doc-link:hover {
+      background: #1e293b;
+      color: #4ade80;
+    }
 
     .layout {
       display: grid;
@@ -209,7 +210,9 @@
       .pseudocode-editor .CodeMirror { min-height: 45vh; }
     }
 
-    .pseudocode-editor { min-height: 0; }
+    .pseudocode-editor {
+      min-height: 0;
+    }
 
     .pseudocode-editor .CodeMirror {
       height: 62vh;
@@ -223,11 +226,16 @@
       border-right: 1px solid var(--border);
     }
 
-    .pseudocode-editor .CodeMirror-linenumber { color: #64748b; }
+    .pseudocode-editor .CodeMirror-linenumber {
+      color: #64748b;
+    }
 
-    .cm-s-cie .CodeMirror-cursor { border-left: 1px solid #e5e7eb; }
+    .cm-s-cie .CodeMirror-cursor {
+      border-left: 1px solid #e5e7eb;
+    }
+
     .cm-s-cie.CodeMirror { background: #1e2937; color: #d4d4d4; }
-    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255,255,255,0.04); }
+    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255, 255, 255, 0.04); }
     .cm-s-cie .cm-keyword { color: #569cd6; }
     .cm-s-cie .cm-atom { color: #569cd6; }
     .cm-s-cie .cm-def { color: #4ec9b0; }
@@ -236,8 +244,12 @@
     .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
     .cm-s-cie .cm-operator { color: #d4d4d4; }
   </style>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css"
+  />
 </head>
-  <body>
+<body>
   <header>
     <div class="header-titles">
       <h1>CIE Computer Science 2210 O Level / 9618 A Level Pseudocode IDE</h1>
@@ -380,6 +392,7 @@
             regex: /0x[a-f\d]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/i,
             token: "number"
           },
+          { regex: /\bEND\s+(IF|WHILE|CASE|PROCEDURE|FUNCTION)\b/i, token: "keyword" },
           { regex: kwr, token: "keyword" },
           { regex: bir, token: "def" },
           { regex: /&/, token: "operator" }
@@ -559,7 +572,12 @@
       return String(raw ?? "")
         .replace(/←/g, "<-")
         .replace(/…/g, "...")
-        .replace(/[–—]/g, "-");
+        .replace(/[–—]/g, "-")
+        .replace(/\bEND\s+IF\b/gi, "ENDIF")
+        .replace(/\bEND\s+WHILE\b/gi, "ENDWHILE")
+        .replace(/\bEND\s+CASE\b/gi, "ENDCASE")
+        .replace(/\bEND\s+PROCEDURE\b/gi, "ENDPROCEDURE")
+        .replace(/\bEND\s+FUNCTION\b/gi, "ENDFUNCTION");
     }
 
     function defaultValueForType(typeText) {
