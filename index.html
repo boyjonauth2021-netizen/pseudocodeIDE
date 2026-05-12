@@ -3,17 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CIE Computer Science 9618 Pseudocode IDE</title>
-  <!-- Google tag (gtag.js) -->
+
+  <!-- Primary Meta Tags -->
+  <title>CIE Pseudocode IDE | Cambridge 2210 O Level &amp; 9618 A Level | pseudocode-web.com</title>
+  <meta name="description" content="Free online pseudocode IDE for Cambridge CIE Computer Science 2210 O Level and 9618 A Level. Write, run and debug pseudocode directly in the browser. No installation required." />
+  <meta name="keywords" content="pseudocode IDE, Cambridge computer science, CIE 2210, CIE 9618, IGCSE computer science, A Level computer science, pseudocode online, pseudocode compiler, Cambridge pseudocode, O Level computer science, pseudocode editor" />
+  <meta name="author" content="Mr Boyjonauth, Computer Science Educator, Mauritius" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://pseudocode-web.com/" />
+
+  <!-- Favicon (inline SVG — no extra file needed) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='72' x='50' text-anchor='middle' font-size='58' font-family='monospace' fill='%2322c55e'>&lt;/&gt;</text></svg>" />
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pseudocode-web.com/" />
+  <meta property="og:title" content="CIE Pseudocode IDE — Free Online Tool for Cambridge CS Students" />
+  <meta property="og:description" content="Write and run Cambridge-style pseudocode online. Free browser-based IDE for CIE 2210 O Level and 9618 A Level Computer Science. No install needed." />
+  <meta property="og:site_name" content="pseudocode-web.com" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:url" content="https://pseudocode-web.com/" />
+  <meta name="twitter:title" content="CIE Pseudocode IDE — Free Online Tool for Cambridge CS Students" />
+  <meta name="twitter:description" content="Write and run Cambridge-style pseudocode online. Free browser-based IDE for CIE 2210 O Level and 9618 A Level Computer Science. No install needed." />
+
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2CV8GCXGK4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+    function gtag() { dataLayer.push(arguments); }
     gtag("js", new Date());
     gtag("config", "G-2CV8GCXGK4");
   </script>
+
+  <!-- CodeMirror -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css" />
+
   <style>
     :root {
       color-scheme: light dark;
@@ -50,9 +76,7 @@
       background: var(--panel);
     }
 
-    .header-titles {
-      min-width: 0;
-    }
+    .header-titles { min-width: 0; }
 
     h1 {
       margin: 0;
@@ -90,10 +114,7 @@
       background: var(--panel-2);
     }
 
-    .doc-link:hover {
-      background: #1e293b;
-      color: #4ade80;
-    }
+    .doc-link:hover { background: #1e293b; color: #4ade80; }
 
     .layout {
       display: grid;
@@ -188,9 +209,7 @@
       .pseudocode-editor .CodeMirror { min-height: 45vh; }
     }
 
-    .pseudocode-editor {
-      min-height: 0;
-    }
+    .pseudocode-editor { min-height: 0; }
 
     .pseudocode-editor .CodeMirror {
       height: 62vh;
@@ -204,16 +223,11 @@
       border-right: 1px solid var(--border);
     }
 
-    .pseudocode-editor .CodeMirror-linenumber {
-      color: #64748b;
-    }
+    .pseudocode-editor .CodeMirror-linenumber { color: #64748b; }
 
-    .cm-s-cie .CodeMirror-cursor {
-      border-left: 1px solid #e5e7eb;
-    }
-
+    .cm-s-cie .CodeMirror-cursor { border-left: 1px solid #e5e7eb; }
     .cm-s-cie.CodeMirror { background: #1e2937; color: #d4d4d4; }
-    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255, 255, 255, 0.04); }
+    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255,255,255,0.04); }
     .cm-s-cie .cm-keyword { color: #569cd6; }
     .cm-s-cie .cm-atom { color: #569cd6; }
     .cm-s-cie .cm-def { color: #4ec9b0; }
@@ -222,12 +236,8 @@
     .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
     .cm-s-cie .cm-operator { color: #d4d4d4; }
   </style>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css"
-  />
 </head>
-<body>
+  <body>
   <header>
     <div class="header-titles">
       <h1>CIE Computer Science 2210 O Level / 9618 A Level Pseudocode IDE</h1>
