@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE Pseudocode Examples List | 2210 O Level &amp; 9618 A Level</title>
+  <meta name="description" content="Comprehensive list of CIE Computer Science pseudocode examples for 2210 O Level and 9618 A Level - algorithms, arrays, files, stacks, queues, linked lists." />
+  <meta name="keywords" content="CIE pseudocode, 2210 O Level, 9618 A Level, algorithms, data structures, programming reference" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --border: #334155;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --code-bg: #1e293b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: 1.5rem; }
+    .subtitle { color: var(--muted); margin-top: 8px; }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+    h2 {
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+    .pseudocode-item {
+      margin-bottom: 30px;
+    }
+    .pseudocode-title {
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .pseudocode-number {
+      background: var(--accent);
+      color: #04130a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 15px;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+      margin: 10px 0;
+    }
+    .description {
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin: 20px 0;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    /* Syntax highlighting classes matching IDE */
+    .kw { color: #569cd6; }      /* Keywords */
+    .dt { color: #4ec9b0; }      /* Data types */
+    .bi { color: #dcdcaa; }      /* Built-in functions */
+    .str { color: #ce9178; }     /* Strings */
+    .num { color: #b5cea8; }     /* Numbers */
+    .com { color: #6a9955; font-style: italic; }  /* Comments */
+    .op { color: #d4d4d4; }      /* Operators */
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CIE Computer Science Pseudocode Examples List</h1>
+    <div class="subtitle">CIE 2210 O Level &amp; 9618 A Level | Essential Pseudocodes list</div>
+    <div class="subtitle">Prepared by Mr Kevin Boyjonauth</div>
+  </header>
+
+  <main>
+    <a class="back-link" href="index.html"><- Back to IDE</a>
+    <a class="back-link" href="pseudocode-reference.html" style="margin-left: 20px;"><- Full Language Reference</a>
+
+    <!-- Section 1: Basic Control Structures -->
+    <div class="section">
+      <h2>1. Basic Control Structures</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.1</span>Input and Output Statements</div>
+        <div class="description">Basic pseudocode for user input and displaying output.</div>
+        <pre><span class="kw">INPUT</span> StudentName
+<span class="kw">OUTPUT</span> <span class="str">"You have made an error"</span>
+<span class="kw">OUTPUT</span> StudentName
+<span class="kw">OUTPUT</span> <span class="str">"Student name is "</span>, StudentName</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.2</span>Assignment Statements</div>
+        <div class="description">Variable assignment with arithmetic and string operations.</div>
+        <pre>Counter <span class="op"><-</span> <span class="num">1</span>
+Counter <span class="op"><-</span> Counter <span class="op">+</span> <span class="num">1</span>
+MyChar <span class="op"><-</span> <span class="str">"A"</span>
+LetterValue <span class="op"><-</span> <span class="bi">ASC</span>(MyChar)
+StudentMark <span class="op"><-</span> <span class="num">40</span>
+Percentage <span class="op"><-</span> (StudentMark <span class="op">/</span> <span class="num">80</span>) <span class="op">*</span> <span class="num">100</span>
+OldString <span class="op"><-</span> <span class="str">"Your mark is"</span>
+NewString <span class="op"><-</span> OldString <span class="op">&amp;</span> <span class="str">" ninety-seven"</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.3</span>IF Statement - Single Choice</div>
+        <div class="description">Simple conditional selection with IF-THEN-END IF.</div>
+        <pre><span class="kw">IF</span> MyValue <span class="op">></span> YourValue
+<span class="kw">THEN</span>
+    <span class="kw">OUTPUT</span> <span class="str">"I win"</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.4</span>IF Statement - With Alternative</div>
+        <div class="description">Conditional selection with IF-THEN-ELSE-END IF.</div>
+        <pre><span class="kw">IF</span> MyValue <span class="op">></span> YourValue
+<span class="kw">THEN</span>
+    <span class="kw">OUTPUT</span> <span class="str">"I win"</span>
+<span class="kw">ELSE</span>
+    <span class="kw">OUTPUT</span> <span class="str">"You win"</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.5</span>CASE Statement - Multiple Choices</div>
+        <div class="description">Multiple selection using CASE with direction example.</div>
+        <pre><span class="kw">CASE OF</span> Direction
+    <span class="str">"N"</span>: Y <span class="op"><-</span> Y <span class="op">+</span> <span class="num">1</span>
+    <span class="str">"S"</span>: Y <span class="op"><-</span> Y <span class="op">-</span> <span class="num">1</span>
+    <span class="str">"E"</span>: X <span class="op"><-</span> X <span class="op">+</span> <span class="num">1</span>
+    <span class="str">"W"</span>: X <span class="op"><-</span> X <span class="op">-</span> <span class="num">1</span>
+<span class="kw">END CASE</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.6</span>CASE Statement - With Otherwise</div>
+        <div class="description">CASE statement with error handling using OTHERWISE.</div>
+        <pre><span class="kw">CASE OF</span> Direction
+    <span class="str">"N"</span>: Y <span class="op"><-</span> Y <span class="op">+</span> <span class="num">1</span>
+    <span class="str">"S"</span>: Y <span class="op"><-</span> Y <span class="op">-</span> <span class="num">1</span>
+    <span class="str">"E"</span>: X <span class="op"><-</span> X <span class="op">+</span> <span class="num">1</span>
+    <span class="str">"W"</span>: X <span class="op"><-</span> X <span class="op">-</span> <span class="num">1</span>
+    <span class="kw">OTHERWISE</span> : <span class="kw">OUTPUT</span> <span class="str">"Error"</span>
+<span class="kw">END CASE</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.7</span>FOR Loop - Fixed Iterations</div>
+        <div class="description">Count-controlled loop with FOR-TO-NEXT.</div>
+        <pre>Total <span class="op"><-</span> <span class="num">0</span>
+<span class="kw">FOR</span> Counter <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">10</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Enter a number "</span>
+    <span class="kw">INPUT</span> Number
+    Total <span class="op"><-</span> Total <span class="op">+</span> Number
+<span class="kw">NEXT</span> Counter
+<span class="kw">OUTPUT</span> <span class="str">"The total is "</span>, Total</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.8</span>FOR Loop - With STEP</div>
+        <div class="description">FOR loop counting in increments using STEP.</div>
+        <pre><span class="kw">FOR</span> Counter <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">10</span> <span class="kw">STEP</span> <span class="num">2</span>
+    <span class="kw">OUTPUT</span> Counter
+<span class="kw">NEXT</span> Counter</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.9</span>REPEAT-UNTIL Loop</div>
+        <div class="description">Post-condition loop that executes at least once.</div>
+        <pre><span class="kw">REPEAT</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Please enter a positive number "</span>
+    <span class="kw">INPUT</span> Number
+<span class="kw">UNTIL</span> Number <span class="op">></span> <span class="num">0</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">1.10</span>WHILE Loop</div>
+        <div class="description">Pre-condition loop that may not execute at all.</div>
+        <pre>Number <span class="op"><-</span> <span class="num">0</span>
+<span class="kw">WHILE</span> Number <span class="op">>=</span> <span class="num">0</span> <span class="kw">DO</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Please enter a negative number "</span>
+    <span class="kw">INPUT</span> Number
+<span class="kw">END WHILE</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 2: Validation -->
+    <div class="section">
+      <h2>2. Validation Algorithms</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">2.1</span>Validate Positive Number Less Than Fifty</div>
+        <div class="description">Input validation using REPEAT-UNTIL with compound condition.</div>
+        <pre><span class="kw">REPEAT</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Please enter a positive number less than fifty"</span>
+    <span class="kw">INPUT</span> Number
+<span class="kw">UNTIL</span> (Number <span class="op">></span> <span class="num">0</span>) <span class="kw">AND</span> (Number <span class="op"><</span> <span class="num">50</span>)</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">2.2</span>Validate Integer Input</div>
+        <div class="description">Ensuring input is a positive whole number using INT function.</div>
+        <pre><span class="kw">REPEAT</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Enter the number of values to average"</span>
+    <span class="kw">INPUT</span> Number
+<span class="kw">UNTIL</span> (Number <span class="op">></span> <span class="num">0</span>) <span class="kw">AND</span> (Number <span class="op">=</span> <span class="bi">INT</span>(Number))</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">2.3</span>Validate Integer Value</div>
+        <div class="description">Validating that input value is an integer.</div>
+        <pre><span class="kw">REPEAT</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Enter an integer value "</span>
+    <span class="kw">INPUT</span> Value
+<span class="kw">UNTIL</span> Value <span class="op">=</span> <span class="bi">INT</span>(Value)</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">2.4</span>Calculate Average with Validation</div>
+        <div class="description">Complete algorithm to calculate average with input validation.</div>
+        <pre>Total <span class="op"><-</span> <span class="num">0</span>
+<span class="kw">REPEAT</span>
+    <span class="kw">PRINT</span> <span class="str">"Enter the number of values to average"</span>
+    <span class="kw">INPUT</span> Number
+<span class="kw">UNTIL</span> (Number <span class="op">></span> <span class="num">0</span>) <span class="kw">AND</span> (Number <span class="op">=</span> <span class="bi">INT</span>(Number))
+<span class="kw">FOR</span> Counter <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> Number
+    <span class="kw">REPEAT</span>
+        <span class="kw">PRINT</span> <span class="str">"Enter an integer value "</span>
+        <span class="kw">INPUT</span> Value
+    <span class="kw">UNTIL</span> Value <span class="op">=</span> <span class="bi">INT</span>(Value)
+    Total <span class="op"><-</span> Total <span class="op">+</span> Value
+<span class="kw">NEXT</span> Counter
+Average <span class="op"><-</span> Total <span class="op">/</span> Number
+<span class="kw">PRINT</span> <span class="str">"The average of "</span>, Number, <span class="str">" values is "</span>, Average</pre>
+      </div>
+    </div>
+
+    <!-- Section 3: Arrays -->
+    <div class="section">
+      <h2>3. Array Operations</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.1</span>1D Array Declaration</div>
+        <div class="description">Declaring a one-dimensional array with lower and upper bounds.</div>
+        <pre><span class="kw">DECLARE</span> myList : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">8</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+myList[<span class="num">7</span>] <span class="op"><-</span> <span class="num">16</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.2</span>2D Array Declaration</div>
+        <div class="description">Declaring a two-dimensional array (table with rows and columns).</div>
+        <pre><span class="kw">DECLARE</span> myArray : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">8</span>,<span class="num">0</span>:<span class="num">2</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+myArray[<span class="num">7</span>,<span class="num">0</span>] <span class="op"><-</span> <span class="num">16</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.3</span>Populate 1D Array with FOR Loop</div>
+        <div class="description">Using FOR loop to fill a one-dimensional array.</div>
+        <pre><span class="kw">DECLARE</span> myList : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">8</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">FOR</span> index <span class="op"><-</span> <span class="num">0</span> <span class="kw">TO</span> <span class="num">8</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Enter value for element "</span>, index
+    <span class="kw">INPUT</span> myList[index]
+<span class="kw">NEXT</span> index</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.4</span>Populate 2D Array with Nested FOR Loop</div>
+        <div class="description">Using nested FOR loops to fill a two-dimensional array.</div>
+        <pre><span class="kw">DECLARE</span> myArray : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">8</span>,<span class="num">0</span>:<span class="num">2</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">FOR</span> row <span class="op"><-</span> <span class="num">0</span> <span class="kw">TO</span> <span class="num">8</span>
+    <span class="kw">FOR</span> col <span class="op"><-</span> <span class="num">0</span> <span class="kw">TO</span> <span class="num">2</span>
+        <span class="kw">OUTPUT</span> <span class="str">"Enter value for ["</span>, row, <span class="str">","</span>, col, <span class="str">"]"</span>
+        <span class="kw">INPUT</span> myArray[row,col]
+    <span class="kw">NEXT</span> col
+<span class="kw">NEXT</span> row</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.5</span>Linear Search Algorithm</div>
+        <div class="description">Searching for an item in a 1D array using REPEAT-UNTIL.</div>
+        <pre><span class="kw">DECLARE</span> myList : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">8</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> upperBound : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> lowerBound : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> index : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> item : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> found : <span class="dt">BOOLEAN</span>
+
+upperBound <span class="op"><-</span> <span class="num">8</span>
+lowerBound <span class="op"><-</span> <span class="num">0</span>
+<span class="kw">OUTPUT</span> <span class="str">"Please enter item to be found"</span>
+<span class="kw">INPUT</span> item
+found <span class="op"><-</span> <span class="kw">FALSE</span>
+index <span class="op"><-</span> lowerBound
+
+<span class="kw">REPEAT</span>
+    <span class="kw">IF</span> item <span class="op">=</span> myList[index]
+    <span class="kw">THEN</span>
+        found <span class="op"><-</span> <span class="kw">TRUE</span>
+    <span class="kw">END IF</span>
+    index <span class="op"><-</span> index <span class="op">+</span> <span class="num">1</span>
+<span class="kw">UNTIL</span> (found <span class="op">=</span> <span class="kw">TRUE</span>) <span class="kw">OR</span> (index <span class="op">></span> upperBound)
+
+<span class="kw">IF</span> found
+<span class="kw">THEN</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Item found"</span>
+<span class="kw">ELSE</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Item not found"</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.6</span>Linear Search with Index Output</div>
+        <div class="description">Extended linear search showing position where item was found.</div>
+        <pre><span class="kw">DECLARE</span> myList : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">8</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> upperBound : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> lowerBound : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> index : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> item : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> found : <span class="dt">BOOLEAN</span>
+<span class="kw">DECLARE</span> position : <span class="dt">INTEGER</span>
+
+upperBound <span class="op"><-</span> <span class="num">8</span>
+lowerBound <span class="op"><-</span> <span class="num">0</span>
+<span class="kw">OUTPUT</span> <span class="str">"Please enter item to be found"</span>
+<span class="kw">INPUT</span> item
+found <span class="op"><-</span> <span class="kw">FALSE</span>
+index <span class="op"><-</span> lowerBound
+position <span class="op"><-</span> <span class="op">-</span><span class="num">1</span>
+
+<span class="kw">REPEAT</span>
+    <span class="kw">IF</span> item <span class="op">=</span> myList[index]
+    <span class="kw">THEN</span>
+        found <span class="op"><-</span> <span class="kw">TRUE</span>
+        position <span class="op"><-</span> index
+    <span class="kw">END IF</span>
+    index <span class="op"><-</span> index <span class="op">+</span> <span class="num">1</span>
+<span class="kw">UNTIL</span> (found <span class="op">=</span> <span class="kw">TRUE</span>) <span class="kw">OR</span> (index <span class="op">></span> upperBound)
+
+<span class="kw">IF</span> found
+<span class="kw">THEN</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Item found at position "</span>, position
+<span class="kw">ELSE</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Item not found"</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">3.7</span>Bubble Sort Algorithm</div>
+        <div class="description">Sorting a 1D array using bubble sort with efficiency improvement.</div>
+        <pre>DECLARE myList : ARRAY[0:8] OF INTEGER
+DECLARE upperBound : INTEGER
+<span class="kw">DECLARE</span> lowerBound : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> index : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> swap : <span class="dt">BOOLEAN</span>
+<span class="kw">DECLARE</span> temp : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> top : <span class="dt">INTEGER</span>
+
+upperBound <span class="op"><-</span> <span class="num">8</span>
+lowerBound <span class="op"><-</span> <span class="num">0</span>
+top <span class="op"><-</span> upperBound
+
+<span class="kw">REPEAT</span>
+    swap <span class="op"><-</span> <span class="kw">FALSE</span>
+    <span class="kw">FOR</span> index <span class="op">=</span> lowerBound <span class="kw">TO</span> top <span class="op">-</span> <span class="num">1</span>
+        <span class="kw">IF</span> myList[index] <span class="op">></span> myList[index <span class="op">+</span> <span class="num">1</span>]
+        <span class="kw">THEN</span>
+            temp <span class="op"><-</span> myList[index]
+            myList[index] <span class="op"><-</span> myList[index <span class="op">+</span> <span class="num">1</span>]
+            myList[index <span class="op">+</span> <span class="num">1</span>] <span class="op"><-</span> temp
+            swap <span class="op"><-</span> <span class="kw">TRUE</span>
+        <span class="kw">END IF</span>
+    <span class="kw">NEXT</span> index
+    top <span class="op"><-</span> top <span class="op">-</span> <span class="num">1</span>
+<span class="kw">UNTIL</span> (<span class="kw">NOT</span> swap) <span class="kw">OR</span> (top <span class="op">=</span> <span class="num">0</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Section 4: Files -->
+    <div class="section">
+      <h2>4. File Operations</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">4.1</span>File Handling Statements Overview</div>
+        <div class="description">Summary of file operations: OPENFILE, READFILE, WRITEFILE, EOF.</div>
+        <pre><span class="com">// Open file for reading</span>
+<span class="kw">OPENFILE</span> <span class="str">"filename"</span> <span class="kw">FOR</span> <span class="kw">READ</span>
+
+<span class="com">// Open file for writing (overwrites existing data)</span>
+<span class="kw">OPENFILE</span> <span class="str">"filename"</span> <span class="kw">FOR</span> <span class="kw">WRITE</span>
+
+<span class="com">// Open file for appending (adds to end)</span>
+<span class="kw">OPENFILE</span> <span class="str">"filename"</span> <span class="kw">FOR</span> <span class="kw">APPEND</span>
+
+<span class="com">// Read a line from file</span>
+<span class="kw">READFILE</span> <span class="str">"filename"</span>, variable
+
+<span class="com">// Write a line to file</span>
+<span class="kw">WRITEFILE</span> <span class="str">"filename"</span>, variable
+
+<span class="com">// Check for end of file</span>
+<span class="bi">EOF</span>(<span class="str">"filename"</span>)  <span class="com">// Returns TRUE or FALSE</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">4.2</span>Read Entire Text File</div>
+        <div class="description">Reading all lines from a text file using EOF function.</div>
+        <pre><span class="kw">OPENFILE</span> <span class="str">"in.txt"</span> <span class="kw">FOR</span> <span class="kw">READ</span>
+<span class="kw">WHILE</span> <span class="kw">NOT</span> <span class="bi">EOF</span>(<span class="str">"in.txt"</span>)
+    <span class="kw">READFILE</span> <span class="str">"in.txt"</span>, textLine
+    <span class="kw">OUTPUT</span> textLine
+<span class="kw">END WHILE</span>
+<span class="kw">CLOSEFILE</span> <span class="str">"in.txt"</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">4.3</span>Write to Text File</div>
+        <div class="description">Writing data to a text file line by line.</div>
+        <pre><span class="kw">OPENFILE</span> <span class="str">"out.txt"</span> <span class="kw">FOR</span> <span class="kw">WRITE</span>
+<span class="kw">FOR</span> count <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">100</span>
+    line <span class="op"><-</span> <span class="bi">CONVERT_TO_STRING</span>(count)
+    <span class="kw">WRITEFILE</span> <span class="str">"out.txt"</span>, line
+<span class="kw">NEXT</span> count
+<span class="kw">CLOSEFILE</span> <span class="str">"out.txt"</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">4.4</span>Append to Text File</div>
+        <div class="description">Adding data to the end of an existing file.</div>
+        <pre><span class="kw">OPENFILE</span> <span class="str">"log.txt"</span> <span class="kw">FOR</span> <span class="kw">APPEND</span>
+<span class="kw">WRITEFILE</span> <span class="str">"log.txt"</span>, newData
+<span class="kw">CLOSEFILE</span> <span class="str">"log.txt"</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 5: Abstract Data Types -->
+    <div class="section">
+      <h2>5. Abstract Data Types - Stacks, Queues, Linked Lists</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.1</span>Stack - Setup</div>
+        <div class="description">Initializing a stack with array and stack pointer.</div>
+        <pre><span class="kw">DECLARE</span> stack : <span class="dt">ARRAY</span>[<span class="num">1</span>:<span class="num">10</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> stackPointer : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> maxStack : <span class="dt">INTEGER</span>
+maxStack <span class="op"><-</span> <span class="num">10</span>
+stackPointer <span class="op"><-</span> <span class="num">0</span>  <span class="com">// stack empty</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.2</span>Stack - Push Operation</div>
+        <div class="description">Adding an item to the top of the stack with overflow check.</div>
+        <pre><span class="kw">IF</span> stackPointer <span class="op"><</span> maxStack
+<span class="kw">THEN</span>
+    stackPointer <span class="op"><-</span> stackPointer <span class="op">+</span> <span class="num">1</span>
+    stack[stackPointer] <span class="op"><-</span> item
+<span class="kw">ELSE</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Stack is full, cannot push"</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.3</span>Stack - Pop Operation</div>
+        <div class="description">Removing an item from the top of the stack with underflow check.</div>
+        <pre><span class="kw">IF</span> stackPointer <span class="op">=</span> <span class="num">0</span>
+<span class="kw">THEN</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Stack is empty, cannot pop"</span>
+<span class="kw">ELSE</span>
+    item <span class="op"><-</span> stack[stackPointer]
+    stackPointer <span class="op"><-</span> stackPointer <span class="op">-</span> <span class="num">1</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.4</span>Queue - Setup (Circular Queue)</div>
+        <div class="description">Initializing a circular queue with front and rear pointers.</div>
+        <pre>DECLARE queue : ARRAY[1:10] OF INTEGER
+DECLARE rearPointer : INTEGER
+<span class="kw">DECLARE</span> frontPointer : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> queueful : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> queueLength : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> upperBound : <span class="dt">INTEGER</span>
+
+frontPointer <span class="op"><-</span> <span class="num">1</span>
+rearPointer <span class="op"><-</span> <span class="num">0</span>
+upperBound <span class="op"><-</span> <span class="num">10</span>
+queueful <span class="op"><-</span> <span class="num">10</span>
+queueLength <span class="op"><-</span> <span class="num">0</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.5</span>Queue - Enqueue Operation</div>
+        <div class="description">Adding an item to the rear of a circular queue.</div>
+        <pre><span class="kw">IF</span> queueLength <span class="op"><</span> queueful
+<span class="kw">THEN</span>
+    <span class="kw">IF</span> rearPointer <span class="op"><</span> upperBound
+    <span class="kw">THEN</span>
+        rearPointer <span class="op"><-</span> rearPointer <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">ELSE</span>
+        rearPointer <span class="op"><-</span> <span class="num">1</span>
+    <span class="kw">END IF</span>
+    queueLength <span class="op"><-</span> queueLength <span class="op">+</span> <span class="num">1</span>
+    queue[rearPointer] <span class="op"><-</span> item
+<span class="kw">ELSE</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Queue is full, cannot enqueue"</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.6</span>Queue - Dequeue Operation</div>
+        <div class="description">Removing an item from the front of a circular queue.</div>
+        <pre><span class="kw">IF</span> queueLength <span class="op">=</span> <span class="num">0</span>
+<span class="kw">THEN</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Queue is empty, cannot dequeue"</span>
+<span class="kw">ELSE</span>
+    item <span class="op"><-</span> queue[frontPointer]
+    <span class="kw">IF</span> frontPointer <span class="op">=</span> upperBound
+    <span class="kw">THEN</span>
+        frontPointer <span class="op"><-</span> <span class="num">1</span>
+    <span class="kw">ELSE</span>
+        frontPointer <span class="op"><-</span> frontPointer <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">END IF</span>
+    queueLength <span class="op"><-</span> queueLength <span class="op">-</span> <span class="num">1</span>
+<span class="kw">END IF</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">5.7</span>Linked List - Setup</div>
+        <div class="description">Initializing a linked list using two parallel arrays and heap management.</div>
+        <pre><span class="kw">DECLARE</span> myLinkedList : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">11</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> myLinkedListPointers : <span class="dt">ARRAY</span>[<span class="num">0</span>:<span class="num">11</span>] <span class="kw">OF</span> <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> startPointer : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> heapStartPointer : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> index : <span class="dt">INTEGER</span>
+
+heapStartPointer <span class="op"><-</span> <span class="num">0</span>
+startPointer <span class="op"><-</span> <span class="op">-</span><span class="num">1</span>  <span class="com">// list empty</span>
+
+<span class="kw">FOR</span> index <span class="op"><-</span> <span class="num">0</span> <span class="kw">TO</span> <span class="num">11</span>
+    myLinkedListPointers[index] <span class="op"><-</span> index <span class="op">+</span> <span class="num">1</span>
+<span class="kw">NEXT</span> index
+
+<span class="com">// the linked list heap is a linked list of all the spaces in the linked list</span>
+<span class="com">// this is set up when the linked list is initialised</span>
+myLinkedListPointers[<span class="num">11</span>] <span class="op"><-</span> <span class="op">-</span><span class="num">1</span>
+<span class="com">// the final heap pointer is set to -1 to show no further links</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 6: Text Files with Records -->
+    <div class="section">
+      <h2>6. Text Files with Records</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">6.1</span>Define Record Type for File Storage</div>
+        <div class="description">Creating a TYPE definition for records to be stored in a text file.</div>
+        <pre><span class="kw">TYPE</span> TstudentRecord
+    <span class="kw">DECLARE</span> name : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> address : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> className : <span class="dt">STRING</span>
+<span class="kw">END TYPE</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">6.2</span>Set Up Text File for Records</div>
+        <div class="description">Creating and initializing a text file to store records.</div>
+        <pre><span class="com">// Define the record type</span>
+<span class="kw">TYPE</span> TstudentRecord
+    <span class="kw">DECLARE</span> name : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> address : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> className : <span class="dt">STRING</span>
+<span class="kw">END TYPE</span>
+
+<span class="com">// Create empty file</span>
+<span class="kw">OPENFILE</span> <span class="str">"students.txt"</span> <span class="kw">FOR</span> <span class="kw">WRITE</span>
+<span class="kw">CLOSEFILE</span> <span class="str">"students.txt"</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">6.3</span>Append a Record to Text File</div>
+        <div class="description">Adding a new record to the end of a text file.</div>
+        <pre><span class="kw">TYPE</span> TstudentRecord
+    <span class="kw">DECLARE</span> name : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> address : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> className : <span class="dt">STRING</span>
+<span class="kw">END TYPE</span>
+
+<span class="kw">DECLARE</span> student : TstudentRecord
+<span class="kw">DECLARE</span> recordLine : <span class="dt">STRING</span>
+
+<span class="com">// Get student data</span>
+<span class="kw">OUTPUT</span> <span class="str">"Enter name: "</span>
+<span class="kw">INPUT</span> student.name
+<span class="kw">OUTPUT</span> <span class="str">"Enter address: "</span>
+<span class="kw">INPUT</span> student.address
+<span class="kw">OUTPUT</span> <span class="str">"Enter class: "</span>
+<span class="kw">INPUT</span> student.className
+
+<span class="com">// Combine into single string with separator</span>
+recordLine <span class="op"><-</span> student.name <span class="op">&amp;</span> <span class="str">","</span> <span class="op">&amp;</span> student.address <span class="op">&amp;</span> <span class="str">","</span> <span class="op">&amp;</span> student.className
+
+<span class="com">// Append to file</span>
+<span class="kw">OPENFILE</span> <span class="str">"students.txt"</span> <span class="kw">FOR</span> <span class="kw">APPEND</span>
+<span class="kw">WRITEFILE</span> <span class="str">"students.txt"</span>, recordLine
+<span class="kw">CLOSEFILE</span> <span class="str">"students.txt"</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">6.4</span>Find and Delete a Record</div>
+        <div class="description">Searching for a record and removing it from a text file.</div>
+        <pre><span class="kw">TYPE</span> TstudentRecord
+    <span class="kw">DECLARE</span> name : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> address : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> className : <span class="dt">STRING</span>
+<span class="kw">END TYPE</span>
+
+<span class="kw">DECLARE</span> student : TstudentRecord
+<span class="kw">DECLARE</span> recordLine : <span class="dt">STRING</span>
+<span class="kw">DECLARE</span> searchName : <span class="dt">STRING</span>
+<span class="kw">DECLARE</span> found : <span class="dt">BOOLEAN</span>
+
+<span class="kw">OUTPUT</span> <span class="str">"Enter name to delete: "</span>
+<span class="kw">INPUT</span> searchName
+found <span class="op"><-</span> <span class="kw">FALSE</span>
+
+<span class="com">// Read all records</span>
+<span class="kw">OPENFILE</span> <span class="str">"students.txt"</span> <span class="kw">FOR</span> <span class="kw">READ</span>
+<span class="kw">OPENFILE</span> <span class="str">"temp.txt"</span> <span class="kw">FOR</span> <span class="kw">WRITE</span>
+
+<span class="kw">WHILE</span> <span class="kw">NOT</span> <span class="bi">EOF</span>(<span class="str">"students.txt"</span>)
+    <span class="kw">READFILE</span> <span class="str">"students.txt"</span>, recordLine
+    <span class="com">// Extract name (before first comma)</span>
+    commaPos <span class="op"><-</span> <span class="num">1</span>
+    <span class="kw">WHILE</span> <span class="bi">MID</span>(recordLine, commaPos, <span class="num">1</span>) <span class="op">&lt;&gt;</span> <span class="str">","</span>
+        commaPos <span class="op"><-</span> commaPos <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">END WHILE</span>
+    currentName <span class="op"><-</span> <span class="bi">LEFT</span>(recordLine, commaPos <span class="op">-</span> <span class="num">1</span>)
+    
+    <span class="kw">IF</span> currentName <span class="op">=</span> searchName
+    <span class="kw">THEN</span>
+        found <span class="op"><-</span> <span class="kw">TRUE</span>
+        <span class="kw">OUTPUT</span> <span class="str">"Record deleted"</span>
+    <span class="kw">ELSE</span>
+        <span class="kw">WRITEFILE</span> <span class="str">"temp.txt"</span>, recordLine
+    <span class="kw">END IF</span>
+<span class="kw">END WHILE</span>
+
+<span class="kw">CLOSEFILE</span> <span class="str">"students.txt"</span>
+<span class="kw">CLOSEFILE</span> <span class="str">"temp.txt"</span>
+
+<span class="com">// Replace original with temp file</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">6.5</span>Output All Records</div>
+        <div class="description">Displaying all records stored in a text file.</div>
+        <pre>TYPE TstudentRecord
+    DECLARE name : STRING
+    DECLARE address : STRING
+    DECLARE className : STRING
+END TYPE
+
+<span class="kw">DECLARE</span> student : TstudentRecord
+<span class="kw">DECLARE</span> recordLine : <span class="dt">STRING</span>
+
+<span class="kw">OPENFILE</span> <span class="str">"students.txt"</span> <span class="kw">FOR</span> <span class="kw">READ</span>
+
+<span class="kw">WHILE</span> <span class="kw">NOT</span> <span class="bi">EOF</span>(<span class="str">"students.txt"</span>)
+    <span class="kw">READFILE</span> <span class="str">"students.txt"</span>, recordLine
+    <span class="com">// Parse the CSV line</span>
+    commaPos1 <span class="op"><-</span> <span class="num">1</span>
+    <span class="kw">WHILE</span> <span class="bi">MID</span>(recordLine, commaPos1, <span class="num">1</span>) <span class="op">&lt;&gt;</span> <span class="str">","</span>
+        commaPos1 <span class="op"><-</span> commaPos1 <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">END WHILE</span>
+    student.name <span class="op"><-</span> <span class="bi">LEFT</span>(recordLine, commaPos1 <span class="op">-</span> <span class="num">1</span>)
+    
+    remaining <span class="op"><-</span> <span class="bi">RIGHT</span>(recordLine, <span class="bi">LENGTH</span>(recordLine) <span class="op">-</span> commaPos1)
+    commaPos2 <span class="op"><-</span> <span class="num">1</span>
+    <span class="kw">WHILE</span> <span class="bi">MID</span>(remaining, commaPos2, <span class="num">1</span>) <span class="op">&lt;&gt;</span> <span class="str">","</span>
+        commaPos2 <span class="op"><-</span> commaPos2 <span class="op">+</span> <span class="num">1</span>
+    <span class="kw">END WHILE</span>
+    student.address <span class="op"><-</span> <span class="bi">LEFT</span>(remaining, commaPos2 <span class="op">-</span> <span class="num">1</span>)
+    student.className <span class="op"><-</span> <span class="bi">RIGHT</span>(remaining, <span class="bi">LENGTH</span>(remaining) <span class="op">-</span> commaPos2)
+    
+    <span class="kw">OUTPUT</span> <span class="str">"Name: "</span>, student.name
+    <span class="kw">OUTPUT</span> <span class="str">"Address: "</span>, student.address
+    <span class="kw">OUTPUT</span> <span class="str">"Class: "</span>, student.className
+    <span class="kw">OUTPUT</span> <span class="str">"-------------------"</span>
+<span class="kw">END WHILE</span>
+
+<span class="kw">CLOSEFILE</span> <span class="str">"students.txt"</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 7: Structured Programming -->
+    <div class="section">
+      <h2>7. Procedures and Functions</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.1</span>Procedure Without Parameters</div>
+        <div class="description">Defining and calling a simple procedure.</div>
+        <pre><span class="kw">PROCEDURE</span> stars()
+    <span class="kw">FOR</span> counter <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">10</span>
+        <span class="kw">OUTPUT</span> <span class="str">"*"</span>
+    <span class="kw">NEXT</span> counter
+<span class="kw">END PROCEDURE</span>
+
+<span class="com">// Call the procedure</span>
+<span class="kw">CALL</span> stars()</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.2</span>Procedure With Parameters (BYVALUE)</div>
+        <div class="description">Procedure accepting parameters passed by value.</div>
+        <pre><span class="kw">PROCEDURE</span> stars(<span class="kw">BYVALUE</span> number : <span class="dt">INTEGER</span>)
+    <span class="kw">FOR</span> counter <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> number
+        <span class="kw">OUTPUT</span> <span class="str">"*"</span>
+    <span class="kw">NEXT</span> counter
+<span class="kw">END PROCEDURE</span>
+
+<span class="com">// Call the procedure</span>
+<span class="kw">CALL</span> stars(<span class="num">20</span>)</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.3</span>Procedure With Parameters (BYREF)</div>
+        <div class="description">Procedure using pass by reference to modify caller's variable.</div>
+        <pre><span class="kw">PROCEDURE</span> celsius(<span class="kw">BYREF</span> temperature : <span class="dt">REAL</span>)
+    temperature <span class="op"><-</span> (temperature <span class="op">-</span> <span class="num">32</span>) <span class="op">/</span> <span class="num">1.8</span>
+<span class="kw">END PROCEDURE</span>
+
+<span class="com">// Usage</span>
+<span class="kw">DECLARE</span> myTemp : <span class="dt">REAL</span>
+myTemp <span class="op"><-</span> <span class="num">100</span>
+<span class="kw">CALL</span> celsius(myTemp)
+<span class="kw">OUTPUT</span> myTemp  <span class="com">// Now contains Celsius value</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.4</span>Function Without Parameters</div>
+        <div class="description">Defining a function that returns a value without taking parameters.</div>
+        <pre><span class="kw">FUNCTION</span> getPi() <span class="kw">RETURNS</span> <span class="dt">REAL</span>
+    <span class="kw">RETURN</span> <span class="num">3.142</span>
+<span class="kw">END FUNCTION</span>
+
+<span class="com">// Usage</span>
+<span class="kw">DECLARE</span> piValue : <span class="dt">REAL</span>
+piValue <span class="op"><-</span> getPi()</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.5</span>Function With Parameters</div>
+        <div class="description">Function accepting parameters and returning a calculated value.</div>
+        <pre><span class="kw">FUNCTION</span> celsius(temperature : <span class="dt">REAL</span>) <span class="kw">RETURNS</span> <span class="dt">REAL</span>
+    <span class="kw">RETURN</span> (temperature <span class="op">-</span> <span class="num">32</span>) <span class="op">/</span> <span class="num">1.8</span>
+<span class="kw">END FUNCTION</span>
+
+<span class="com">// Usage</span>
+<span class="kw">DECLARE</span> myTemp : <span class="dt">REAL</span>
+myTemp <span class="op"><-</span> celsius(<span class="num">100</span>)
+<span class="kw">OUTPUT</span> myTemp</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.6</span>Function With String Operations</div>
+        <div class="description">Function using built-in string functions with error handling.</div>
+        <pre><span class="kw">FUNCTION</span> substring(myString : <span class="dt">STRING</span>, start : <span class="dt">INTEGER</span>, length : <span class="dt">INTEGER</span>) <span class="kw">RETURNS</span> <span class="dt">STRING</span>
+    <span class="kw">IF</span> <span class="bi">LENGTH</span>(myString) <span class="op">>=</span> length <span class="op">+</span> start
+    <span class="kw">THEN</span>
+        <span class="kw">RETURN</span> <span class="bi">MID</span>(myString, start, length)
+    <span class="kw">ELSE</span>
+        <span class="kw">RETURN</span> <span class="str">""</span>
+    <span class="kw">END IF</span>
+<span class="kw">END FUNCTION</span>
+
+<span class="com">// Usage</span>
+<span class="kw">DECLARE</span> result : <span class="dt">STRING</span>
+result <span class="op"><-</span> substring(<span class="str">"Hello World"</span>, <span class="num">7</span>, <span class="num">5</span>)
+<span class="kw">OUTPUT</span> result  <span class="com">// Displays "World"</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">7.7</span>Complete Menu-Driven Program</div>
+        <div class="description">Example of a complete program with menu using procedures and functions.</div>
+        <pre><span class="kw">DECLARE</span> height : <span class="dt">REAL</span>
+<span class="kw">DECLARE</span> width : <span class="dt">REAL</span>
+<span class="kw">DECLARE</span> maxHeight : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> maxWidth : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> hypotenuse : <span class="dt">REAL</span>
+<span class="kw">DECLARE</span> area : <span class="dt">REAL</span>
+<span class="kw">DECLARE</span> choice : <span class="dt">INTEGER</span>
+
+<span class="kw">CONSTANT</span> maxHeightLimit <span class="op"><-</span> <span class="num">25</span>
+<span class="kw">CONSTANT</span> maxWidthLimit <span class="op"><-</span> <span class="num">30</span>
+<span class="kw">CONSTANT</span> pi <span class="op"><-</span> <span class="num">3.142</span>
+
+<span class="kw">PROCEDURE</span> inputAndValidate()
+    <span class="kw">OUTPUT</span> <span class="str">"Enter height: "</span>
+    <span class="kw">INPUT</span> height
+    <span class="kw">WHILE</span> (height <span class="op">&lt;=</span> <span class="num">0</span>) <span class="kw">OR</span> (height <span class="op">>=</span> maxHeightLimit) <span class="kw">DO</span>
+        <span class="kw">OUTPUT</span> <span class="str">"Height must be positive and less than "</span>, maxHeightLimit
+        <span class="kw">INPUT</span> height
+    <span class="kw">END WHILE</span>
+    
+    <span class="kw">OUTPUT</span> <span class="str">"Enter width: "</span>
+    <span class="kw">INPUT</span> width
+    <span class="kw">WHILE</span> (width <span class="op">&lt;=</span> <span class="num">0</span>) <span class="kw">OR</span> (width <span class="op">>=</span> maxWidthLimit) <span class="kw">DO</span>
+        <span class="kw">OUTPUT</span> <span class="str">"Width must be positive and less than "</span>, maxWidthLimit
+        <span class="kw">INPUT</span> width
+    <span class="kw">END WHILE</span>
+<span class="kw">END PROCEDURE</span>
+
+<span class="kw">FUNCTION</span> calculateHypotenuse(h : <span class="dt">REAL</span>, w : <span class="dt">REAL</span>) <span class="kw">RETURNS</span> <span class="dt">REAL</span>
+    <span class="kw">RETURN</span> <span class="bi">SQUAREROOT</span>((h <span class="op">*</span> h) <span class="op">+</span> (w <span class="op">*</span> w))
+<span class="kw">END FUNCTION</span>
+
+<span class="kw">FUNCTION</span> calculateArea(h : <span class="dt">REAL</span>, w : <span class="dt">REAL</span>) <span class="kw">RETURNS</span> <span class="dt">REAL</span>
+    <span class="kw">RETURN</span> (h <span class="op">*</span> w) <span class="op">/</span> <span class="num">2</span>
+<span class="kw">END FUNCTION</span>
+
+<span class="com">// Main program with menu</span>
+<span class="kw">REPEAT</span>
+    <span class="kw">OUTPUT</span> <span class="str">"1. Calculate Hypotenuse"</span>
+    <span class="kw">OUTPUT</span> <span class="str">"2. Calculate Area"</span>
+    <span class="kw">OUTPUT</span> <span class="str">"3. Exit"</span>
+    <span class="kw">OUTPUT</span> <span class="str">"Enter choice: "</span>
+    <span class="kw">INPUT</span> choice
+    
+    <span class="kw">CASE OF</span> choice
+        <span class="num">1</span>: <span class="kw">CALL</span> inputAndValidate()
+           hypotenuse <span class="op"><-</span> calculateHypotenuse(height, width)
+           <span class="kw">OUTPUT</span> <span class="str">"Hypotenuse = "</span>, hypotenuse
+        <span class="num">2</span>: <span class="kw">CALL</span> inputAndValidate()
+           area <span class="op"><-</span> calculateArea(height, width)
+           <span class="kw">OUTPUT</span> <span class="str">"Area = "</span>, area
+        <span class="num">3</span>: <span class="kw">OUTPUT</span> <span class="str">"Goodbye"</span>
+        <span class="kw">OTHERWISE</span>: <span class="kw">OUTPUT</span> <span class="str">"Invalid choice"</span>
+    <span class="kw">END CASE</span>
+<span class="kw">UNTIL</span> choice <span class="op">=</span> <span class="num">3</span></pre>
+      </div>
+    </div>
+
+    <!-- Section 8: Bubble Sort Optimization -->
+    <div class="section">
+      <h2>8. Bubble Sort Optimization</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">8.1</span>Standard Bubble Sort (Inefficient)</div>
+        <div class="description">Basic bubble sort with unnecessary comparisons (exam question).</div>
+        <pre><span class="kw">FOR</span> ThisPointer <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">9</span>
+    <span class="kw">FOR</span> Pointer <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">9</span>
+        <span class="kw">IF</span> NameList[Pointer] <span class="op">></span> NameList[Pointer <span class="op">+</span> <span class="num">1</span>]
+        <span class="kw">THEN</span>
+            Temp <span class="op"><-</span> NameList[Pointer]
+            NameList[Pointer] <span class="op"><-</span> NameList[Pointer <span class="op">+</span> <span class="num">1</span>]
+            NameList[Pointer <span class="op">+</span> <span class="num">1</span>] <span class="op"><-</span> Temp
+        <span class="kw">END IF</span>
+    <span class="kw">NEXT</span>
+<span class="kw">NEXT</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">8.2</span>Optimized Bubble Sort</div>
+        <div class="description">Improved version reducing unnecessary comparisons.</div>
+        <pre><span class="kw">DECLARE</span> NameList : <span class="dt">ARRAY</span>[<span class="num">1</span>:<span class="num">10</span>] <span class="kw">OF</span> <span class="dt">STRING</span>
+<span class="kw">DECLARE</span> Temp : <span class="dt">STRING</span>
+<span class="kw">DECLARE</span> ThisPointer : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> Pointer : <span class="dt">INTEGER</span>
+<span class="kw">DECLARE</span> Top : <span class="dt">INTEGER</span>
+
+Top <span class="op"><-</span> <span class="num">10</span>
+
+<span class="kw">FOR</span> ThisPointer <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> <span class="num">9</span>
+    <span class="kw">FOR</span> Pointer <span class="op"><-</span> <span class="num">1</span> <span class="kw">TO</span> Top <span class="op">-</span> <span class="num">1</span>
+        <span class="kw">IF</span> NameList[Pointer] <span class="op">></span> NameList[Pointer <span class="op">+</span> <span class="num">1</span>]
+        <span class="kw">THEN</span>
+            Temp <span class="op"><-</span> NameList[Pointer]
+            NameList[Pointer] <span class="op"><-</span> NameList[Pointer <span class="op">+</span> <span class="num">1</span>]
+            NameList[Pointer <span class="op">+</span> <span class="num">1</span>] <span class="op"><-</span> Temp
+        <span class="kw">END IF</span>
+    <span class="kw">NEXT</span> Pointer
+    Top <span class="op"><-</span> Top <span class="op">-</span> <span class="num">1</span>
+<span class="kw">NEXT</span> ThisPointer</pre>
+      </div>
+    </div>
+
+    <!-- Section 9: Queue Linked List Implementation -->
+    <div class="section">
+      <h2>9. Queue as Linked List</h2>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">9.1</span>Queue Linked List Node Declaration</div>
+        <div class="description">TYPE definition for a queue node implemented as a linked list.</div>
+        <pre><span class="kw">TYPE</span> Node
+    <span class="kw">DECLARE</span> Name : <span class="dt">STRING</span>
+    <span class="kw">DECLARE</span> Pointer : <span class="dt">INTEGER</span>
+<span class="kw">END TYPE</span>
+
+<span class="kw">DECLARE</span> Queue : <span class="dt">ARRAY</span>[<span class="num">1</span>:<span class="num">10</span>] <span class="kw">OF</span> Node</pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">9.2</span>Queue AddName Procedure (Linked List)</div>
+        <div class="description">Adding a name to a queue implemented as a linked list.</div>
+        <pre><span class="kw">PROCEDURE</span> AddName(<span class="kw">BYVALUE</span> NewName : <span class="dt">STRING</span>)
+    <span class="com">// Report error if no free nodes remaining</span>
+    <span class="kw">IF</span> FreePointer <span class="op">=</span> <span class="num">0</span>
+    <span class="kw">THEN</span>
+        <span class="kw">OUTPUT</span> <span class="str">"Error - Queue is full"</span>
+    <span class="kw">ELSE</span>
+        <span class="com">// New name placed in node at head of free list</span>
+        CurrentPointer <span class="op"><-</span> FreePointer
+        Queue[CurrentPointer].Name <span class="op"><-</span> NewName
+        
+        <span class="com">// Adjust free pointer</span>
+        FreePointer <span class="op"><-</span> Queue[CurrentPointer].Pointer
+        
+        <span class="com">// If first name in queue then adjust head pointer</span>
+        <span class="kw">IF</span> HeadPointer <span class="op">=</span> <span class="num">0</span>
+        <span class="kw">THEN</span>
+            HeadPointer <span class="op"><-</span> CurrentPointer
+        <span class="kw">END IF</span>
+        
+        <span class="com">// Current node is new end of queue</span>
+        Queue[CurrentPointer].Pointer <span class="op"><-</span> <span class="num">0</span>
+        TailPointer <span class="op"><-</span> CurrentPointer
+    <span class="kw">END IF</span>
+<span class="kw">END PROCEDURE</span></pre>
+      </div>
+
+      <div class="pseudocode-item">
+        <div class="pseudocode-title"><span class="pseudocode-number">9.3</span>Queue RemoveName Procedure (Linked List)</div>
+        <div class="description">Removing a name from a queue implemented as a linked list.</div>
+        <pre><span class="kw">PROCEDURE</span> RemoveName()
+    <span class="com">// Report error if Queue is empty</span>
+    <span class="kw">IF</span> HeadPointer <span class="op">=</span> <span class="num">0</span>
+    <span class="kw">THEN</span>
+        <span class="kw">OUTPUT</span> <span class="str">"Error - Queue is empty"</span>
+    <span class="kw">ELSE</span>
+        <span class="kw">OUTPUT</span> Queue[HeadPointer].Name
+        
+        <span class="com">// Save current head</span>
+        CurrentPointer <span class="op"><-</span> HeadPointer
+        
+        <span class="com">// Update head pointer to next node</span>
+        HeadPointer <span class="op"><-</span> Queue[CurrentPointer].Pointer
+        
+        <span class="com">// If only one element in queue then update tail pointer</span>
+        <span class="kw">IF</span> HeadPointer <span class="op">=</span> <span class="num">0</span>
+        <span class="kw">THEN</span>
+            TailPointer <span class="op"><-</span> <span class="num">0</span>
+        <span class="kw">END IF</span>
+        
+        <span class="com">// Link released node back to free list</span>
+        Queue[CurrentPointer].Pointer <span class="op"><-</span> FreePointer
+        FreePointer <span class="op"><-</span> CurrentPointer
+    <span class="kw">END IF</span>
+<span class="kw">END PROCEDURE</span></pre>
+      </div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; color: var(--muted);">
+      <p>Reference: Cambridge International AS &amp; A Level Computer Science (Hodder Education)</p>
+      <p>Pages 236-298 | Generated for pseudocode-web.com</p>
+    </footer>
+  </main>
+</body>
+</html>
