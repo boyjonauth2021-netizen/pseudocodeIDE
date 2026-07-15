@@ -375,7 +375,7 @@
         "RECORD",
         "DO"
       ];
-      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "INT", "ASC", "CHR"];
+      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "RANDOM", "INT", "ASC", "CHR", "RND"];
       const sortDesc = (a, b) => b.length - a.length;
       const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const kws = [...new Set(PSEU_KW)].sort(sortDesc);
@@ -1275,6 +1275,8 @@
       out = out.replace(/\bASC\s*\(/gi, "__ASC__(");
       out = out.replace(/\bCHR\s*\(/gi, "__CHR__(");
       out = out.replace(/\bSQUAREROOT\s*\(/gi, "__SQRT__(");
+      out = out.replace(/\bRANDOM\s*\(/gi, "__RANDOM__(");
+      out = out.replace(/\bRND\s*\(/gi, "__RND__(");
       out = out.replace(/\bEOF\s*\(/gi, "__EOF__(");
       out = out.replace(/ & /g, " + ");
       return out;
@@ -1298,6 +1300,8 @@
           "__ASC__",
           "__CHR__",
           "__SQRT__",
+          "__RANDOM__",
+          "__RND__",
           "__EOF__",
           "__AR1D_GET__",
           "__AR2D_GET__",
@@ -1338,6 +1342,16 @@
             if (n < 0) throw new Error("Square root of negative number");
             return Math.sqrt(n);
           },
+          (lo, hi) => {
+            const low = Math.trunc(Number(lo));
+            const high = Math.trunc(Number(hi));
+            if (!Number.isFinite(low) || !Number.isFinite(high)) {
+              throw new Error("RANDOM: low and high must be numbers");
+            }
+            if (low > high) throw new Error("RANDOM: low must not be greater than high");
+            return low + Math.floor(Math.random() * (high - low + 1));
+          },
+          () => Math.random(),
           (fileKey) => {
             const key = String(fileKey ?? "");
             const lines = ctx.filesRead[key];
