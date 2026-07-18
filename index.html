@@ -375,7 +375,7 @@
         "RECORD",
         "DO"
       ];
-      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "RANDOM", "INT", "ASC", "CHR", "RND"];
+      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "RANDOM", "ROUND", "INT", "ASC", "CHR", "RND"];
       const sortDesc = (a, b) => b.length - a.length;
       const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const kws = [...new Set(PSEU_KW)].sort(sortDesc);
@@ -1276,6 +1276,7 @@
       out = out.replace(/\bCHR\s*\(/gi, "__CHR__(");
       out = out.replace(/\bSQUAREROOT\s*\(/gi, "__SQRT__(");
       out = out.replace(/\bRANDOM\s*\(/gi, "__RANDOM__(");
+      out = out.replace(/\bROUND\s*\(/gi, "__ROUND__(");
       out = out.replace(/\bRND\s*\(/gi, "__RND__(");
       out = out.replace(/\bEOF\s*\(/gi, "__EOF__(");
       out = out.replace(/ & /g, " + ");
@@ -1301,6 +1302,7 @@
           "__CHR__",
           "__SQRT__",
           "__RANDOM__",
+          "__ROUND__",
           "__RND__",
           "__EOF__",
           "__AR1D_GET__",
@@ -1350,6 +1352,14 @@
             }
             if (low > high) throw new Error("RANDOM: low must not be greater than high");
             return low + Math.floor(Math.random() * (high - low + 1));
+          },
+          (x, places) => {
+            const n = Number(x);
+            const p = Math.trunc(Number(places));
+            if (!Number.isFinite(n)) throw new Error("ROUND: value must be a number");
+            if (!Number.isFinite(p) || p < 0) throw new Error("ROUND: places must be a non-negative integer");
+            const factor = Math.pow(10, p);
+            return Math.round((n + Number.EPSILON) * factor) / factor;
           },
           () => Math.random(),
           (fileKey) => {
