@@ -1452,11 +1452,7 @@
         }
 
         if (upper.startsWith("INPUT ")) {
-          const names = line
-            .slice(6)
-            .split(",")
-            .map((x) => x.trim())
-            .filter(Boolean);
+          const names = splitByCommaOutsideQuotes(line.slice(6)).filter(Boolean);
 
           if (names.length === 0) {
             throw new Error("INPUT requires at least one variable.");
