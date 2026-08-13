@@ -249,25 +249,38 @@
     .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
     .cm-s-cie .cm-operator { color: #d4d4d4; }
 
-    .CodeMirror-hints {
-      z-index: 20;
-      background: #111827;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+    .type-hint-menu {
+      position: fixed;
+      z-index: 4000;
+      margin: 0;
       padding: 4px 0;
+      min-width: 220px;
+      max-height: min(50vh, 320px);
+      overflow-y: auto;
+      list-style: none;
+      background: #0b1220;
+      border: 1px solid #22c55e;
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
       font-family: Consolas, Monaco, monospace;
-      font-size: 0.88rem;
-      max-height: 16em;
+      font-size: 0.95rem;
     }
 
-    .CodeMirror-hint {
+    .type-hint-menu[hidden] {
+      display: none;
+    }
+
+    .type-hint-menu li {
+      padding: 10px 14px;
       color: #e5e7eb;
-      padding: 5px 12px;
-      border-radius: 0;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
     }
 
-    .CodeMirror-hint-active {
+    .type-hint-menu li.active,
+    .type-hint-menu li:hover {
       background: #2563eb;
       color: #fff;
     }
@@ -275,10 +288,6 @@
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css"
-  />
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.min.css"
   />
 </head>
 <body>
@@ -323,10 +332,10 @@
       <div id="output" class="console"></div>
     </section>
   </main>
+  <ul id="typeHintMenu" class="type-hint-menu" hidden role="listbox" aria-label="Data types"></ul>
 
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/mode/simple.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.min.js"></script>
   <script>
     const editorTextarea = document.getElementById("editor");
     const output = document.getElementById("output");
@@ -433,6 +442,8 @@
       });
 
       const BUILTIN_TYPES = ["INTEGER", "REAL", "STRING", "CHAR", "BOOLEAN", "DATE"];
+      const typeHintMenu = document.getElementById("typeHintMenu");
+      let typeHintState = null;
 
       function collectUserTypeNames(cm) {
         const names = [];
@@ -492,97 +503,128 @@
         return null;
       }
 
-      function openTypeHintsAfterArray(cm) {
-        window.setTimeout(() => {
-          cm.showHint({
-            hint: pseudocodeTypeHint,
-            completeSingle: false,
-            closeOnUnfocus: true
-          });
-        }, 0);
+      function hideTypeHints() {
+        typeHintState = null;
+        typeHintMenu.hidden = true;
+        typeHintMenu.innerHTML = "";
       }
 
-      function makeArrayCompletion(insertText, displayText) {
-        return {
-          text: insertText,
-          displayText,
-          hint(cm, data, completion) {
-            cm.replaceRange(completion.text, data.from, data.to, "complete");
-            openTypeHintsAfterArray(cm);
-          }
-        };
+      function isTypeMenuOpen() {
+        return Boolean(typeHintState) && !typeHintMenu.hidden;
       }
 
-      function pseudocodeTypeHint(cm) {
+      function setActiveHint(index) {
+        if (!typeHintState) return;
+        const items = typeHintState.items;
+        if (items.length === 0) return;
+        typeHintState.active = (index + items.length) % items.length;
+        const nodes = typeHintMenu.querySelectorAll("li");
+        nodes.forEach((node, i) => {
+          node.classList.toggle("active", i === typeHintState.active);
+        });
+        const activeNode = nodes[typeHintState.active];
+        if (activeNode && activeNode.scrollIntoView) {
+          activeNode.scrollIntoView({ block: "nearest" });
+        }
+      }
+
+      function applyTypeHint(cm, item) {
+        if (!typeHintState || !item) return;
+        cm.replaceRange(item.insert, typeHintState.from, typeHintState.to, "complete");
+        hideTypeHints();
+        if (item.openAgain) {
+          window.setTimeout(() => showTypeHints(cm), 0);
+        }
+      }
+
+      function positionTypeMenu(cm) {
+        const coords = cm.cursorCoords(true, "window");
+        const menuW = Math.max(220, typeHintMenu.offsetWidth || 220);
+        const menuH = typeHintMenu.offsetHeight || 160;
+        let left = coords.left;
+        let top = coords.bottom + 6;
+        const maxLeft = window.innerWidth - menuW - 8;
+        if (left > maxLeft) left = Math.max(8, maxLeft);
+        if (left < 8) left = 8;
+        if (top + menuH > window.innerHeight - 8) {
+          top = Math.max(8, coords.top - menuH - 6);
+        }
+        typeHintMenu.style.left = `${left}px`;
+        typeHintMenu.style.top = `${top}px`;
+      }
+
+      function showTypeHints(cm) {
         const cur = cm.getCursor();
         const before = cm.getLine(cur.line).slice(0, cur.ch);
         const mode = getTypeHintMode(before);
-        if (!mode) return null;
+        if (!mode) {
+          hideTypeHints();
+          return;
+        }
 
         const tokenMatch = before.match(/[A-Za-z_][A-Za-z0-9_]*$/);
         const token = tokenMatch ? tokenMatch[0] : "";
-        let fromCh = cur.ch - token.length;
-        let leading = "";
-        if (!token && before.endsWith(":")) {
-          leading = " ";
-        }
-
+        const fromCh = cur.ch - token.length;
+        const leading = !token && before.endsWith(":") ? " " : "";
         const filter = token.toUpperCase();
-        const list = [];
-        const addItem = (item) => {
-          const label = (item.displayText || item.text || "").toUpperCase();
-          const value = String(item.text || "").toUpperCase();
-          if (filter && !label.startsWith(filter) && !value.startsWith(filter)) {
+        const items = [];
+        const addItem = (insert, label, openAgain) => {
+          const labelU = label.toUpperCase();
+          const insertU = insert.toUpperCase();
+          if (filter && !labelU.startsWith(filter) && !insertU.trim().startsWith(filter)) {
             return;
           }
-          list.push(item);
+          items.push({ insert, label, openAgain: Boolean(openAgain) });
         };
 
-        for (const t of BUILTIN_TYPES) {
-          addItem({ text: leading + t, displayText: t });
-        }
-        for (const t of collectUserTypeNames(cm)) {
-          addItem({ text: leading + t, displayText: t });
-        }
+        for (const t of BUILTIN_TYPES) addItem(leading + t, t, false);
+        for (const t of collectUserTypeNames(cm)) addItem(leading + t, t, false);
         if (mode === "all") {
-          addItem(
-            makeArrayCompletion(
-              `${leading}ARRAY[1:10] OF `,
-              "ARRAY 1D  [1:10] OF …"
-            )
-          );
-          addItem(
-            makeArrayCompletion(
-              `${leading}ARRAY[1:5, 1:5] OF `,
-              "ARRAY 2D  [1:5, 1:5] OF …"
-            )
-          );
+          addItem(`${leading}ARRAY[1:10] OF `, "ARRAY 1D  [1:10] OF …", true);
+          addItem(`${leading}ARRAY[1:5, 1:5] OF `, "ARRAY 2D  [1:5, 1:5] OF …", true);
         }
 
-        if (list.length === 0) return null;
-        return {
-          list,
+        if (items.length === 0) {
+          hideTypeHints();
+          return;
+        }
+
+        typeHintState = {
+          items,
+          active: 0,
           from: CodeMirror.Pos(cur.line, fromCh),
           to: cur
         };
+        typeHintMenu.innerHTML = "";
+        items.forEach((item, i) => {
+          const li = document.createElement("li");
+          li.setAttribute("role", "option");
+          li.textContent = item.label;
+          if (i === 0) li.classList.add("active");
+          li.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            applyTypeHint(cm, item);
+            cm.focus();
+          });
+          li.addEventListener("touchend", (event) => {
+            event.preventDefault();
+            applyTypeHint(cm, item);
+            cm.focus();
+          });
+          typeHintMenu.appendChild(li);
+        });
+        typeHintMenu.hidden = false;
+        positionTypeMenu(cm);
       }
 
       function maybeShowTypeHints(cm, change) {
-        if (!change || change.origin === "paste" || change.origin === "complete") {
+        if (change && (change.origin === "setValue" || change.origin === "complete")) {
           return;
         }
-        const typed = (change.text || []).join("");
-        if (typed === ":" || /^[A-Za-z_]$/.test(typed) || typed === " ") {
-          const cur = cm.getCursor();
-          const before = cm.getLine(cur.line).slice(0, cur.ch);
-          if (getTypeHintMode(before)) {
-            cm.showHint({
-              hint: pseudocodeTypeHint,
-              completeSingle: false,
-              closeOnUnfocus: true
-            });
-          }
+        if (change && change.origin === "paste" && (change.text || []).length > 1) {
+          return;
         }
+        showTypeHints(cm);
       }
 
       const codeMirror = CodeMirror.fromTextArea(editorTextarea, {
@@ -594,23 +636,63 @@
         indentUnit: 2,
         extraKeys: {
           Tab: (cm) => {
-            if (cm.state.completionActive) {
-              return CodeMirror.Pass;
+            if (isTypeMenuOpen()) {
+              applyTypeHint(cm, typeHintState.items[typeHintState.active]);
+              return;
             }
             const n = cm.getOption("indentUnit") || 2;
             cm.replaceSelection(" ".repeat(n), "end");
           },
-          "Ctrl-Space": (cm) => {
-            cm.showHint({
-              hint: pseudocodeTypeHint,
-              completeSingle: false,
-              closeOnUnfocus: true
-            });
-          }
+          Enter: (cm) => {
+            if (isTypeMenuOpen()) {
+              applyTypeHint(cm, typeHintState.items[typeHintState.active]);
+              return;
+            }
+            return CodeMirror.Pass;
+          },
+          Up: (cm) => {
+            if (isTypeMenuOpen()) {
+              setActiveHint(typeHintState.active - 1);
+              return;
+            }
+            return CodeMirror.Pass;
+          },
+          Down: (cm) => {
+            if (isTypeMenuOpen()) {
+              setActiveHint(typeHintState.active + 1);
+              return;
+            }
+            return CodeMirror.Pass;
+          },
+          Esc: () => hideTypeHints(),
+          "Ctrl-Space": (cm) => showTypeHints(cm)
         }
       });
 
       codeMirror.on("inputRead", maybeShowTypeHints);
+      codeMirror.on("keyup", (cm, event) => {
+        const key = event && event.key;
+        if (["ArrowUp", "ArrowDown", "Enter", "Escape", "Tab"].includes(key)) {
+          return;
+        }
+        maybeShowTypeHints(cm, { origin: "+input", text: [key || ""] });
+      });
+      codeMirror.on("cursorActivity", (cm) => {
+        const cur = cm.getCursor();
+        const before = cm.getLine(cur.line).slice(0, cur.ch);
+        if (!getTypeHintMode(before)) {
+          hideTypeHints();
+        }
+      });
+      window.addEventListener("resize", () => {
+        if (isTypeMenuOpen()) positionTypeMenu(codeMirror);
+      });
+      document.addEventListener("mousedown", (event) => {
+        if (!typeHintMenu.contains(event.target)) {
+          const wrapper = codeMirror.getWrapperElement();
+          if (!wrapper.contains(event.target)) hideTypeHints();
+        }
+      });
 
       window._pseudocodeCodeMirror = codeMirror;
     })();
