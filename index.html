@@ -249,6 +249,12 @@
     .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
     .cm-s-cie .cm-operator { color: #d4d4d4; }
 
+    .cm-kw-error {
+      text-decoration: underline wavy #ef4444;
+      text-underline-offset: 3px;
+      border-bottom: 2px solid #ef4444;
+    }
+
     .type-hint-menu {
       position: fixed;
       z-index: 4000;
@@ -693,6 +699,115 @@
           if (!wrapper.contains(event.target)) hideTypeHints();
         }
       });
+
+      const KNOWN_WORDS = new Set(
+        [...PSEU_KW, ...PSEU_BI, ...BUILTIN_TYPES].map((w) => w.toUpperCase())
+      );
+      const KNOWN_WORD_LIST = [...KNOWN_WORDS];
+      let keywordErrorMarks = [];
+      let keywordLintTimer = null;
+
+      function editDistance(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (Math.abs(m - n) > 2) return 99;
+        const row = new Array(n + 1);
+        for (let j = 0; j <= n; j += 1) row[j] = j;
+        for (let i = 1; i <= m; i += 1) {
+          let prev = row[0];
+          row[0] = i;
+          for (let j = 1; j <= n; j += 1) {
+            const cur = row[j];
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + cost);
+            prev = cur;
+          }
+        }
+        return row[n];
+      }
+
+      function looksLikeMisspelledKeyword(word) {
+        const u = word.toUpperCase();
+        if (KNOWN_WORDS.has(u)) return false;
+        if (u.length < 2) return false;
+        for (const kw of KNOWN_WORD_LIST) {
+          if (kw[0] !== u[0]) continue;
+          const d = editDistance(u, kw);
+          if (d === 1 && Math.abs(u.length - kw.length) <= 1) return true;
+          if (d === 2 && kw.length >= 7 && Math.abs(u.length - kw.length) <= 2) return true;
+        }
+        return false;
+      }
+
+      function forEachIdentifier(line, onIdent) {
+        let i = 0;
+        const n = line.length;
+        while (i < n) {
+          const ch = line[i];
+          if (ch === "/" && line[i + 1] === "/") break;
+          if (ch === "#") break;
+          if (ch === '"' || ch === "'") {
+            const q = ch;
+            i += 1;
+            while (i < n && line[i] !== q) {
+              if (line[i] === "\\") i += 1;
+              i += 1;
+            }
+            i += 1;
+            continue;
+          }
+          if (/[A-Za-z_]/.test(ch)) {
+            const start = i;
+            i += 1;
+            while (i < n && /[A-Za-z0-9_]/.test(line[i])) i += 1;
+            onIdent(line.slice(start, i), start, i);
+            continue;
+          }
+          i += 1;
+        }
+      }
+
+      function clearKeywordErrorMarks() {
+        for (const mark of keywordErrorMarks) {
+          mark.clear();
+        }
+        keywordErrorMarks = [];
+      }
+
+      function scanKeywordErrors(cm) {
+        clearKeywordErrorMarks();
+        const lineCount = cm.lineCount();
+        for (let lineNo = 0; lineNo < lineCount; lineNo += 1) {
+          const line = cm.getLine(lineNo) || "";
+          forEachIdentifier(line, (word, start, end) => {
+            if (!looksLikeMisspelledKeyword(word)) return;
+            const mark = cm.markText(
+              { line: lineNo, ch: start },
+              { line: lineNo, ch: end },
+              {
+                className: "cm-kw-error",
+                inclusiveLeft: false,
+                inclusiveRight: false
+              }
+            );
+            keywordErrorMarks.push(mark);
+          });
+        }
+      }
+
+      function scheduleKeywordLint(cm) {
+        window.clearTimeout(keywordLintTimer);
+        keywordLintTimer = window.setTimeout(() => scanKeywordErrors(cm), 300);
+      }
+
+      codeMirror.on("change", (cm, change) => {
+        if (change && change.origin === "setValue") {
+          scanKeywordErrors(cm);
+          return;
+        }
+        scheduleKeywordLint(cm);
+      });
+      scanKeywordErrors(codeMirror);
 
       window._pseudocodeCodeMirror = codeMirror;
     })();
