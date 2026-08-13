@@ -99,6 +99,11 @@
       margin-top: 8px;
     }
 
+    .subtitle code {
+      font-family: Consolas, Monaco, monospace;
+      color: var(--accent);
+    }
+
     .doc-link {
       flex-shrink: 0;
       align-self: center;
@@ -243,10 +248,37 @@
     .cm-s-cie .cm-number { color: #b5cea8; }
     .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
     .cm-s-cie .cm-operator { color: #d4d4d4; }
+
+    .CodeMirror-hints {
+      z-index: 20;
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      padding: 4px 0;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.88rem;
+      max-height: 16em;
+    }
+
+    .CodeMirror-hint {
+      color: #e5e7eb;
+      padding: 5px 12px;
+      border-radius: 0;
+    }
+
+    .CodeMirror-hint-active {
+      background: #2563eb;
+      color: #fff;
+    }
   </style>
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.min.css"
   />
 </head>
 <body>
@@ -255,7 +287,7 @@
       <h1>CIE Computer Science 2210 O Level / 9618 A Level Pseudocode IDE</h1>
       <p class="header-line2">By Mr Boyjonauth, Computer Science Educator, Goodlands, Mauritius</p>
       <p class="header-line3">Tel No: +230 57155060.      Email: boyjonauth@gmail.com</p>
-      <div class="subtitle">CIE 9618 style: procedures, functions, records (TYPE/ENDTYPE, dot fields), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Runs in the browser.</div>
+      <div class="subtitle">CIE 9618 style: procedures, functions, records (TYPE/ENDTYPE, dot fields), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Type <code>:</code> after DECLARE for a data-type list. Runs in the browser.</div>
     </div>
     <a id="readmeLink" class="doc-link" href="pseudocode-reference.html" target="_blank" rel="noopener noreferrer">Reference</a>
   </header>
@@ -294,6 +326,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/mode/simple.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.min.js"></script>
   <script>
     const editorTextarea = document.getElementById("editor");
     const output = document.getElementById("output");
@@ -399,6 +432,159 @@
         ]
       });
 
+      const BUILTIN_TYPES = ["INTEGER", "REAL", "STRING", "CHAR", "BOOLEAN", "DATE"];
+
+      function collectUserTypeNames(cm) {
+        const names = [];
+        const seen = new Set();
+        const lines = cm.getValue().split(/\r?\n/);
+        for (let i = 0; i < lines.length; i += 1) {
+          if (!/^\s*TYPE\s*$/i.test(lines[i])) continue;
+          for (let j = i + 1; j < lines.length; j += 1) {
+            const s = lines[j].trim();
+            if (!s) continue;
+            if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(s) && !seen.has(s.toUpperCase())) {
+              seen.add(s.toUpperCase());
+              names.push(s);
+            }
+            break;
+          }
+        }
+        return names;
+      }
+
+      function isInsideStringLiteral(text) {
+        let inQuote = null;
+        for (let i = 0; i < text.length; i += 1) {
+          const ch = text[i];
+          if ((ch === '"' || ch === "'") && text[i - 1] !== "\\") {
+            inQuote = inQuote === ch ? null : inQuote || ch;
+          }
+        }
+        return Boolean(inQuote);
+      }
+
+      function getTypeHintMode(before) {
+        if (!before || isInsideStringLiteral(before) || /^\s*(\/\/|#)/.test(before)) {
+          return null;
+        }
+        if (/\bARRAY\s*\[[^\]]*\]\s*OF\s*[A-Za-z_]*$/i.test(before)) {
+          return "scalar";
+        }
+        const t = before.replace(/^\s+/, "");
+        if (/^DECLARE\s+/i.test(t)) {
+          const rest = t.replace(/^DECLARE\s+/i, "");
+          if (
+            /^[A-Za-z_][A-Za-z0-9_]*(\s*,\s*[A-Za-z_][A-Za-z0-9_]*)*\s*:\s*[A-Za-z_]*$/i.test(
+              rest
+            )
+          ) {
+            return "all";
+          }
+          return null;
+        }
+        if (/^(PROCEDURE|FUNCTION)\b/i.test(t)) {
+          if (/\bRETURNS\s+[A-Za-z_]*$/i.test(before)) return "all";
+          if (/\(\s*.*[A-Za-z_][A-Za-z0-9_]*\s*:\s*[A-Za-z_]*$/i.test(before)) {
+            return "all";
+          }
+        }
+        return null;
+      }
+
+      function openTypeHintsAfterArray(cm) {
+        window.setTimeout(() => {
+          cm.showHint({
+            hint: pseudocodeTypeHint,
+            completeSingle: false,
+            closeOnUnfocus: true
+          });
+        }, 0);
+      }
+
+      function makeArrayCompletion(insertText, displayText) {
+        return {
+          text: insertText,
+          displayText,
+          hint(cm, data, completion) {
+            cm.replaceRange(completion.text, data.from, data.to, "complete");
+            openTypeHintsAfterArray(cm);
+          }
+        };
+      }
+
+      function pseudocodeTypeHint(cm) {
+        const cur = cm.getCursor();
+        const before = cm.getLine(cur.line).slice(0, cur.ch);
+        const mode = getTypeHintMode(before);
+        if (!mode) return null;
+
+        const tokenMatch = before.match(/[A-Za-z_][A-Za-z0-9_]*$/);
+        const token = tokenMatch ? tokenMatch[0] : "";
+        let fromCh = cur.ch - token.length;
+        let leading = "";
+        if (!token && before.endsWith(":")) {
+          leading = " ";
+        }
+
+        const filter = token.toUpperCase();
+        const list = [];
+        const addItem = (item) => {
+          const label = (item.displayText || item.text || "").toUpperCase();
+          const value = String(item.text || "").toUpperCase();
+          if (filter && !label.startsWith(filter) && !value.startsWith(filter)) {
+            return;
+          }
+          list.push(item);
+        };
+
+        for (const t of BUILTIN_TYPES) {
+          addItem({ text: leading + t, displayText: t });
+        }
+        for (const t of collectUserTypeNames(cm)) {
+          addItem({ text: leading + t, displayText: t });
+        }
+        if (mode === "all") {
+          addItem(
+            makeArrayCompletion(
+              `${leading}ARRAY[1:10] OF `,
+              "ARRAY 1D  [1:10] OF …"
+            )
+          );
+          addItem(
+            makeArrayCompletion(
+              `${leading}ARRAY[1:5, 1:5] OF `,
+              "ARRAY 2D  [1:5, 1:5] OF …"
+            )
+          );
+        }
+
+        if (list.length === 0) return null;
+        return {
+          list,
+          from: CodeMirror.Pos(cur.line, fromCh),
+          to: cur
+        };
+      }
+
+      function maybeShowTypeHints(cm, change) {
+        if (!change || change.origin === "paste" || change.origin === "complete") {
+          return;
+        }
+        const typed = (change.text || []).join("");
+        if (typed === ":" || /^[A-Za-z_]$/.test(typed) || typed === " ") {
+          const cur = cm.getCursor();
+          const before = cm.getLine(cur.line).slice(0, cur.ch);
+          if (getTypeHintMode(before)) {
+            cm.showHint({
+              hint: pseudocodeTypeHint,
+              completeSingle: false,
+              closeOnUnfocus: true
+            });
+          }
+        }
+      }
+
       const codeMirror = CodeMirror.fromTextArea(editorTextarea, {
         mode: "pseudocode",
         theme: "cie",
@@ -408,11 +594,23 @@
         indentUnit: 2,
         extraKeys: {
           Tab: (cm) => {
+            if (cm.state.completionActive) {
+              return CodeMirror.Pass;
+            }
             const n = cm.getOption("indentUnit") || 2;
             cm.replaceSelection(" ".repeat(n), "end");
+          },
+          "Ctrl-Space": (cm) => {
+            cm.showHint({
+              hint: pseudocodeTypeHint,
+              completeSingle: false,
+              closeOnUnfocus: true
+            });
           }
         }
       });
+
+      codeMirror.on("inputRead", maybeShowTypeHints);
 
       window._pseudocodeCodeMirror = codeMirror;
     })();
