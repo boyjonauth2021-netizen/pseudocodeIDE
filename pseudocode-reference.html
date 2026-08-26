@@ -227,7 +227,7 @@
         <li><a href="#files">Text files</a></li>
         <li><a href="#adts">Stacks, queues, linked lists (advanced)</a></li>
         <li><a href="#linked-list">Linked list set-up</a></li>
-        <li><a href="#string-div">String functions, DIV, MOD, INT</a></li>
+        <li><a href="#string-div">String functions, DIV, MOD, INT, CIE inserts</a></li>
         <li><a href="#procedures">Procedures, <code class="inline">BYREF</code>, <code class="inline">BYVALUE</code>, <code class="inline">CALL</code></a></li>
         <li><a href="#functions">Functions, <code class="inline">RETURNS</code>, <code class="inline">RETURN</code></a></li>
         <li><a href="#worked-menu">Worked menu fragment</a></li>
@@ -686,6 +686,21 @@ RIGHT(anyString: STRING, x : INTEGER) RETURNS STRING
 LEFT(anyString: STRING, x : INTEGER) RETURNS STRING
 MID(anyString: STRING, x : INTEGER, y : INTEGER) RETURNS STRING</pre>
       <p>Function header example: <code class="inline">SQUAREROOT(anyPosVal : REAL) RETURNS REAL</code></p>
+      <h3>11.3 CIE insert functions</h3>
+      <p>These match Cambridge 9618 Paper 2 insert functions used in exam-style pseudocode:</p>
+      <pre class="example">RAND(x : INTEGER) RETURNS REAL
+IS_NUM(ThisString : STRING) RETURNS BOOLEAN
+NUM_TO_STR(x) RETURNS STRING
+STR_TO_NUM(x : STRING) RETURNS REAL/INTEGER
+TO_UPPER(x : STRING/CHAR) RETURNS STRING/CHAR
+TO_LOWER(x : STRING/CHAR) RETURNS STRING/CHAR</pre>
+      <ul>
+        <li><code class="inline">RAND(x)</code> returns a real in the range <strong>0 ≤ result &lt; x</strong> (not including <code class="inline">x</code>).</li>
+        <li><code class="inline">IS_NUM</code> is <code class="inline">TRUE</code> for valid numeric strings, including negatives such as <code class="inline">"-12.36"</code>.</li>
+        <li><code class="inline">NUM_TO_STR</code> / <code class="inline">STR_TO_NUM</code> convert between numbers and strings; a leading <code class="inline">'-'</code> means negative.</li>
+        <li><code class="inline">UCASE</code> / <code class="inline">LCASE</code> are accepted as aliases for <code class="inline">TO_UPPER</code> / <code class="inline">TO_LOWER</code>.</li>
+      </ul>
+      <p>This IDE also provides <code class="inline">RANDOM(low, high)</code> as a convenience helper for an inclusive integer range. That is separate from CIE <code class="inline">RAND</code>.</p>
     </section>
 
     <section id="procedures">

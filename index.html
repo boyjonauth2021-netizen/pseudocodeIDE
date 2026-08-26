@@ -423,7 +423,27 @@
         "RECORD",
         "DO"
       ];
-      const PSEU_BI = ["SQUAREROOT", "LENGTH", "RIGHT", "LEFT", "MID", "RANDOM", "ROUND", "INT", "ASC", "CHR", "RND"];
+      const PSEU_BI = [
+        "SQUAREROOT",
+        "LENGTH",
+        "RIGHT",
+        "LEFT",
+        "MID",
+        "RANDOM",
+        "ROUND",
+        "INT",
+        "ASC",
+        "CHR",
+        "RND",
+        "RAND",
+        "IS_NUM",
+        "NUM_TO_STR",
+        "STR_TO_NUM",
+        "TO_UPPER",
+        "TO_LOWER",
+        "UCASE",
+        "LCASE"
+      ];
       const sortDesc = (a, b) => b.length - a.length;
       const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const kws = [...new Set(PSEU_KW)].sort(sortDesc);
@@ -1674,6 +1694,14 @@
       out = out.replace(/\bROUND\s*\(/gi, "__ROUND__(");
       out = out.replace(/\bRND\s*\(/gi, "__RND__(");
       out = out.replace(/\bEOF\s*\(/gi, "__EOF__(");
+      out = out.replace(/\bRAND\s*\(/gi, "__RAND__(");
+      out = out.replace(/\bIS_NUM\s*\(/gi, "__IS_NUM__(");
+      out = out.replace(/\bNUM_TO_STR\s*\(/gi, "__NUM_TO_STR__(");
+      out = out.replace(/\bSTR_TO_NUM\s*\(/gi, "__STR_TO_NUM__(");
+      out = out.replace(/\bTO_UPPER\s*\(/gi, "__TO_UPPER__(");
+      out = out.replace(/\bTO_LOWER\s*\(/gi, "__TO_LOWER__(");
+      out = out.replace(/\bUCASE\s*\(/gi, "__TO_UPPER__(");
+      out = out.replace(/\bLCASE\s*\(/gi, "__TO_LOWER__(");
       out = out.replace(/ & /g, " + ");
       return out;
     }
@@ -1700,6 +1728,12 @@
           "__ROUND__",
           "__RND__",
           "__EOF__",
+          "__RAND__",
+          "__IS_NUM__",
+          "__NUM_TO_STR__",
+          "__STR_TO_NUM__",
+          "__TO_UPPER__",
+          "__TO_LOWER__",
           "__AR1D_GET__",
           "__AR2D_GET__",
           "__REC_DREF__",
@@ -1764,6 +1798,29 @@
             const pos = ctx.fileReadCursors[key] ?? 0;
             return pos >= lines.length;
           },
+          (x) => {
+            const lim = Number(x);
+            if (!Number.isFinite(lim) || lim <= 0) {
+              throw new Error("RAND: x must be a positive number");
+            }
+            return Math.random() * lim;
+          },
+          (s) => {
+            const t = String(s ?? "").trim();
+            if (t === "") return false;
+            return /^-?\d+(\.\d+)?$/.test(t);
+          },
+          (x) => String(x),
+          (s) => {
+            const t = String(s ?? "").trim();
+            const n = Number(t);
+            if (!Number.isFinite(n) || !/^-?\d+(\.\d+)?$/.test(t)) {
+              throw new Error("STR_TO_NUM: invalid numeric string");
+            }
+            return n;
+          },
+          (s) => String(s ?? "").toUpperCase(),
+          (s) => String(s ?? "").toLowerCase(),
           (arrName, idx) => ar1dGet(ctx, arrName, idx),
           (arrName, r, c) => ar2dGet(ctx, arrName, r, c),
           (v, f) => recDref(v, f),
