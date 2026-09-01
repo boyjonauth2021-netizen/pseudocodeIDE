@@ -428,6 +428,7 @@
         "LENGTH",
         "RIGHT",
         "LEFT",
+        "SUBSTRING",
         "MID",
         "RANDOM",
         "ROUND",
@@ -1685,6 +1686,7 @@
       out = out.replace(/\bLENGTH\s*\(/gi, "__LENGTH__(");
       out = out.replace(/\bLEFT\s*\(/gi, "__LEFT__(");
       out = out.replace(/\bRIGHT\s*\(/gi, "__RIGHT__(");
+      out = out.replace(/\bSUBSTRING\s*\(/gi, "__MID__(");
       out = out.replace(/\bMID\s*\(/gi, "__MID__(");
       out = out.replace(/\bINT\s*\(/gi, "__INT__(");
       out = out.replace(/\bASC\s*\(/gi, "__ASC__(");
