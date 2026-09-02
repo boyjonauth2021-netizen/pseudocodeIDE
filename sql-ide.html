@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE 9618 SQL IDE | Paper 1 | pseudocode-web.com</title>
+  <meta name="description" content="Free online SQL editor for Cambridge CIE 9618 Paper 1. Run CREATE TABLE, SELECT, INNER JOIN, GROUP BY and more in the browser." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='72' x='50' text-anchor='middle' font-size='58' font-family='monospace' fill='%2322c55e'>&lt;/&gt;</text></svg>" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --border: #334155;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --warn: #fbbf24;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px 16px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .header-titles { min-width: 0; }
+
+    h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .header-line2, .header-line3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 400;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .header-links {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+      align-self: center;
+      flex-wrap: wrap;
+    }
+
+    .doc-link {
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+
+    .doc-link:hover {
+      background: #1e293b;
+      color: #4ade80;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .editor-top-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .mode-toggle select {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+
+    button {
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.secondary { background: #475569; }
+    button.success { background: var(--accent); color: #04130a; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .console {
+      flex: 1;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #020617;
+      padding: 10px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      min-height: 200px;
+    }
+
+    .result-block {
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-block:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .result-meta {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+
+    .result-msg { color: var(--accent); margin-bottom: 4px; }
+    .result-warn { color: var(--warn); margin-bottom: 4px; }
+    .result-err { color: var(--danger); }
+
+    table.result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 0.85rem;
+    }
+
+    table.result-table th,
+    table.result-table td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    table.result-table th {
+      background: var(--panel-2);
+      color: var(--accent);
+    }
+
+    table.result-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    .schema-table { margin-top: 8px; }
+    .schema-table h4 { margin: 12px 0 4px; font-size: 0.9rem; color: var(--accent); }
+    .schema-table .fk { color: var(--muted); font-size: 0.8rem; }
+
+    .sql-editor { min-height: 0; }
+    .sql-editor .CodeMirror {
+      height: 62vh;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+    }
+    .sql-editor .CodeMirror-gutters {
+      background: #111827;
+      border-right: 1px solid var(--border);
+    }
+    .sql-editor .CodeMirror-linenumber { color: #64748b; }
+
+    .cm-s-cie.CodeMirror { background: #1e2937; color: #d4d4d4; }
+    .cm-s-cie .CodeMirror-activeline-background { background: rgba(255,255,255,0.04); }
+    .cm-s-cie .cm-keyword { color: #569cd6; }
+    .cm-s-cie .cm-string { color: #ce9178; }
+    .cm-s-cie .cm-number { color: #b5cea8; }
+    .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
+    .cm-s-cie .cm-operator { color: #d4d4d4; }
+    .cm-s-cie .CodeMirror-cursor { border-left: 1px solid #e5e7eb; }
+
+    .status-bar {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sql-editor .CodeMirror { min-height: 45vh; }
+      .mode-toggle { margin-left: 0; width: 100%; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css" />
+</head>
+<body>
+  <header>
+    <div class="header-titles">
+      <h1>CIE 9618 Paper 1 SQL IDE</h1>
+      <p class="header-line2">By Mr Boyjonauth, Computer Science Educator, Goodlands, Mauritius</p>
+      <p class="header-line3">Tel No: +230 57155060. Email: boyjonauth@gmail.com</p>
+      <div class="subtitle">Cambridge syllabus SQL only: CREATE DATABASE/TABLE, ALTER PRIMARY KEY/FOREIGN KEY, SELECT, INNER JOIN, GROUP BY, SUM/COUNT/AVG, INSERT, UPDATE, DELETE.</div>
+    </div>
+    <div class="header-links">
+      <a class="doc-link" href="index.html">Pseudocode IDE</a>
+      <a class="doc-link" href="sql-reference.html" target="_blank" rel="noopener noreferrer">SQL Reference</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="label">SQL Editor</div>
+      <div class="editor-top-actions">
+        <button type="button" class="secondary" id="clearEditorBtn">Clear Editor</button>
+        <button type="button" class="secondary" id="loadSchoolBtn">Load School DB</button>
+        <button type="button" class="secondary" id="loadLibraryBtn">Load Library DB</button>
+        <button type="button" class="secondary" id="clearDbBtn">Clear Database</button>
+        <label class="mode-toggle">
+          Mode:
+          <select id="modeSelect">
+            <option value="exam">Exam (strict)</option>
+            <option value="textbook">Textbook (lenient)</option>
+          </select>
+        </label>
+      </div>
+      <div class="sql-editor">
+        <textarea id="editor" spellcheck="false">CREATE DATABASE School;
+
+CREATE TABLE Class(ClassID CHARACTER, Location CHARACTER, LicenceNumber CHARACTER);
+ALTER TABLE Class ADD PRIMARY KEY (ClassID);
+
+CREATE TABLE Student(StudentID CHARACTER, FirstName CHARACTER, SecondName CHARACTER, DateOfBirth DATE, ClassID CHARACTER);
+ALTER TABLE Student ADD PRIMARY KEY (StudentID);
+ALTER TABLE Student ADD FOREIGN KEY (ClassID) REFERENCES Class(ClassID);
+
+INSERT INTO Class VALUES('7A', 'Room 12', 'L001');
+INSERT INTO Student VALUES('S101', 'Alice', 'Adams', '2008-03-14', '7A');
+INSERT INTO Student VALUES('S102', 'Bob', 'Brown', '2008-07-22', '7A');
+
+SELECT FirstName, SecondName
+FROM Student
+WHERE ClassID = '7A'
+ORDER BY SecondName;</textarea>
+      </div>
+      <div class="actions">
+        <button type="button" class="success" id="runBtn">Run SQL</button>
+        <button type="button" class="secondary" id="showSchemaBtn">Show Schema</button>
+      </div>
+      <div class="status-bar" id="statusBar">Loading SQL engine…</div>
+    </section>
+
+    <section class="panel">
+      <div class="label">Output</div>
+      <div class="console" id="output"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/sql/sql.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+  <script src="js/sql-samples.js"></script>
+  <script src="js/sql-engine.js"></script>
+  <script>
+    (function () {
+      var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+        mode: 'text/x-sql',
+        theme: 'default',
+        lineNumbers: true,
+        indentUnit: 4,
+        lineWrapping: true
+      });
+      editor.getWrapperElement().classList.add('cm-s-cie');
+
+      var output = document.getElementById('output');
+      var statusBar = document.getElementById('statusBar');
+      var runBtn = document.getElementById('runBtn');
+      var engine = new Sql9618Engine();
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function renderTable(columns, rows) {
+        if (!columns.length) return '<p class="result-msg">Query returned no columns.</p>';
+        var html = '<table class="result-table"><thead><tr>';
+        columns.forEach(function (col) {
+          html += '<th>' + escapeHtml(col) + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+        if (!rows.length) {
+          html += '<tr><td colspan="' + columns.length + '"><em>No rows</em></td></tr>';
+        } else {
+          rows.forEach(function (row) {
+            html += '<tr>';
+            columns.forEach(function (col) {
+              var val = row[col];
+              html += '<td>' + escapeHtml(val === null || val === undefined ? 'NULL' : val) + '</td>';
+            });
+            html += '</tr>';
+          });
+        }
+        html += '</tbody></table>';
+        return html;
+      }
+
+      function renderSchema(schema) {
+        if (!schema.length) return '<p class="result-msg">No tables in database. Run CREATE DATABASE and CREATE TABLE first.</p>';
+        var html = '<div class="schema-table">';
+        if (engine.databaseName) {
+          html += '<p class="result-msg">Active database: <strong>' + escapeHtml(engine.databaseName) + '</strong></p>';
+        }
+        schema.forEach(function (table) {
+          html += '<h4>' + escapeHtml(table.name) + '</h4>';
+          html += '<table class="result-table"><thead><tr><th>Column</th><th>Type</th><th>Key</th></tr></thead><tbody>';
+          table.columns.forEach(function (col) {
+            html += '<tr><td>' + escapeHtml(col.name) + '</td><td>' + escapeHtml(col.type) + '</td><td>' +
+              (col.pk ? 'PRIMARY KEY' : '') + '</td></tr>';
+          });
+          html += '</tbody></table>';
+          if (table.foreignKeys.length) {
+            table.foreignKeys.forEach(function (fk) {
+              html += '<div class="fk">FK: ' + escapeHtml(fk.from) + ' → ' +
+                escapeHtml(fk.toTable) + '(' + escapeHtml(fk.toCol) + ')</div>';
+            });
+          }
+        });
+        html += '</div>';
+        return html;
+      }
+
+      function renderResults(results) {
+        if (!results.length) {
+          output.innerHTML = '<p class="result-msg">No statements to run.</p>';
+          return;
+        }
+        var html = '';
+        results.forEach(function (r, idx) {
+          html += '<div class="result-block">';
+          html += '<div class="result-meta">Statement ' + (idx + 1) +
+            (r.line ? ' (line ~' + r.line + ')' : '') + '</div>';
+          if (!r.ok) {
+            html += '<div class="result-err">Error: ' + escapeHtml(r.error) + '</div>';
+          } else {
+            if (r.warning) html += '<div class="result-warn">' + escapeHtml(r.warning) + '</div>';
+            if (r.type === 'select') {
+              html += renderTable(r.columns, r.rows);
+            } else {
+              html += '<div class="result-msg">' + escapeHtml(r.message) + '</div>';
+            }
+          }
+          html += '</div>';
+        });
+        output.innerHTML = html;
+      }
+
+      engine.init().then(function () {
+        statusBar.textContent = 'Ready. Run your SQL script or load a sample database.';
+        runBtn.disabled = false;
+      }).catch(function (err) {
+        statusBar.textContent = 'Failed to load SQL engine: ' + err.message;
+        output.innerHTML = '<div class="result-err">' + escapeHtml(err.message) + '</div>';
+      });
+
+      runBtn.disabled = true;
+      runBtn.addEventListener('click', function () {
+        engine.setMode(document.getElementById('modeSelect').value);
+        var results = engine.runScript(editor.getValue());
+        renderResults(results);
+        statusBar.textContent = results.some(function (r) { return !r.ok; })
+          ? 'Finished with errors.'
+          : 'Finished successfully (' + results.length + ' statement(s)).';
+      });
+
+      document.getElementById('showSchemaBtn').addEventListener('click', function () {
+        output.innerHTML = renderSchema(engine.getSchema());
+      });
+
+      document.getElementById('clearEditorBtn').addEventListener('click', function () {
+        editor.setValue('');
+        editor.focus();
+      });
+
+      document.getElementById('clearDbBtn').addEventListener('click', function () {
+        engine.resetDb();
+        output.innerHTML = '<div class="result-msg">Database cleared.</div>';
+        statusBar.textContent = 'Database cleared.';
+      });
+
+      document.getElementById('loadSchoolBtn').addEventListener('click', function () {
+        editor.setValue(SQL_SAMPLES.school);
+        statusBar.textContent = 'School sample loaded. Click Run SQL.';
+      });
+
+      document.getElementById('loadLibraryBtn').addEventListener('click', function () {
+        editor.setValue(SQL_SAMPLES.library);
+        statusBar.textContent = 'Library sample loaded. Click Run SQL.';
+      });
+
+      document.getElementById('modeSelect').addEventListener('change', function () {
+        engine.setMode(this.value);
+      });
+    })();
+  </script>
+</body>
+</html>

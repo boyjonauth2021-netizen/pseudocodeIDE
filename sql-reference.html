@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE 9618 Paper 1 — SQL reference</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111827;
+      --card-border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --code-bg: #020617;
+      --code-border: #334155;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.65; font-size: 1.05rem; }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    header.doc-head { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); }
+    header.doc-head h1 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+    }
+    header.doc-head .meta { color: var(--muted); font-size: 0.95rem; }
+    header.doc-head .links { margin-top: 1rem; }
+    header.doc-head .links a {
+      color: var(--accent);
+      margin-right: 1rem;
+      font-family: system-ui, sans-serif;
+      font-size: 0.95rem;
+    }
+    nav.toc {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    nav.toc h2 {
+      font-family: system-ui, sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+    }
+    nav.toc ol { margin: 0; padding-left: 1.25rem; }
+    nav.toc a { color: var(--accent); }
+    section { margin-bottom: 2.5rem; }
+    section h2 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.35rem;
+      margin: 0 0 1rem;
+      color: var(--accent);
+    }
+    section h3 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.05rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--code-border);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    th { background: var(--card); color: var(--accent); font-family: system-ui, sans-serif; }
+    .note {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .note strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="doc-head">
+      <h1>CIE 9618 Paper 1 — SQL reference</h1>
+      <p class="meta">Cambridge International AS &amp; A Level Computer Science — Chapter 8.3 SQL subset</p>
+      <div class="links">
+        <a href="sql-ide.html">Open SQL IDE</a>
+        <a href="index.html">Pseudocode IDE</a>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#types">Data types</a></li>
+        <li><a href="#ddl">DDL — CREATE &amp; ALTER</a></li>
+        <li><a href="#select">SELECT queries</a></li>
+        <li><a href="#join">INNER JOIN</a></li>
+        <li><a href="#aggregate">GROUP BY &amp; aggregates</a></li>
+        <li><a href="#dml">INSERT, UPDATE, DELETE</a></li>
+        <li><a href="#not-in">Not in the syllabus</a></li>
+      </ol>
+    </nav>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>This reference covers the SQL commands tested in CIE 9618 Paper 1 theory. Keywords are case-insensitive. String values use single quotes: <code>'S101'</code>.</p>
+      <div class="note">
+        <strong>SQL IDE:</strong> Use the <a href="sql-ide.html">online SQL editor</a> to run scripts. <strong>Exam mode</strong> follows strict exam syntax. <strong>Textbook mode</strong> also accepts missing FK parentheses and <code>AND</code> instead of commas in SELECT lists.
+      </div>
+    </section>
+
+    <section id="types">
+      <h2>Data types</h2>
+      <table>
+        <thead><tr><th>Type</th><th>Meaning</th><th>Example value</th></tr></thead>
+        <tbody>
+          <tr><td><code>CHARACTER</code></td><td>Text</td><td><code>'S101'</code></td></tr>
+          <tr><td><code>VARCHAR(n)</code></td><td>Text, max n characters</td><td><code>'Room 3'</code></td></tr>
+          <tr><td><code>BOOLEAN</code></td><td>True or False</td><td><code>TRUE</code>, <code>FALSE</code></td></tr>
+          <tr><td><code>INTEGER</code></td><td>Whole number</td><td><code>78</code></td></tr>
+          <tr><td><code>REAL</code></td><td>Decimal number</td><td><code>19.99</code></td></tr>
+          <tr><td><code>DATE</code></td><td>Date YYYY-MM-DD</td><td><code>'2008-05-12'</code></td></tr>
+          <tr><td><code>TIME</code></td><td>Time HH:MM:SS</td><td><code>'14:30:00'</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="ddl">
+      <h2>DDL — CREATE &amp; ALTER</h2>
+      <h3>CREATE DATABASE</h3>
+      <pre>CREATE DATABASE School;</pre>
+
+      <h3>CREATE TABLE</h3>
+      <pre>CREATE TABLE Student(
+    StudentID CHARACTER,
+    FirstName CHARACTER,
+    SecondName CHARACTER,
+    DateOfBirth DATE,
+    ClassID CHARACTER);</pre>
+
+      <h3>ALTER TABLE — primary key</h3>
+      <pre>ALTER TABLE Student ADD PRIMARY KEY (StudentID);
+ALTER TABLE STUDENT_SUBJECT ADD PRIMARY KEY (StudentID, SubjectName);</pre>
+
+      <h3>ALTER TABLE — foreign key</h3>
+      <pre>ALTER TABLE Student ADD FOREIGN KEY (ClassID) REFERENCES Class(ClassID);</pre>
+
+      <h3>ALTER TABLE — add column</h3>
+      <pre>ALTER TABLE STUDENT ADD Email VARCHAR(60);</pre>
+
+      <h3>Typical script order</h3>
+      <ol>
+        <li><code>CREATE DATABASE</code></li>
+        <li><code>CREATE TABLE</code> parent tables</li>
+        <li><code>ALTER TABLE … ADD PRIMARY KEY</code></li>
+        <li><code>CREATE TABLE</code> child tables</li>
+        <li><code>ALTER TABLE … ADD FOREIGN KEY</code></li>
+      </ol>
+    </section>
+
+    <section id="select">
+      <h2>SELECT queries</h2>
+      <pre>SELECT FirstName, SecondName
+FROM Student
+WHERE ClassID = '7A'
+ORDER BY SecondName;</pre>
+
+      <h3>WHERE operators</h3>
+      <p><code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, combined with <code>AND</code> / <code>OR</code>.</p>
+      <pre>WHERE Returned = FALSE
+WHERE ClassID = '7A' AND SecondName = 'Adams'</pre>
+
+      <h3>ORDER BY</h3>
+      <pre>ORDER BY SecondName
+ORDER BY SecondName ASC
+ORDER BY SecondName DESC</pre>
+    </section>
+
+    <section id="join">
+      <h2>INNER JOIN</h2>
+      <pre>SELECT STUDENT.FirstName, STUDENT.LastName, TUTOR.TutorName
+FROM STUDENT
+INNER JOIN CLASS ON STUDENT.ClassCode = CLASS.ClassCode
+INNER JOIN TUTOR ON CLASS.TutorID = TUTOR.TutorID
+WHERE STUDENT.ClassCode = 'C5A';</pre>
+    </section>
+
+    <section id="aggregate">
+      <h2>GROUP BY &amp; aggregates</h2>
+      <pre>SELECT ClassCode, COUNT(StudentID) AS NumberOfPupils
+FROM STUDENT
+GROUP BY ClassCode;
+
+SELECT SUM(ExamMark) AS TotalMarks
+FROM STUDENT_SUBJECT
+WHERE StudentID = 'S101';
+
+SELECT AVG(ExamMark) AS AveragePhysics
+FROM STUDENT_SUBJECT
+WHERE SubjectName = 'Physics';</pre>
+      <p>Allowed aggregate functions: <code>SUM()</code>, <code>COUNT()</code>, <code>AVG()</code>.</p>
+    </section>
+
+    <section id="dml">
+      <h2>INSERT, UPDATE, DELETE</h2>
+      <h3>INSERT INTO</h3>
+      <pre>INSERT INTO Student VALUES('S1301', 'Peter', 'Probert', '2011-06-06', '7A');
+
+INSERT INTO STUDENT(StudentID, FirstName, LastName, ClassCode)
+VALUES('S105', 'Fabrice', 'Ah-Sen', 'C5A');</pre>
+
+      <h3>UPDATE</h3>
+      <pre>UPDATE STUDENT
+SET ClassCode = 'C5A'
+WHERE StudentID = 'S104';</pre>
+
+      <h3>DELETE FROM</h3>
+      <pre>DELETE FROM STUDENT WHERE StudentID = 'S105';</pre>
+      <div class="note"><strong>Warning:</strong> <code>DELETE FROM TableName</code> with no WHERE clause deletes <em>all</em> rows.</div>
+    </section>
+
+    <section id="not-in">
+      <h2>Not in the syllabus</h2>
+      <p>The following are <strong>not</strong> required for CIE 9618 Paper 1 and are rejected by the SQL IDE:</p>
+      <ul>
+        <li><code>DROP DATABASE</code>, <code>DROP TABLE</code></li>
+        <li><code>LEFT JOIN</code>, <code>RIGHT JOIN</code>, <code>FULL JOIN</code>, <code>OUTER JOIN</code></li>
+        <li><code>HAVING</code>, <code>LIMIT</code>, <code>UNION</code>, subqueries</li>
+        <li><code>CREATE INDEX</code>, views, triggers, transactions</li>
+        <li>MySQL-specific syntax (<code>AUTO_INCREMENT</code>, backticks, etc.)</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
