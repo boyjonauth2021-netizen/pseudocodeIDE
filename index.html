@@ -862,10 +862,26 @@
       return trimmed;
     }
 
+    function flushLiveOutput(ctx) {
+      if (!ctx || !Array.isArray(ctx.output)) return;
+      output.textContent = ctx.output.join("\n");
+      output.classList.remove("error");
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function pushOutput(ctx, line) {
+      ctx.output.push(line);
+      flushLiveOutput(ctx);
+    }
+
     function readNextInputValue(varName, ctx) {
-      const lastOutput = ctx.output.length > 0 ? ctx.output[ctx.output.length - 1] : "";
-      const promptText = lastOutput || `Enter value for ${varName}:`;
-      const userValue = window.prompt(promptText, "");
+      flushLiveOutput(ctx);
+      // Show recent OUTPUT in the prompt so feedback (e.g. Too high) is visible
+      // even when the browser blocks the page with a modal dialog.
+      const recent = ctx.output.length
+        ? ctx.output.slice(-6).join("\n")
+        : `Enter value for ${varName}:`;
+      const userValue = window.prompt(recent, "");
       if (userValue === null) {
         throw new Error(`Input cancelled for: ${varName}`);
       }
@@ -874,7 +890,7 @@
 
     function echoInputToOutput(ctx, val) {
       if (val !== undefined && val !== null) {
-        ctx.output.push("  (entered) " + String(val));
+        pushOutput(ctx, "  (entered) " + String(val));
       }
     }
 
@@ -947,8 +963,8 @@
       if (!ctx.writeOrder || ctx.writeOrder.length === 0) return;
       for (const name of ctx.writeOrder) {
         const lines = ctx.filesWrite[name] || [];
-        ctx.output.push(`Contents of ${name}`);
-        ctx.output.push(lines.join("\n"));
+        pushOutput(ctx, `Contents of ${name}`);
+        pushOutput(ctx, lines.join("\n"));
       }
     }
 
@@ -1872,7 +1888,7 @@
           const values = exprs.map((part) =>
             formatOutputAtom(evalExpression(part, ctx))
           );
-          ctx.output.push(values.join(" "));
+          pushOutput(ctx, values.join(" "));
           i += 1;
           continue;
         }
@@ -2302,12 +2318,14 @@
     });
 
     runBtn.addEventListener("click", () => {
+      printOutput("", false);
       try {
         const result = runPseudocode(getEditorText());
         printOutput(result || "(No output)", false);
       } catch (error) {
         const msg = error && error.message != null ? error.message : String(error);
-        printOutput(msg, true);
+        const prior = output.textContent ? output.textContent + "\n" : "";
+        printOutput(prior + msg, true);
       }
     });
 
