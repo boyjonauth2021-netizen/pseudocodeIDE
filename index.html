@@ -36,6 +36,8 @@
     gtag("js", new Date());
     gtag("config", "G-2CV8GCXGK4");
   </script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3635078997366836" crossorigin="anonymous"></script>
   <style>
     :root {
       color-scheme: light dark;
@@ -210,6 +212,17 @@
 
     .error { color: var(--danger); }
 
+    .site-foot {
+      padding: 10px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .site-foot a { color: var(--accent); }
+
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
       .pseudocode-editor .CodeMirror { min-height: 45vh; }
@@ -339,6 +352,9 @@
       <div id="output" class="console"></div>
     </section>
   </main>
+  <footer class="site-foot">
+    <a href="privacy-policy.html">Privacy Policy</a> &middot; pseudocode-web.com
+  </footer>
   <ul id="typeHintMenu" class="type-hint-menu" hidden role="listbox" aria-label="Data types"></ul>
 
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>

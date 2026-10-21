@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CIE 9618 pseudocode — language reference</title>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3635078997366836" crossorigin="anonymous"></script>
   <style>
     :root {
       --bg: #0b1220;
@@ -684,7 +686,9 @@ ENDPROCEDURE</pre>
       <pre class="example">LENGTH(anyString : STRING) RETURNS INTEGER
 RIGHT(anyString: STRING, x : INTEGER) RETURNS STRING
 LEFT(anyString: STRING, x : INTEGER) RETURNS STRING
-MID(anyString: STRING, x : INTEGER, y : INTEGER) RETURNS STRING</pre>
+MID(anyString: STRING, x : INTEGER, y : INTEGER) RETURNS STRING
+SUBSTRING(anyString: STRING, x : INTEGER, y : INTEGER) RETURNS STRING</pre>
+      <p><code class="inline">SUBSTRING</code> is accepted as an alias for <code class="inline">MID</code> with the same arguments and behaviour.</p>
       <p>Function header example: <code class="inline">SQUAREROOT(anyPosVal : REAL) RETURNS REAL</code></p>
       <h3>11.3 CIE insert functions</h3>
       <p>These match Cambridge 9618 Paper 2 insert functions used in exam-style pseudocode:</p>
@@ -805,6 +809,7 @@ ENDFUNCTION</pre>
         Your teacher or centre may provide a formal pseudocode guide; use that for assessed work if it
         differs from any detail here.
       </p>
+      <p><a href="privacy-policy.html">Privacy Policy</a></p>
     </footer>
   </div>
 </body>

@@ -6,6 +6,8 @@
   <title>CIE 9618 SQL IDE | Paper 1 | pseudocode-web.com</title>
   <meta name="description" content="Free online SQL editor for Cambridge CIE 9618 Paper 1. Run CREATE TABLE, SELECT, INNER JOIN, GROUP BY and more in the browser." />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='72' x='50' text-anchor='middle' font-size='58' font-family='monospace' fill='%2322c55e'>&lt;/&gt;</text></svg>" />
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3635078997366836" crossorigin="anonymous"></script>
   <style>
     :root {
       color-scheme: light dark;
@@ -242,6 +244,17 @@
       margin-top: 6px;
     }
 
+    .site-foot {
+      padding: 10px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .site-foot a { color: var(--accent); }
+
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
       .sql-editor .CodeMirror { min-height: 45vh; }
@@ -311,6 +324,9 @@ ORDER BY SecondName;</textarea>
       <div class="console" id="output"></div>
     </section>
   </main>
+  <footer class="site-foot">
+    <a href="privacy-policy.html">Privacy Policy</a> &middot; pseudocode-web.com
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/sql/sql.js"></script>
