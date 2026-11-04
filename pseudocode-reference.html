@@ -511,11 +511,19 @@ OUTPUT Counter</pre>
       <h3>Set type</h3>
       <pre class="example">TYPE LetterSet = SET OF CHAR
 DEFINE Vowels ('A', 'E', 'I', 'O', 'U') : LetterSet
+DEFINE Soft ('A', 'E', 'O') : LetterSet
+DEFINE Digits ('0', '1', '2') : LetterSet
+DECLARE Combined, Shared, OnlyVowels : LetterSet
 IF 'E' IN Vowels THEN
   OUTPUT "E is a vowel"
 ENDIF
-OUTPUT Vowels</pre>
-      <p>Use <code class="inline">TYPE Name = SET OF BaseType</code> then <code class="inline">DEFINE setName (values) : Name</code>. Membership uses <code class="inline">IN</code>.</p>
+Combined ← Vowels UNION Digits
+Shared ← Vowels INTERSECTION Soft
+OnlyVowels ← Vowels DIFFERENCE Soft
+OUTPUT Combined
+OUTPUT Shared
+OUTPUT OnlyVowels</pre>
+      <p>Use <code class="inline">TYPE Name = SET OF BaseType</code> then <code class="inline">DEFINE setName (values) : Name</code>. Membership uses <code class="inline">IN</code>. Binary set operations: <code class="inline">UNION</code>, <code class="inline">INTERSECTION</code>, <code class="inline">DIFFERENCE</code> (both sides must be the same set type).</p>
     </section>
 
     <section id="arrays">
