@@ -225,6 +225,7 @@
         <li><a href="#iteration">FOR, REPEAT, WHILE</a></li>
         <li><a href="#data-types">Data types and <code class="inline">DECLARE</code></a></li>
         <li><a href="#records">Records: <code class="inline">TYPE</code> / <code class="inline">ENDTYPE</code></a></li>
+        <li><a href="#user-types">Enumerated, pointer and set types (Paper 3)</a></li>
         <li><a href="#arrays">Arrays 1D and 2D</a></li>
         <li><a href="#search-sort">Linear search and bubble sort</a></li>
         <li><a href="#files">Text files</a></li>
@@ -478,6 +479,43 @@ ENDTYPE
 DECLARE Book : TbookRecord
 Book.author ← "David Watson"
 Book.fiction ← FALSE</pre>
+    </section>
+
+    <section id="user-types">
+      <h2>6b. Enumerated, pointer and set types (9618 Paper 3 §13.1)</h2>
+      <p>These match Cambridge / Hodder Chapter 13.1 user-defined types. Values of an enumerated type are <strong>identifiers</strong> (no quotes) and have an order from the declaration list.</p>
+
+      <h3>Enumerated type</h3>
+      <pre class="example">TYPE Season = (Spring, Summer, Autumn, Winter)
+DECLARE ThisSeason, NextSeason : Season
+ThisSeason ← Spring
+NextSeason ← ThisSeason + 1
+IF ThisSeason = Spring THEN
+  OUTPUT "Start of year"
+ENDIF
+OUTPUT NextSeason</pre>
+
+      <h3>Pointer type</h3>
+      <p><code class="inline">^</code> before a name takes its address (referencing). <code class="inline">^</code> after a pointer name reads the value (dereferencing).</p>
+      <pre class="example">TYPE TIntPointer = ^INTEGER
+DECLARE Counter : INTEGER
+DECLARE MyPointer : TIntPointer
+DECLARE Result : INTEGER
+Counter ← 42
+MyPointer ← ^Counter
+Result ← MyPointer^
+OUTPUT Result
+MyPointer^ ← 100
+OUTPUT Counter</pre>
+
+      <h3>Set type</h3>
+      <pre class="example">TYPE LetterSet = SET OF CHAR
+DEFINE Vowels ('A', 'E', 'I', 'O', 'U') : LetterSet
+IF 'E' IN Vowels THEN
+  OUTPUT "E is a vowel"
+ENDIF
+OUTPUT Vowels</pre>
+      <p>Use <code class="inline">TYPE Name = SET OF BaseType</code> then <code class="inline">DEFINE setName (values) : Name</code>. Membership uses <code class="inline">IN</code>.</p>
     </section>
 
     <section id="arrays">

@@ -316,7 +316,7 @@
       <h1>CIE Computer Science 2210 O Level / 9618 A Level Pseudocode IDE</h1>
       <p class="header-line2">By Mr Boyjonauth, Computer Science Educator, Goodlands, Mauritius</p>
       <p class="header-line3">Tel No: +230 57155060.      Email: boyjonauth@gmail.com</p>
-      <div class="subtitle">CIE 9618 style: procedures, functions, records (TYPE/ENDTYPE, dot fields), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Type <code>:</code> after DECLARE for a data-type list. Runs in the browser.</div>
+      <div class="subtitle">CIE 9618 style: procedures, functions, records, enumerated types, pointers (<code>^</code>), sets (SET OF / DEFINE), IF/CASE, loops, arrays, string &amp;, INPUT/OUTPUT. Type <code>:</code> after DECLARE for a data-type list. Runs in the browser.</div>
     </div>
     <a id="readmeLink" class="doc-link" href="pseudocode-reference.html" target="_blank" rel="noopener noreferrer">Reference</a>
   </header>
@@ -439,6 +439,8 @@
         "RETURN",
         "TYPE",
         "RECORD",
+        "DEFINE",
+        "SET",
         "DO"
       ];
       const PSEU_BI = [
@@ -495,6 +497,17 @@
         const seen = new Set();
         const lines = cm.getValue().split(/\r?\n/);
         for (let i = 0; i < lines.length; i += 1) {
+          const line = lines[i].trim();
+          const one =
+            line.match(/^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*=/i) ||
+            line.match(/^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+          if (one) {
+            if (!seen.has(one[1].toUpperCase())) {
+              seen.add(one[1].toUpperCase());
+              names.push(one[1]);
+            }
+            continue;
+          }
           if (!/^\s*TYPE\s*$/i.test(lines[i])) continue;
           for (let j = i + 1; j < lines.length; j += 1) {
             const s = lines[j].trim();
@@ -1043,30 +1056,86 @@
       return Boolean(v && v._record && v._data && typeof v._data === "object" && v._type);
     }
 
+    function isEnumValue(v) {
+      return Boolean(v && v._enum && v._type && typeof v._ord === "number");
+    }
+
+    function isPointerValue(v) {
+      return Boolean(v && v._pointer && v._type);
+    }
+
+    function isSetValue(v) {
+      return Boolean(v && v._set && Array.isArray(v._elements));
+    }
+
+    function makeEnumValue(typeName, valueName, ord) {
+      const o = {
+        _enum: true,
+        _type: typeName,
+        _value: valueName,
+        _ord: ord,
+        valueOf() {
+          return this._ord;
+        },
+        toString() {
+          return this._value;
+        }
+      };
+      return o;
+    }
+
     function makeRecordValue(typeName, ctx) {
       const def = ctx && ctx.defs && ctx.defs.types && ctx.defs.types[typeName];
       if (!def) throw new Error(`Unknown type: ${typeName}`);
+      if (def.kind && def.kind !== "record") {
+        throw new Error(`${typeName} is not a record type`);
+      }
       const data = {};
       for (const f of def.fields) {
         const ft = String(f.type || "").trim();
-        if (ctx && ctx.defs && ctx.defs.types && ctx.defs.types[ft]) {
-          data[f.name] = makeRecordValue(ft, ctx);
-        } else {
-          data[f.name] = defaultValueForType(ft);
-        }
+        data[f.name] = makeValueForUserType(ft, ctx);
       }
       return { _record: true, _type: typeName, _data: data };
+    }
+
+    function makeValueForUserType(typeName, ctx) {
+      const t = String(typeName || "").trim();
+      const def = ctx && ctx.defs && ctx.defs.types && ctx.defs.types[t];
+      if (!def) return defaultValueForType(t);
+      if (def.kind === "enum") {
+        const lit =
+          ctx.defs.enumLiterals && ctx.defs.enumLiterals[def.values[0]];
+        return lit || makeEnumValue(def.name, def.values[0], 0);
+      }
+      if (def.kind === "pointer") {
+        return { _pointer: true, _type: def.name, _target: null };
+      }
+      if (def.kind === "settype") {
+        return { _set: true, _type: def.name, _elements: [] };
+      }
+      return makeRecordValue(t, ctx);
     }
 
     function cellDefaultForType(ofType, ctx) {
       const t = String(ofType || "").trim();
       if (ctx && ctx.defs && ctx.defs.types && ctx.defs.types[t]) {
-        return makeRecordValue(t, ctx);
+        return makeValueForUserType(t, ctx);
       }
       return defaultValueForType(t);
     }
 
     function deepCloneValue(v) {
+      // Enumerated values are immutable singletons — keep the same reference
+      // so == comparisons work in expressions.
+      if (isEnumValue(v)) {
+        return v;
+      }
+      if (isPointerValue(v)) {
+        return { _pointer: true, _type: v._type, _target: v._target };
+      }
+      if (isSetValue(v)) {
+        return { _set: true, _type: v._type, _elements: v._elements.slice() };
+      }
       if (isRecordValue(v)) {
         return { _record: true, _type: v._type, _data: deepCloneData(v._data) };
       }
@@ -1179,6 +1248,13 @@
     }
 
     function formatOutputAtom(v) {
+      if (isEnumValue(v)) return String(v._value);
+      if (isPointerValue(v)) {
+        return v._target ? `^${v._target}` : "NIL";
+      }
+      if (isSetValue(v)) {
+        return `{${v._elements.map((e) => formatOutputAtom(e)).join(", ")}}`;
+      }
       if (isRecordValue(v)) {
         const bits = Object.keys(v._data).map(
           (k) => `${k}=${formatOutputAtom(v._data[k])}`
@@ -1297,7 +1373,7 @@
         } else {
           const tName = right.trim();
           if (ctx.defs && ctx.defs.types && ctx.defs.types[tName]) {
-            ctx.vars[varName] = makeRecordValue(tName, ctx);
+            ctx.vars[varName] = makeValueForUserType(tName, ctx);
           } else {
             ctx.vars[varName] = defaultValueForType(right);
           }
@@ -1350,23 +1426,62 @@
       return -1;
     }
 
+    function parseOneLineType(raw) {
+      const enumM = raw.match(
+        /^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\((.+)\)\s*$/i
+      );
+      if (enumM) {
+        const values = enumM[2]
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        if (!values.length) throw new Error(`Empty enumerated type: ${raw}`);
+        for (const v of values) {
+          if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(v)) {
+            throw new Error(
+              `Enumerated values must be identifiers (no quotes): ${v}`
+            );
+          }
+        }
+        return { kind: "enum", name: enumM[1], values };
+      }
+      const ptrM = raw.match(
+        /^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\^\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i
+      );
+      if (ptrM) {
+        return { kind: "pointer", name: ptrM[1], base: ptrM[2] };
+      }
+      const setM = raw.match(
+        /^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*SET\s+OF\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i
+      );
+      if (setM) {
+        return { kind: "settype", name: setM[1], base: setM[2] };
+      }
+      return null;
+    }
+
     function parseTypeDef(lines, start, end) {
-      const t0 = normalizeLine(lines[start]).trim().toUpperCase();
-      if (t0 !== "TYPE") {
+      const header = normalizeLine(lines[start]).trim();
+      const headerSame = header.match(/^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+      let j = start + 1;
+      let typeName = null;
+      if (headerSame) {
+        typeName = headerSame[1];
+      } else if (/^TYPE$/i.test(header)) {
+        while (j < end) {
+          const s = normalizeLine(lines[j]).trim();
+          if (s) break;
+          j += 1;
+        }
+        if (j >= end) throw new Error("TYPE is missing a name and body");
+        typeName = normalizeLine(lines[j]).trim();
+        j += 1;
+      } else {
         throw new Error(`Invalid TYPE start: ${lines[start]}`);
       }
-      let j = start + 1;
-      while (j < end) {
-        const s = normalizeLine(lines[j]).trim();
-        if (s) break;
-        j += 1;
-      }
-      if (j >= end) throw new Error("TYPE is missing a name and body");
-      const typeName = normalizeLine(lines[j]).trim();
       if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(typeName)) {
         throw new Error(`Invalid TYPE name: ${typeName}`);
       }
-      j += 1;
       const fields = [];
       for (; j < end; j += 1) {
         const L = normalizeLine(lines[j]).trim();
@@ -1388,7 +1503,7 @@
         }
         fields.push({ name: decl[1], type: decl[2].trim() });
       }
-      return { name: typeName, fields };
+      return { kind: "record", name: typeName, fields };
     }
 
     function parseProcedureDef(lines, start, end) {
@@ -1441,7 +1556,24 @@
       const procedures = {};
       const functions = {};
       const types = {};
+      const enumLiterals = {};
       let i = 0;
+
+      function registerType(def) {
+        if (types[def.name]) {
+          throw new Error(`Duplicate TYPE name: ${def.name}`);
+        }
+        types[def.name] = def;
+        if (def.kind === "enum") {
+          def.values.forEach((val, ord) => {
+            if (enumLiterals[val]) {
+              throw new Error(`Duplicate enumerated value: ${val}`);
+            }
+            enumLiterals[val] = makeEnumValue(def.name, val, ord);
+          });
+        }
+      }
+
       while (i < lines.length) {
         const raw = normalizeLine(lines[i]).trim();
         if (!raw || raw.startsWith("//") || raw.startsWith("#")) {
@@ -1449,16 +1581,18 @@
           continue;
         }
         const u = raw.toUpperCase();
-        if (u === "TYPE") {
+        const oneLine = parseOneLineType(raw);
+        if (oneLine) {
+          registerType(oneLine);
+          i += 1;
+          continue;
+        }
+        if (u === "TYPE" || /^TYPE\s+[A-Za-z_][A-Za-z0-9_]*\s*$/i.test(raw)) {
           const end = findTypeEnd(lines, i);
           if (end === -1) {
             throw new Error("Missing ENDTYPE");
           }
-          const def = parseTypeDef(lines, i, end);
-          if (types[def.name]) {
-            throw new Error(`Duplicate TYPE name: ${def.name}`);
-          }
-          types[def.name] = def;
+          registerType(parseTypeDef(lines, i, end));
           i = end + 1;
           continue;
         }
@@ -1483,7 +1617,7 @@
         mainLines.push(lines[i]);
         i += 1;
       }
-      return { mainLines, procedures, functions, types };
+      return { mainLines, procedures, functions, types, enumLiterals };
     }
 
     function collectVarsForEval(ctx) {
@@ -1494,6 +1628,9 @@
         cur = Object.getPrototypeOf(cur);
       }
       const out = {};
+      if (ctx.defs && ctx.defs.enumLiterals) {
+        Object.assign(out, ctx.defs.enumLiterals);
+      }
       for (const name of Object.keys(ctx.defs.functions)) {
         out[name] = (...args) => invokeUserFunction(name, args, ctx);
       }
@@ -1707,6 +1844,20 @@
       let out = normalizeLine(expr);
       out = out.replace(/<>/g, "!=");
       out = out.replace(/(?<![<>!=])=(?![=])/g, "==");
+      // Pointer dereference: Ident^  (after identifier, before other ops)
+      out = transformOutsideStringLiterals(out, (chunk) =>
+        chunk.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\^/g, "__DEREF__($1)")
+      );
+      // Pointer reference / address-of: ^Ident
+      out = transformOutsideStringLiterals(out, (chunk) =>
+        chunk.replace(/\^([A-Za-z_][A-Za-z0-9_]*)\b/g, '__REF__("$1")')
+      );
+      // Set membership: x IN setVar  (x may be identifier or quoted literal).
+      // Do not split on string boundaries first — the left operand may be a quoted literal.
+      out = out.replace(
+        /((?:'[^']*'|"[^"]*"|-?\d+(?:\.\d+)?|[A-Za-z_][A-Za-z0-9_]*))\s+IN\s+([A-Za-z_][A-Za-z0-9_]*)\b/gi,
+        "__SET_HAS__($2,$1)"
+      );
       out = applyArrayGetSyntax(out);
       out = applyArrayOfRecordGetSyntax(out);
       out = applyRecordIdentChain(out);
@@ -1739,6 +1890,18 @@
       out = out.replace(/\bUCASE\s*\(/gi, "__TO_UPPER__(");
       out = out.replace(/\bLCASE\s*\(/gi, "__TO_LOWER__(");
       out = out.replace(/ & /g, " + ");
+      // Enum ordinal arithmetic: value + n / value - n (also works after __DEREF__)
+      out = transformOutsideStringLiterals(out, (chunk) =>
+        chunk
+          .replace(
+            /((?:__DEREF__\([^)]+\)|[A-Za-z_][A-Za-z0-9_]*))\s*\+\s*(-?\d+)/g,
+            "__ENUM_ADD__($1,$2)"
+          )
+          .replace(
+            /((?:__DEREF__\([^)]+\)|[A-Za-z_][A-Za-z0-9_]*))\s*-\s*(-?\d+)/g,
+            "__ENUM_SUB__($1,$2)"
+          )
+      );
       return out;
     }
 
@@ -1774,6 +1937,11 @@
           "__AR2D_GET__",
           "__REC_DREF__",
           "__REC_CHAIN__",
+          "__REF__",
+          "__DEREF__",
+          "__ENUM_ADD__",
+          "__ENUM_SUB__",
+          "__SET_HAS__",
           `return (${jsExpr});`
         )(
           ...values,
@@ -1860,11 +2028,86 @@
           (arrName, idx) => ar1dGet(ctx, arrName, idx),
           (arrName, r, c) => ar2dGet(ctx, arrName, r, c),
           (v, f) => recDref(v, f),
-          (h, rest) => recChainGet(ctx, h, rest)
+          (h, rest) => recChainGet(ctx, h, rest),
+          (varName) => {
+            const name = String(varName);
+            if (!Object.prototype.hasOwnProperty.call(ctx.vars, name) &&
+                !getVarObjectInScopeOptional(ctx, name)) {
+              // still allow if in scope chain
+            }
+            try {
+              getVarObjectInScope(ctx, name);
+            } catch (e) {
+              throw new Error(`Cannot take address of unknown variable: ${name}`);
+            }
+            return { _pointer: true, _type: "*", _target: name };
+          },
+          (ptr) => {
+            if (!isPointerValue(ptr)) {
+              throw new Error("Dereference (^) requires a pointer");
+            }
+            if (!ptr._target) {
+              throw new Error("Null pointer dereference");
+            }
+            return getVarObjectInScope(ctx, ptr._target);
+          },
+          (a, b) => {
+            if (isEnumValue(a)) {
+              const def = ctx.defs.types[a._type];
+              if (!def || def.kind !== "enum") {
+                throw new Error(`Unknown enumerated type: ${a._type}`);
+              }
+              const n = Number(b);
+              const ord = a._ord + n;
+              if (ord < 0 || ord >= def.values.length) {
+                throw new Error(`Enumerated value out of range for ${a._type}`);
+              }
+              const lit = ctx.defs.enumLiterals[def.values[ord]];
+              return lit || makeEnumValue(a._type, def.values[ord], ord);
+            }
+            return Number(a) + Number(b);
+          },
+          (a, b) => {
+            if (isEnumValue(a)) {
+              const def = ctx.defs.types[a._type];
+              if (!def || def.kind !== "enum") {
+                throw new Error(`Unknown enumerated type: ${a._type}`);
+              }
+              const n = Number(b);
+              const ord = a._ord - n;
+              if (ord < 0 || ord >= def.values.length) {
+                throw new Error(`Enumerated value out of range for ${a._type}`);
+              }
+              const lit = ctx.defs.enumLiterals[def.values[ord]];
+              return lit || makeEnumValue(a._type, def.values[ord], ord);
+            }
+            return Number(a) - Number(b);
+          },
+          (setVal, item) => {
+            if (!isSetValue(setVal)) {
+              throw new Error("IN requires a set on the right");
+            }
+            return setVal._elements.some((el) => setElementsEqual(el, item));
+          }
         );
       } catch (error) {
         throw new Error(`Invalid expression: ${expr}`);
       }
+    }
+
+    function getVarObjectInScopeOptional(ctx, name) {
+      try {
+        return getVarObjectInScope(ctx, name);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setElementsEqual(a, b) {
+      if (isEnumValue(a) && isEnumValue(b)) {
+        return a._type === b._type && a._value === b._value;
+      }
+      return a === b;
     }
 
     function findPaired(lines, startIndex, startToken, endToken) {
@@ -1895,6 +2138,33 @@
 
         if (upper.startsWith("DECLARE ")) {
           parseDeclare(line, ctx);
+          i += 1;
+          continue;
+        }
+
+        // DEFINE setName (v1, v2, ...) : SetType
+        const defineM = line.match(
+          /^DEFINE\s+([A-Za-z_][A-Za-z0-9_]*)\s*\((.*)\)\s*:\s*([A-Za-z_][A-Za-z0-9_]*)\s*$/i
+        );
+        if (defineM) {
+          const setVar = defineM[1];
+          const setTypeName = defineM[3];
+          const def = ctx.defs.types[setTypeName];
+          if (!def || def.kind !== "settype") {
+            throw new Error(`Unknown set type: ${setTypeName}`);
+          }
+          const rawParts = splitByCommaOutsideQuotes(defineM[2]);
+          const elements = [];
+          for (const part of rawParts) {
+            const p = part.trim();
+            if (!p) continue;
+            elements.push(evalExpression(p, ctx));
+          }
+          ctx.vars[setVar] = {
+            _set: true,
+            _type: setTypeName,
+            _elements: elements
+          };
           i += 1;
           continue;
         }
@@ -2290,11 +2560,48 @@
           i += 1;
           continue;
         }
+        // Pointer dereference assignment: ptr^ ← value
+        const derefAssign = line.match(
+          /^([A-Za-z_][A-Za-z0-9_]*)\^\s*(?:<-|=)\s*(.+)$/
+        );
+        if (derefAssign) {
+          const ptr = getVarObjectInScope(ctx, derefAssign[1]);
+          if (!isPointerValue(ptr) || !ptr._target) {
+            throw new Error(`Cannot assign through pointer: ${derefAssign[1]}`);
+          }
+          const ev = evalExpression(derefAssign[2], ctx);
+          ctx.vars[ptr._target] = deepCloneValue(ev);
+          i += 1;
+          continue;
+        }
+
         const assignMatch = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*(?:<-|=)\s*(.+)$/);
         if (assignMatch) {
           const [, varName, expr] = assignMatch;
-          const ev = evalExpression(expr, ctx);
-          ctx.vars[varName] = isRecordValue(ev) ? deepCloneValue(ev) : ev;
+          let rhs = expr.trim();
+          // ptr ← ^var  (keep as expression; translateExpression handles ^var)
+          const ev = evalExpression(rhs, ctx);
+          if (isPointerValue(ev)) {
+            // Preserve pointer type from declared variable if present
+            const existing = Object.prototype.hasOwnProperty.call(ctx.vars, varName)
+              ? ctx.vars[varName]
+              : null;
+            const pType =
+              existing && isPointerValue(existing) ? existing._type : ev._type;
+            ctx.vars[varName] = {
+              _pointer: true,
+              _type: pType,
+              _target: ev._target
+            };
+          } else if (
+            isRecordValue(ev) ||
+            isEnumValue(ev) ||
+            isSetValue(ev)
+          ) {
+            ctx.vars[varName] = deepCloneValue(ev);
+          } else {
+            ctx.vars[varName] = ev;
+          }
           i += 1;
           continue;
         }
@@ -2305,10 +2612,11 @@
 
     function runPseudocode(source) {
       const lines = source.split(/\r?\n/).map((x) => normalizeLine(x));
-      const { mainLines, procedures, functions, types } = extractDefinitions(lines);
+      const { mainLines, procedures, functions, types, enumLiterals } =
+        extractDefinitions(lines);
       const ctx = {
         vars: {},
-        defs: { procedures, functions, types },
+        defs: { procedures, functions, types, enumLiterals },
         output: []
       };
       initSimulatedFilesFromSource(source, ctx);
