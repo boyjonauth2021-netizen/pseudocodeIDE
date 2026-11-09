@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE 9618 Paper 3 — Data types (composite &amp; non-composite) | pseudocode-web.com</title>
+  <meta name="description" content="CIE 9618 Paper 3 §13.1 user-defined data types: composite vs non-composite (enumerated, pointer, record, array, set, class) with runnable pseudocode." />
+  <meta name="google-adsense-account" content="ca-pub-3635078997966836">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3635078997966836" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111827;
+      --card-border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --code-bg: #020617;
+      --code-border: #334155;
+      --ok-bg: rgba(34, 197, 94, 0.1);
+      --ok-border: rgba(34, 197, 94, 0.35);
+      --warn-bg: rgba(251, 191, 36, 0.1);
+      --warn-border: rgba(251, 191, 36, 0.35);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 1.05rem;
+    }
+    .wrap {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+    header.doc-head {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    header.doc-head h1 {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    header.doc-head .meta { color: var(--muted); font-size: 0.95rem; }
+    .top-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+    .top-links a {
+      font-family: system-ui, sans-serif;
+      font-size: 0.88rem;
+      color: #04130a;
+      background: #22c55e;
+      text-decoration: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .top-links a.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--code-border);
+    }
+    nav.toc {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.25rem;
+    }
+    nav.toc h2 {
+      font-family: system-ui, sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+    }
+    nav.toc ol { margin: 0; padding-left: 1.25rem; }
+    nav.toc a { color: var(--accent); text-decoration: none; }
+    nav.toc a:hover { text-decoration: underline; }
+    section { margin-bottom: 2.75rem; }
+    section h2 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 650;
+      margin: 0 0 1rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 2px solid var(--accent-soft);
+      color: #f1f5f9;
+    }
+    section h3 {
+      font-family: system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.65rem;
+      color: #cbd5e1;
+    }
+    p { margin: 0 0 1rem; }
+    ul { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: 0.35rem; }
+    .def {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.85rem 1.1rem;
+      margin: 0.75rem 0 1.1rem;
+    }
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      margin: 1.25rem 0;
+      font-size: 0.98rem;
+    }
+    .note strong { color: #fcd34d; }
+    .runnable {
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-border);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      margin: 0.5rem 0 0.75rem;
+      font-family: system-ui, sans-serif;
+      font-size: 0.88rem;
+      color: #86efac;
+    }
+    .expected {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: -0.5rem 0 1.25rem;
+      font-family: system-ui, sans-serif;
+    }
+    pre.example {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 0.86rem;
+      line-height: 1.45;
+      margin: 0.5rem 0 0.75rem;
+      white-space: pre;
+    }
+    code.inline {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9em;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.12em 0.4em;
+      border-radius: 4px;
+      border: 1px solid var(--code-border);
+    }
+    table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0.75rem 0 1.25rem;
+    }
+    table.ref th, table.ref td {
+      border: 1px solid var(--code-border);
+      padding: 0.45rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.ref th { background: rgba(15, 23, 42, 0.85); }
+    .ad-slot {
+      max-width: 728px;
+      margin: 2rem auto 0.5rem;
+      padding: 0.5rem 0;
+      min-height: 90px;
+      text-align: center;
+    }
+    footer.doc-foot {
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--card-border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    footer.doc-foot a { color: var(--accent); }
+    @media print {
+      body { background: #fff; color: #111; }
+      .top-links { display: none; }
+      pre.example { border: 1px solid #ccc; background: #f8fafc; color: #0f172a; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="doc-head">
+      <h1>Paper 3 — User-defined data types</h1>
+      <p class="meta">
+        CIE 9618 Chapter 13.1 — composite vs non-composite types (as in the coursebook), with
+        definitions and pseudocode that runs in the <a href="index.html" style="color:#38bdf8">online IDE</a>.
+      </p>
+      <div class="top-links">
+        <a href="index.html">Open Pseudocode IDE</a>
+        <a class="secondary" href="pseudocode-reference.html">Language reference</a>
+      </div>
+    </header>
+
+    <div class="note">
+      <strong>How to use:</strong> copy any complete example below into the IDE and press Run.
+      Every runnable block is a full program (no <code class="inline">INPUT</code>), so it should finish without prompts.
+      Class / OOP syntax is summarised for theory only — it is not executed by the IDE yet.
+    </div>
+
+    <nav class="toc" aria-label="Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#overview">Composite vs non-composite</a></li>
+        <li><a href="#non-composite">Non-composite user-defined types</a></li>
+        <li><a href="#composite">Composite types</a></li>
+        <li><a href="#combined">Combined exam-style example</a></li>
+      </ol>
+    </nav>
+
+    <section id="overview">
+      <h2>1. Composite vs non-composite</h2>
+
+      <div class="def">
+        <strong>Non-composite data type:</strong> a type that holds a <em>single</em> value.
+        Built-in examples include <code class="inline">INTEGER</code>, <code class="inline">REAL</code>,
+        <code class="inline">BOOLEAN</code>, <code class="inline">CHAR</code>, <code class="inline">STRING</code>
+        and <code class="inline">DATE</code>. User-defined non-composite types are
+        <strong>enumerated</strong> and <strong>pointer</strong> types.
+      </div>
+      <div class="def">
+        <strong>Composite data type:</strong> a type that holds a <em>set of values</em> under one name.
+        User-defined composite types include <strong>record</strong>, <strong>set</strong> and
+        <strong>class / object</strong>. An <strong>array</strong> is also composite
+        (several values of the same base type).
+      </div>
+
+      <table class="ref">
+        <thead>
+          <tr>
+            <th>Kind</th>
+            <th>In Chapter 13.1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Non-composite (user-defined)</td>
+            <td>Enumerated type · Pointer type</td>
+          </tr>
+          <tr>
+            <td>Composite (user-defined)</td>
+            <td>Record · Set · Class / object</td>
+          </tr>
+          <tr>
+            <td>Also composite</td>
+            <td>Array (1D / 2D; often of records)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        <strong>Why user-defined types?</strong> A programmer may need a type that does not already exist
+        in the language; to represent a particular group of data under one identifier; to extend existing
+        types; to make code easier to read; or to match the program’s requirements exactly.
+      </p>
+    </section>
+
+    <section id="non-composite">
+      <h2>2. Non-composite user-defined types</h2>
+
+      <h3>2.1 Enumerated type</h3>
+      <div class="def">
+        <strong>Enumerated type:</strong> a user-defined non-composite type whose possible values are a
+        fixed list of identifiers (no quotes). The list defines an order, so values can be compared and
+        you can move with <code class="inline">+ 1</code> / <code class="inline">- 1</code>.
+        Useful when a field has a small, fixed set of allowed values (for example taxi codes or seasons).
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">TYPE Season = (Spring, Summer, Autumn, Winter)
+DECLARE ThisSeason : Season
+DECLARE NextSeason : Season
+ThisSeason ← Spring
+NextSeason ← ThisSeason + 1
+IF ThisSeason = Spring THEN
+  OUTPUT "Start of year"
+ENDIF
+OUTPUT ThisSeason
+OUTPUT NextSeason
+IF NextSeason &gt; ThisSeason THEN
+  OUTPUT "Later season"
+ENDIF</pre>
+      <p class="expected">Expected output: <code class="inline">Start of year</code>, <code class="inline">Spring</code>, <code class="inline">Summer</code>, <code class="inline">Later season</code></p>
+
+      <h3>2.2 Pointer type</h3>
+      <div class="def">
+        <strong>Pointer type:</strong> a user-defined non-composite type whose value is the
+        <em>address</em> (location) of another variable. Purpose: to refer indirectly to data —
+        used with linked lists and trees.
+        <code class="inline">^Variable</code> takes the address (referencing);
+        <code class="inline">Pointer^</code> reads or writes the value at that address (dereferencing).
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">TYPE TIntPointer = ^INTEGER
+DECLARE Counter : INTEGER
+DECLARE MyPointer : TIntPointer
+DECLARE Result : INTEGER
+Counter ← 42
+MyPointer ← ^Counter
+Result ← MyPointer^
+OUTPUT Result
+MyPointer^ ← 100
+OUTPUT Counter</pre>
+      <p class="expected">Expected output: <code class="inline">42</code> then <code class="inline">100</code></p>
+    </section>
+
+    <section id="composite">
+      <h2>3. Composite types</h2>
+
+      <h3>3.1 Array (1D)</h3>
+      <div class="def">
+        <strong>Array:</strong> a composite type storing several values of the <em>same</em> base type,
+        each accessed by an index. Bounds are written as <code class="inline">ARRAY[low:high] OF Type</code>.
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">DECLARE Marks : ARRAY[1:5] OF INTEGER
+DECLARE Index : INTEGER
+DECLARE Sum : INTEGER
+Marks[1] ← 12
+Marks[2] ← 15
+Marks[3] ← 9
+Marks[4] ← 18
+Marks[5] ← 11
+Sum ← 0
+FOR Index ← 1 TO 5
+  Sum ← Sum + Marks[Index]
+NEXT Index
+OUTPUT Sum
+OUTPUT Marks[4]</pre>
+      <p class="expected">Expected output: <code class="inline">65</code> then <code class="inline">18</code></p>
+
+      <h3>3.2 Array (2D)</h3>
+      <div class="def">
+        <strong>Two-dimensional array:</strong> a table of values of the same type, accessed with two indices
+        (row, column).
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">DECLARE Grid : ARRAY[1:2,1:3] OF INTEGER
+DECLARE R : INTEGER
+DECLARE C : INTEGER
+DECLARE Total : INTEGER
+FOR R ← 1 TO 2
+  FOR C ← 1 TO 3
+    Grid[R,C] ← R * 10 + C
+  NEXT C
+NEXT R
+Total ← 0
+FOR R ← 1 TO 2
+  FOR C ← 1 TO 3
+    Total ← Total + Grid[R,C]
+  NEXT C
+NEXT R
+OUTPUT Grid[2,3]
+OUTPUT Total</pre>
+      <p class="expected">Expected output: <code class="inline">23</code> then <code class="inline">102</code></p>
+
+      <h3>3.3 Record</h3>
+      <div class="def">
+        <strong>Record:</strong> a composite user-defined type that groups several <em>fields</em>,
+        which may have <em>different</em> data types, under one type name.
+        Declared with <code class="inline">TYPE … ENDTYPE</code>. Fields are accessed with a dot:
+        <code class="inline">Booking1.ClientName</code>.
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">TYPE Student
+  DECLARE StudentID : STRING
+  DECLARE FullName : STRING
+  DECLARE Mark : INTEGER
+  DECLARE Passed : BOOLEAN
+ENDTYPE
+
+DECLARE S1 : Student
+S1.StudentID ← "S001"
+S1.FullName ← "Maya Chen"
+S1.Mark ← 72
+S1.Passed ← S1.Mark &gt;= 50
+OUTPUT S1.StudentID
+OUTPUT S1.FullName
+OUTPUT S1.Mark
+IF S1.Passed THEN
+  OUTPUT "Passed"
+ENDIF</pre>
+      <p class="expected">Expected output: <code class="inline">S001</code>, <code class="inline">Maya Chen</code>, <code class="inline">72</code>, <code class="inline">Passed</code></p>
+
+      <h3>3.4 Array of records</h3>
+      <div class="def">
+        <strong>Array of records:</strong> each element of the array is a whole record.
+        Useful for tables of entities (fleet of vehicles, list of bookings).
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">TYPE Product
+  DECLARE ProductCode : STRING
+  DECLARE UnitPrice : REAL
+ENDTYPE
+
+DECLARE Catalogue : ARRAY[1:3] OF Product
+DECLARE Item : Product
+DECLARE I : INTEGER
+Item.ProductCode ← "P10"
+Item.UnitPrice ← 2.50
+Catalogue[1] ← Item
+Item.ProductCode ← "P20"
+Item.UnitPrice ← 4.00
+Catalogue[2] ← Item
+Item.ProductCode ← "P30"
+Item.UnitPrice ← 1.25
+Catalogue[3] ← Item
+FOR I ← 1 TO 3
+  OUTPUT Catalogue[I].ProductCode
+  OUTPUT Catalogue[I].UnitPrice
+NEXT I</pre>
+      <p class="expected">Expected output: <code class="inline">P10</code>, <code class="inline">2.5</code>, <code class="inline">P20</code>, <code class="inline">4</code>, <code class="inline">P30</code>, <code class="inline">1.25</code></p>
+
+      <h3>3.5 Set</h3>
+      <div class="def">
+        <strong>Set:</strong> a composite user-defined collection of values of one base type.
+        Order is not significant and values should not be repeated.
+        Declare the set type with <code class="inline">TYPE Name = SET OF BaseType</code>,
+        create a set with <code class="inline">DEFINE</code>, test membership with <code class="inline">IN</code>,
+        and combine sets with <code class="inline">UNION</code>, <code class="inline">INTERSECTION</code>,
+        <code class="inline">DIFFERENCE</code>.
+      </div>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">TYPE LetterSet = SET OF CHAR
+DEFINE Vowels ('A', 'E', 'I', 'O', 'U') : LetterSet
+DEFINE Soft ('A', 'E', 'O') : LetterSet
+DEFINE Digits ('0', '1', '2') : LetterSet
+DECLARE Combined : LetterSet
+DECLARE Shared : LetterSet
+DECLARE OnlyVowels : LetterSet
+
+IF 'E' IN Vowels THEN
+  OUTPUT "E is a vowel"
+ENDIF
+
+Combined ← Vowels UNION Digits
+Shared ← Vowels INTERSECTION Soft
+OnlyVowels ← Vowels DIFFERENCE Soft
+
+OUTPUT Combined
+OUTPUT Shared
+OUTPUT OnlyVowels</pre>
+      <p class="expected">Expected output: <code class="inline">E is a vowel</code>, then <code class="inline">{A, E, I, O, U, 0, 1, 2}</code>, <code class="inline">{A, E, O}</code>, <code class="inline">{I, U}</code></p>
+
+      <h3 id="class-note">3.6 Class / object (theory only)</h3>
+      <div class="def">
+        <strong>Class:</strong> a composite user-defined type used in object-oriented design.
+        It groups attributes (data) and methods (operations). An <strong>object</strong> is an
+        instance of a class. Exam questions often ask for <em>set</em> and <em>class / object</em>
+        as the other composite user-defined types besides record.
+      </div>
+      <div class="note">
+        <strong>Not runnable in this IDE yet.</strong> Written answers may use
+        <code class="inline">CLASS</code> / <code class="inline">PRIVATE</code> /
+        <code class="inline">PUBLIC</code> / <code class="inline">ENDCLASS</code>.
+        For live practice here, model data fields with a <strong>record</strong> (section 3.3).
+      </div>
+      <pre class="example">// Theory illustration only — do not run in the IDE
+CLASS Patient
+  PRIVATE Name : STRING
+  PRIVATE DateSeen : DATE
+  PUBLIC PROCEDURE NEW(NewName : STRING, NewDate : DATE)
+    // constructor would assign attributes
+  ENDPROCEDURE
+ENDCLASS</pre>
+    </section>
+
+    <section id="combined">
+      <h2>4. Combined exam-style example</h2>
+      <p>
+        Typical Paper 3 pattern: declare an <strong>enumerated</strong> type, then a
+        <strong>composite record</strong> that includes that type and a <code class="inline">DATE</code> field.
+      </p>
+      <p class="runnable">Runnable in the online IDE</p>
+      <pre class="example">TYPE Vehicle = (M100, M230, T101, T102, T120, T150)
+
+TYPE Booking
+  DECLARE BookingNumber : STRING
+  DECLARE Destination : STRING
+  DECLARE ClientName : STRING
+  DECLARE ClientTelephone : STRING
+  DECLARE DateOfDeparture : DATE
+  DECLARE PickupAddress : STRING
+  DECLARE TaxiUsed : Vehicle
+ENDTYPE
+
+DECLARE Booking1 : Booking
+Booking1.BookingNumber ← "B204"
+Booking1.Destination ← "Airport"
+Booking1.ClientName ← "Sam Lee"
+Booking1.ClientTelephone ← "57155060"
+Booking1.DateOfDeparture ← "22/11/2026"
+Booking1.PickupAddress ← "12 Ring Road"
+Booking1.TaxiUsed ← T101
+
+OUTPUT Booking1.BookingNumber
+OUTPUT Booking1.ClientName
+OUTPUT Booking1.DateOfDeparture
+OUTPUT Booking1.TaxiUsed
+IF Booking1.TaxiUsed = T101 THEN
+  OUTPUT "Taxi T101 assigned"
+ENDIF</pre>
+      <p class="expected">Expected output: <code class="inline">B204</code>, <code class="inline">Sam Lee</code>, <code class="inline">22/11/2026</code>, <code class="inline">T101</code>, <code class="inline">Taxi T101 assigned</code></p>
+    </section>
+
+    <div class="ad-slot" aria-label="Advertisement">
+      <!-- pseudocode-footer -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-3635078997966836"
+           data-ad-slot="7168611717"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
+    <footer class="doc-foot">
+      <p>
+        Aligned with CIE 9618 Paper 3 §13.1 (user-defined data types).
+        Practice in the <a href="index.html">pseudocode IDE</a> ·
+        <a href="pseudocode-reference.html">language reference</a> ·
+        <a href="privacy-policy.html">Privacy Policy</a>
+      </p>
+      <p>pseudocode-web.com — Mr Boyjonauth</p>
+    </footer>
+  </div>
+</body>
+</html>
