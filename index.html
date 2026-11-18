@@ -377,7 +377,7 @@
   <footer class="site-foot">
     <a href="privacy-policy.html">Privacy Policy</a> &middot; pseudocode-web.com
   </footer>
-  <ul id="typeHintMenu" class="type-hint-menu" hidden role="listbox" aria-label="Data types"></ul>
+      <ul id="typeHintMenu" class="type-hint-menu" hidden role="listbox" aria-label="Suggestions"></ul>
 
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/mode/simple.js"></script>
@@ -586,6 +586,144 @@
         return null;
       }
 
+      function collectProgramSymbols(cm) {
+        const lines = cm.getValue().split(/\r?\n/);
+        const symbols = [];
+        const records = {};
+        const seenSym = new Set();
+
+        function addSym(name, type, kind) {
+          if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) return;
+          const key = name.toUpperCase();
+          if (seenSym.has(key)) return;
+          seenSym.add(key);
+          symbols.push({ name, type: String(type || "").trim(), kind });
+        }
+
+        let i = 0;
+        while (i < lines.length) {
+          const line = lines[i].trim();
+          if (!line || line.startsWith("//") || line.startsWith("#")) {
+            i += 1;
+            continue;
+          }
+          const enumM = line.match(
+            /^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\(([^)]*)\)\s*$/i
+          );
+          if (enumM) {
+            enumM[2].split(",").forEach((part) => addSym(part.trim(), enumM[1], "enum"));
+            i += 1;
+            continue;
+          }
+          if (/^TYPE\s+[A-Za-z_][A-Za-z0-9_]*\s*=/i.test(line)) {
+            i += 1;
+            continue;
+          }
+          if (/^TYPE$/i.test(line) || /^TYPE\s+[A-Za-z_][A-Za-z0-9_]*\s*$/i.test(line)) {
+            let typeName = null;
+            let j = i + 1;
+            const same = line.match(/^TYPE\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/i);
+            if (same) {
+              typeName = same[1];
+            } else {
+              while (j < lines.length && !lines[j].trim()) j += 1;
+              if (j < lines.length && /^[A-Za-z_][A-Za-z0-9_]*$/.test(lines[j].trim())) {
+                typeName = lines[j].trim();
+                j += 1;
+              }
+            }
+            const fields = [];
+            for (; j < lines.length; j += 1) {
+              const L = lines[j].trim();
+              if (!L) continue;
+              if (/^END\s*TYPE\b/i.test(L)) break;
+              const decl = L.match(
+                /^DECLARE\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.+)$/i
+              );
+              if (decl) fields.push({ name: decl[1], type: decl[2].trim() });
+            }
+            if (typeName) records[typeName.toUpperCase()] = fields;
+            i = j + 1;
+            continue;
+          }
+          const book = line.match(
+            /^DECLARE\s+([A-Za-z_][A-Za-z0-9_]*)\s+ARRAY\s*\[[^\]]+\]\s*OF\s+(\w+)\s*$/i
+          );
+          if (book) {
+            addSym(book[1], `ARRAY OF ${book[2]}`, "var");
+            i += 1;
+            continue;
+          }
+          const decl = line.match(/^DECLARE\s+(.+?)\s*:\s*(.+)$/i);
+          if (decl) {
+            const type = decl[2].trim();
+            decl[1].split(",").forEach((part) => addSym(part.trim(), type, "var"));
+            i += 1;
+            continue;
+          }
+          const constant = line.match(
+            /^CONSTANT\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:<-|=)/i
+          );
+          if (constant) {
+            addSym(constant[1], "", "const");
+            i += 1;
+            continue;
+          }
+          const paramLine = line.match(
+            /^(?:PROCEDURE|FUNCTION)\s+[A-Za-z_][A-Za-z0-9_]*\s*\(([^)]*)\)/i
+          );
+          if (paramLine && paramLine[1]) {
+            paramLine[1].split(",").forEach((part) => {
+              const m = part
+                .trim()
+                .match(
+                  /^(?:BYREF|BYVAL|BYVALUE)?\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.+)$/i
+                );
+              if (m) addSym(m[1], m[2].trim(), "var");
+            });
+          }
+          i += 1;
+        }
+        return { symbols, records };
+      }
+
+      function baseTypeName(typeText) {
+        const text = String(typeText || "");
+        const arrayOf =
+          text.match(/ARRAY\s*\[[^\]]*\]\s*OF\s+([A-Za-z_][A-Za-z0-9_]*)/i) ||
+          text.match(/ARRAY\s+OF\s+([A-Za-z_][A-Za-z0-9_]*)/i);
+        if (arrayOf) return arrayOf[1];
+        const plain = text.trim();
+        return /^[A-Za-z_][A-Za-z0-9_]*$/.test(plain) ? plain : "";
+      }
+
+      function findSymbol(symbols, name) {
+        const key = String(name || "").toUpperCase();
+        return symbols.find((s) => s.name.toUpperCase() === key) || null;
+      }
+
+      function suggestContext(cm, before) {
+        if (!before || isInsideStringLiteral(before) || /^\s*(\/\/|#)/.test(before)) {
+          return null;
+        }
+        if (getTypeHintMode(before)) return null;
+        const field = before.match(
+          /([A-Za-z_][A-Za-z0-9_]*)\s*(?:\[\s*[^\]]*\]\s*)?\.\s*([A-Za-z_][A-Za-z0-9_]*)?$/
+        );
+        if (field) {
+          return { kind: "field", head: field[1], token: field[2] || "" };
+        }
+        if (/^\s*(OUTPUT|PRINT)\s*$/i.test(before)) {
+          return { kind: "quote" };
+        }
+        if (/^\s*(DECLARE|CONSTANT|TYPE|PROCEDURE|FUNCTION|ENDTYPE)\b/i.test(before)) {
+          return null;
+        }
+        const token = before.match(/[A-Za-z_][A-Za-z0-9_]*$/);
+        if (!token) return null;
+        return { kind: "name", token: token[0] };
+      }
+
       function hideTypeHints() {
         typeHintState = null;
         typeHintMenu.hidden = true;
@@ -640,16 +778,20 @@
         const cur = cm.getCursor();
         const before = cm.getLine(cur.line).slice(0, cur.ch);
         const mode = getTypeHintMode(before);
-        if (!mode) {
+        const suggestion = mode ? null : suggestContext(cm, before);
+        if (!mode && !suggestion) {
           hideTypeHints();
           return;
         }
 
         const tokenMatch = before.match(/[A-Za-z_][A-Za-z0-9_]*$/);
         const token = tokenMatch ? tokenMatch[0] : "";
-        const fromCh = cur.ch - token.length;
+        const fromCh =
+          suggestion && suggestion.kind === "quote" ? cur.ch : cur.ch - token.length;
         const leading = !token && before.endsWith(":") ? " " : "";
-        const filter = token.toUpperCase();
+        const filter = (
+          suggestion && suggestion.kind === "field" ? suggestion.token : token
+        ).toUpperCase();
         const items = [];
         const addItem = (insert, label, openAgain) => {
           const labelU = label.toUpperCase();
@@ -660,11 +802,36 @@
           items.push({ insert, label, openAgain: Boolean(openAgain) });
         };
 
-        for (const t of BUILTIN_TYPES) addItem(leading + t, t, false);
-        for (const t of collectUserTypeNames(cm)) addItem(leading + t, t, false);
-        if (mode === "all") {
-          addItem(`${leading}ARRAY[1:10] OF `, "ARRAY 1D  [1:10] OF …", true);
-          addItem(`${leading}ARRAY[1:5, 1:5] OF `, "ARRAY 2D  [1:5, 1:5] OF …", true);
+        if (mode) {
+          for (const t of BUILTIN_TYPES) addItem(leading + t, t, false);
+          for (const t of collectUserTypeNames(cm)) addItem(leading + t, t, false);
+          if (mode === "all") {
+            addItem(`${leading}ARRAY[1:10] OF `, "ARRAY 1D  [1:10] OF …", true);
+            addItem(`${leading}ARRAY[1:5, 1:5] OF `, "ARRAY 2D  [1:5, 1:5] OF …", true);
+          }
+        } else if (suggestion.kind === "quote") {
+          const insert = /\s$/.test(before) ? '"' : ' "';
+          items.push({ insert, label: '"text"', openAgain: false });
+        } else if (suggestion.kind === "field" || suggestion.kind === "name") {
+          const { symbols, records } = collectProgramSymbols(cm);
+          if (suggestion.kind === "field") {
+            const sym = findSymbol(symbols, suggestion.head);
+            const typeName = baseTypeName(sym && sym.type);
+            const fields = records[typeName.toUpperCase()] || [];
+            fields.forEach((field) => {
+              addItem(field.name, `${field.name} : ${field.type}`, false);
+            });
+          } else if (token.length > 0) {
+            symbols.forEach((sym) => {
+              const detail =
+                sym.kind === "const"
+                  ? "constant"
+                  : sym.kind === "enum"
+                    ? `enum ${sym.type}`
+                    : sym.type;
+              addItem(sym.name, detail ? `${sym.name} : ${detail}` : sym.name, false);
+            });
+          }
         }
 
         if (items.length === 0) {
@@ -763,7 +930,7 @@
       codeMirror.on("cursorActivity", (cm) => {
         const cur = cm.getCursor();
         const before = cm.getLine(cur.line).slice(0, cur.ch);
-        if (!getTypeHintMode(before)) {
+        if (!getTypeHintMode(before) && !suggestContext(cm, before)) {
           hideTypeHints();
         }
       });
