@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE 9618 Python — Paper 4 subset</title>
+  <meta name="google-adsense-account" content="ca-pub-3635078997966836">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3635078997966836" crossorigin="anonymous"></script>
+  <style>
+    :root { --bg:#0b1220; --text:#e5e7eb; --muted:#94a3b8; --card:#111827; --line:#334155; --accent:#38bdf8; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Georgia, serif; line-height:1.6; }
+    .wrap { max-width:52rem; margin:0 auto; padding:2rem 1.2rem 3rem; }
+    h1,h2 { font-family:system-ui,sans-serif; }
+    a { color:var(--accent); }
+    pre { background:#020617; border:1px solid var(--line); border-radius:10px; padding:1rem; overflow:auto; font-family:Consolas,monospace; font-size:0.88rem; }
+    code { font-family:Consolas,monospace; }
+    .note { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.35); border-radius:10px; padding:.8rem 1rem; }
+    footer { margin-top:2rem; color:var(--muted); font-size:.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Paper 4 Python subset</h1>
+    <p>Console Python for CIE 9618, matching the constructs used in the Hodder textbook and the Paper 4 mark schemes. Open the <a href="python-ide.html">Python IDE</a> and press Run. Keywords are coloured, a near-miss such as <code>whle</code> gets a red wavy underline, and typing a name, <code>print(</code> or <code>object.</code> opens a suggestion list. Ctrl+Space opens it again.</p>
+    <div class="note">The editor rejects <code>import</code>, <code>lambda</code>, comprehensions and decorators. Python has no <code>CASE</code> and no <code>REPEAT…UNTIL</code>: use <code>if / elif</code> and <code>while</code>.</div>
+
+    <h2>Selection, loops and functions</h2>
+    <pre>myValue = int(input("Please enter my value "))
+if myValue &gt; 10:
+    print("High")
+elif myValue &lt; 0:
+    print("Negative")
+else:
+    print("OK")
+
+for counter in range(1, 5):
+    print(counter)
+
+def average(total, count):
+    return total / count</pre>
+
+    <h2>Lists and a class</h2>
+    <pre>marks = [12, 15, 9]
+marks.append(18)
+
+class EventItem:
+    def __init__(self, name, difficulty):
+        self.__name = name
+        self.__difficulty = difficulty
+    def GetName(self):
+        return self.__name
+
+item = EventItem("Sprint", 3)
+print(item.GetName())</pre>
+
+    <h2>Files and exceptions</h2>
+    <pre>myFile = open("notes.txt", "w")
+myFile.write("Ada\n")
+myFile.close()
+
+try:
+    answer = 10 // 0
+except:
+    print("Divide by zero")</pre>
+
+    <h2>CIE functions also available</h2>
+    <p><code>LENGTH</code>, <code>LEFT</code>, <code>RIGHT</code>, <code>MID</code>, <code>SUBSTRING</code>, <code>INT</code>, <code>ASC</code>, <code>CHR</code>, <code>SQUAREROOT</code>, <code>RANDOM(low, high)</code>, <code>ROUND</code>, <code>RND</code>, <code>RAND</code>, <code>DIV</code>, <code>MOD</code>, <code>IS_NUM</code>, <code>NUM_TO_STR</code>, <code>STR_TO_NUM</code>, <code>TO_UPPER</code>, <code>TO_LOWER</code>, <code>UCASE</code>, <code>LCASE</code>, <code>EOF(file)</code>.</p>
+    <pre>print(LENGTH("Ada"))
+print(TO_UPPER("ada"))
+print(RANDOM(1, 6))</pre>
+
+    <div class="ad-slot" aria-label="Advertisement">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-3635078997966836"
+           data-ad-slot="7168611717"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    <footer>
+      <a href="python-ide.html">Python IDE</a> ·
+      <a href="index.html">Pseudocode IDE</a> ·
+      <a href="privacy-policy.html">Privacy Policy</a>
+    </footer>
+  </div>
+</body>
+</html>

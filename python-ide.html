@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIE 9618 Python IDE | Paper 4 | pseudocode-web.com</title>
+  <meta name="description" content="Free online Python editor for Cambridge CIE 9618 Paper 4 console Python. Run if, loops, functions, lists, classes, files and try/except in the browser." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230f172a'/><text y='72' x='50' text-anchor='middle' font-size='58' font-family='monospace' fill='%2322c55e'>&lt;/&gt;</text></svg>" />
+  <meta name="google-adsense-account" content="ca-pub-3635078997966836">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3635078997966836" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --border: #334155;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px 16px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .header-titles { min-width: 0; }
+    h1 { margin: 0; font-size: 1.1rem; font-weight: 700; line-height: 1.35; }
+    .header-line2, .header-line3 { margin: 4px 0 0; font-size: 0.95rem; line-height: 1.4; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+    .header-links { display: flex; gap: 8px; flex-wrap: wrap; align-self: center; }
+    .doc-link {
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+    .doc-link:hover { background: #1e293b; color: #4ade80; }
+    .layout { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; padding: 12px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .label { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
+    .editor-top-actions, .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .editor-top-actions { margin-bottom: 8px; }
+    .actions { margin-top: 10px; }
+    button {
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary { background: #475569; }
+    button.success { background: var(--accent); color: #04130a; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .python-editor .CodeMirror {
+      height: auto;
+      min-height: 62vh;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .python-editor .CodeMirror-gutters { background: #0f172a; border-right: 1px solid var(--border); }
+    .cm-s-cie.CodeMirror { background: #1e2937; color: #d4d4d4; }
+    .cm-s-cie .CodeMirror-cursor { border-left: 2px solid #f8fafc; }
+    .cm-s-cie .CodeMirror-linenumber { color: #64748b; }
+    .cm-s-cie .cm-keyword { color: #569cd6; font-weight: 700; }
+    .cm-s-cie .cm-builtin { color: #dcdcaa; }
+    .cm-s-cie .cm-def { color: #dcdcaa; }
+    .cm-s-cie .cm-variable { color: #9cdcfe; }
+    .cm-s-cie .cm-variable-2 { color: #9cdcfe; }
+    .cm-s-cie .cm-string { color: #ce9178; }
+    .cm-s-cie .cm-number { color: #b5cea8; }
+    .cm-s-cie .cm-comment { color: #6a9955; font-style: italic; }
+    .cm-s-cie .cm-operator { color: #d4d4d4; }
+    .cm-kw-error {
+      text-decoration: underline wavy #ef4444;
+      text-underline-offset: 3px;
+    }
+    .console {
+      flex: 1;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #020617;
+      padding: 10px;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem;
+      min-height: 200px;
+    }
+    .console.error { color: var(--danger); }
+    .status-bar { margin-top: 8px; color: var(--muted); font-size: 0.85rem; }
+    .ad-slot { max-width: 728px; margin: 12px auto 4px; padding: 8px 16px; min-height: 90px; text-align: center; }
+    .site-foot {
+      padding: 10px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .site-foot a { color: var(--accent); }
+    .type-hint-menu {
+      position: fixed;
+      z-index: 4000;
+      margin: 0;
+      padding: 4px 0;
+      min-width: 220px;
+      max-height: min(50vh, 320px);
+      overflow-y: auto;
+      list-style: none;
+      background: #0b1220;
+      border: 1px solid #22c55e;
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.95rem;
+    }
+    .type-hint-menu[hidden] { display: none; }
+    .type-hint-menu li {
+      padding: 10px 14px;
+      color: #e5e7eb;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .type-hint-menu li.active, .type-hint-menu li:hover { background: #2563eb; color: #fff; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .python-editor .CodeMirror { min-height: 45vh; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css" />
+</head>
+<body>
+  <header>
+    <div class="header-titles">
+      <h1>CIE 9618 Paper 4 Python IDE</h1>
+      <p class="header-line2">By Mr Boyjonauth, Computer Science Educator, Goodlands, Mauritius</p>
+      <p class="header-line3">Tel No: +230 57155060. Email: boyjonauth@gmail.com</p>
+      <div class="subtitle">Console Python from the syllabus and Hodder textbook: if / elif, for and while, functions, lists, classes, files, try / except. CIE functions such as LENGTH, MID and TO_UPPER work here too. Type a name or <code>object.</code> for suggestions.</div>
+    </div>
+    <div class="header-links">
+      <a class="doc-link" href="index.html">Pseudocode IDE</a>
+      <a class="doc-link" href="python-reference.html" target="_blank" rel="noopener noreferrer">Python reference</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="label">Python Editor</div>
+      <div class="editor-top-actions">
+        <button type="button" class="secondary" id="clearEditorBtn">Clear Editor</button>
+        <button type="button" class="secondary" id="loadIfBtn">Load IF example</button>
+        <button type="button" class="secondary" id="loadClassBtn">Load class example</button>
+        <button type="button" class="secondary" id="loadFileBtn">Load file example</button>
+        <button type="button" class="secondary" onclick="window.location.href='sql-ide.html'">SQL Editor</button>
+      </div>
+      <div class="python-editor">
+        <textarea id="editor" spellcheck="false"></textarea>
+      </div>
+      <div class="actions">
+        <button type="button" class="success" id="runBtn">Run Python</button>
+        <button type="button" class="secondary" id="clearBtn">Clear Output</button>
+      </div>
+      <div class="status-bar" id="statusBar">Python runtime loads the first time you press Run.</div>
+    </section>
+    <section class="panel">
+      <div class="label">Output</div>
+      <div class="console" id="output"></div>
+    </section>
+  </main>
+  <div class="ad-slot" aria-label="Advertisement">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3635078997966836"
+         data-ad-slot="7168611717"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+  <footer class="site-foot">
+    <a href="privacy-policy.html">Privacy Policy</a> &middot; pseudocode-web.com
+  </footer>
+  <ul id="typeHintMenu" class="type-hint-menu" hidden role="listbox" aria-label="Suggestions"></ul>
+
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/python/python.js"></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <script>
+    const output = document.getElementById("output");
+    const statusBar = document.getElementById("statusBar");
+    const runBtn = document.getElementById("runBtn");
+    const IF_EXAMPLE = `# CIE console Python — selection
+myValue = int(input("Please enter my value "))
+yourValue = int(input("Please enter your value "))
+if myValue > yourValue:
+    print("I win")
+elif myValue < yourValue:
+    print("You win")
+else:
+    print("Draw")
+print(TO_UPPER("finished"))
+`;
+    const CLASS_EXAMPLE = `class EventItem:
+    def __init__(self, name, difficulty):
+        self.__name = name
+        self.__difficulty = difficulty
+    def GetName(self):
+        return self.__name
+    def GetDifficulty(self):
+        return self.__difficulty
+
+item = EventItem("Sprint", 3)
+print(item.GetName())
+print(item.GetDifficulty())
+print(LENGTH(item.GetName()))
+`;
+    const FILE_EXAMPLE = `myFile = open("notes.txt", "w")
+myFile.write("Ada\\n")
+myFile.write("Grace\\n")
+myFile.close()
+
+myFile = open("notes.txt", "r")
+while not EOF(myFile):
+    line = myFile.readline()
+    if line != "":
+        print(TO_UPPER(line.strip()))
+myFile.close()
+`;
+
+    const PY_KEYWORDS = [
+      "if", "elif", "else", "for", "while", "def", "return", "class",
+      "try", "except", "finally", "in", "and", "or", "not", "is",
+      "True", "False", "None", "pass", "break", "continue", "raise", "with", "as"
+    ];
+    const PY_BUILTINS = [
+      "print", "input", "int", "float", "str", "bool", "len", "range",
+      "open", "list", "round", "abs", "chr", "ord", "super", "append"
+    ];
+    const CIE_FUNCTIONS = [
+      "LENGTH", "LEFT", "RIGHT", "MID", "SUBSTRING", "INT", "ASC", "CHR",
+      "SQUAREROOT", "RANDOM", "ROUND", "RND", "RAND", "DIV", "MOD",
+      "IS_NUM", "NUM_TO_STR", "STR_TO_NUM", "TO_UPPER", "TO_LOWER",
+      "UCASE", "LCASE", "EOF"
+    ];
+    const FORBIDDEN = new Set([
+      "import", "lambda", "async", "await", "yield", "exec", "eval",
+      "compile", "globals", "locals", "getattr", "setattr", "delattr",
+      "from", "del", "assert", "nonlocal", "global"
+    ]);
+
+    const PRELUDE = `
+import random as _cie_random
+
+def LENGTH(s):
+    return len(str(s))
+
+def LEFT(s, x):
+    return str(s)[:int(x)]
+
+def RIGHT(s, x):
+    n = int(x)
+    text = str(s)
+    if n <= 0:
+        return ""
+    return text[-n:]
+
+def MID(s, x, y):
+    text = str(s)
+    start = max(0, int(x) - 1)
+    return text[start:start + max(0, int(y))]
+
+SUBSTRING = MID
+
+def INT(x):
+    return int(float(x))
+
+def ASC(ch):
+    text = str(ch)
+    return ord(text[0]) if text else 0
+
+CHR = chr
+
+def SQUAREROOT(x):
+    n = float(x)
+    if n < 0:
+        raise ValueError("Square root of negative number")
+    return n ** 0.5
+
+def RANDOM(lo, hi):
+    low = int(lo)
+    high = int(hi)
+    if low > high:
+        raise ValueError("RANDOM: low must not be greater than high")
+    return _cie_random.randint(low, high)
+
+def ROUND(x, places=0):
+    return round(float(x), int(places))
+
+def RND():
+    return _cie_random.random()
+
+def RAND(x):
+    limit = float(x)
+    if limit <= 0:
+        raise ValueError("RAND: x must be a positive number")
+    return _cie_random.random() * limit
+
+def DIV(a, b):
+    if int(b) == 0:
+        raise ZeroDivisionError("Division by zero")
+    return int(a) // int(b)
+
+def MOD(a, b):
+    if int(b) == 0:
+        raise ZeroDivisionError("Division by zero")
+    return int(a) % int(b)
+
+def IS_NUM(s):
+    t = str(s).strip()
+    if not t:
+        return False
+    if t[0] == "-":
+        t = t[1:]
+    parts = t.split(".")
+    if len(parts) > 2 or parts[0] == "" or not parts[0].isdigit():
+        return False
+    if len(parts) == 2 and (parts[1] == "" or not parts[1].isdigit()):
+        return False
+    return True
+
+def NUM_TO_STR(x):
+    return str(x)
+
+def STR_TO_NUM(s):
+    t = str(s).strip()
+    if not IS_NUM(t):
+        raise ValueError("STR_TO_NUM: invalid numeric string")
+    return float(t) if "." in t else int(t)
+
+def TO_UPPER(s):
+    return str(s).upper()
+
+def TO_LOWER(s):
+    return str(s).lower()
+
+UCASE = TO_UPPER
+LCASE = TO_LOWER
+
+def EOF(fileobj):
+    pos = fileobj.tell()
+    fileobj.seek(0, 2)
+    end = fileobj.tell()
+    fileobj.seek(pos)
+    return pos >= end
+`;
+
+    function validateSyllabus(source) {
+      let i = 0;
+      let line = 1;
+      let quote = null;
+      let triple = false;
+      let bracket = 0;
+      const isIdent = (ch) => /[A-Za-z_]/.test(ch);
+      while (i < source.length) {
+        const ch = source[i];
+        const next = source[i + 1];
+        if (quote) {
+          if (triple) {
+            if (source.slice(i, i + 3) === quote.repeat(3)) {
+              quote = null;
+              triple = false;
+              i += 3;
+              continue;
+            }
+          } else if (ch === quote && source[i - 1] !== "\\") {
+            quote = null;
+          }
+          if (ch === "\n") line += 1;
+          i += 1;
+          continue;
+        }
+        if (ch === "#") {
+          while (i < source.length && source[i] !== "\n") i += 1;
+          continue;
+        }
+        if ((ch === '"' || ch === "'") && source.slice(i, i + 3) === ch.repeat(3)) {
+          quote = ch;
+          triple = true;
+          i += 3;
+          continue;
+        }
+        if (ch === '"' || ch === "'") {
+          quote = ch;
+          triple = false;
+          i += 1;
+          continue;
+        }
+        if (ch === "\n") {
+          line += 1;
+          i += 1;
+          continue;
+        }
+        if (ch === "(" || ch === "[" || ch === "{") bracket += 1;
+        if ((ch === ")" || ch === "]" || ch === "}") && bracket > 0) bracket -= 1;
+        if (ch === ":" && next === "=") {
+          return `Line ${line}: := is outside the CIE Python subset`;
+        }
+        if (ch === "@") {
+          return `Line ${line}: decorators are outside the CIE Python subset`;
+        }
+        if (isIdent(ch)) {
+          const start = i;
+          i += 1;
+          while (i < source.length && /[A-Za-z0-9_]/.test(source[i])) i += 1;
+          const word = source.slice(start, i);
+          if (FORBIDDEN.has(word)) {
+            return `Line ${line}: ${word} is outside the CIE Python subset`;
+          }
+          if (word === "for" && bracket > 0) {
+            return `Line ${line}: list, set and dictionary comprehensions are outside the CIE Python subset`;
+          }
+          continue;
+        }
+        i += 1;
+      }
+      if (quote) return "A string was not closed";
+      return "";
+    }
+
+    function collectPythonSymbols(text) {
+      const symbols = [];
+      const seen = new Set();
+      const classes = {};
+      const bases = {};
+      const instanceOf = {};
+      const lists = new Set();
+      let currentClass = null;
+      let classIndent = -1;
+
+      function add(name, detail) {
+        if (!name || seen.has(name)) return;
+        seen.add(name);
+        symbols.push({ name, detail });
+      }
+
+      const lines = text.split(/\r?\n/);
+      lines.forEach((raw) => {
+        const indent = raw.match(/^\s*/)[0].length;
+        const line = raw.replace(/#.*$/, "").trim();
+        if (!line) return;
+        if (currentClass && indent <= classIndent && !line.startsWith("def ") && !line.startsWith("@")) {
+          currentClass = null;
+        }
+        const classM = line.match(/^class\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\))?/);
+        if (classM) {
+          currentClass = classM[1];
+          classIndent = indent;
+          classes[currentClass] = classes[currentClass] || { methods: [], attrs: [] };
+          bases[currentClass] = classM[2] || "";
+          add(currentClass, "class");
+          return;
+        }
+        const defM = line.match(/^def\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)/);
+        if (defM) {
+          if (currentClass && indent > classIndent) {
+            if (defM[1] !== "__init__") classes[currentClass].methods.push(defM[1]);
+          } else {
+            currentClass = null;
+            add(defM[1], "function");
+          }
+          defM[2].split(",").forEach((part) => {
+            const name = part.trim().split("=")[0].trim();
+            if (name && name !== "self" && /^[A-Za-z_]/.test(name)) add(name, "parameter");
+          });
+          return;
+        }
+        const call = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(/);
+        if (call) {
+          add(call[1], call[2]);
+          if (classes[call[2]]) instanceOf[call[1]] = call[2];
+        }
+        const assign = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=/);
+        if (assign) {
+          add(assign[1], "name");
+          if (/=\s*\[/.test(line)) lists.add(assign[1]);
+        }
+        const selfAttr = line.match(/^self\.([A-Za-z_][A-Za-z0-9_]*)\s*=/);
+        if (selfAttr && currentClass) {
+          classes[currentClass].attrs.push(selfAttr[1]);
+        }
+        const forM = line.match(/^for\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\b/);
+        if (forM) add(forM[1], "loop");
+      });
+      return { symbols, classes, bases, instanceOf, lists };
+    }
+
+    function isInsideString(before) {
+      let quote = null;
+      let triple = false;
+      for (let i = 0; i < before.length; i += 1) {
+        const ch = before[i];
+        if (quote) {
+          if (triple && before.slice(i, i + 3) === quote.repeat(3)) {
+            quote = null;
+            triple = false;
+            i += 2;
+          } else if (!triple && ch === quote && before[i - 1] !== "\\") {
+            quote = null;
+          }
+          continue;
+        }
+        if (ch === "#") return false;
+        if ((ch === '"' || ch === "'") && before.slice(i, i + 3) === ch.repeat(3)) {
+          quote = ch;
+          triple = true;
+          i += 2;
+          continue;
+        }
+        if (ch === '"' || ch === "'") quote = ch;
+      }
+      return Boolean(quote);
+    }
+
+    const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+      mode: "python",
+      theme: "cie",
+      lineNumbers: true,
+      lineWrapping: true,
+      indentUnit: 4,
+      tabSize: 4,
+      extraKeys: {
+        Tab: (cm) => {
+          if (isMenuOpen()) {
+            applyHint(cm, hintState.items[hintState.active]);
+            return;
+          }
+          cm.replaceSelection("    ", "end");
+        },
+        Enter: (cm) => {
+          if (isMenuOpen()) {
+            applyHint(cm, hintState.items[hintState.active]);
+            return;
+          }
+          return CodeMirror.Pass;
+        },
+        Up: (cm) => {
+          if (isMenuOpen()) {
+            setActive(hintState.active - 1);
+            return;
+          }
+          return CodeMirror.Pass;
+        },
+        Down: (cm) => {
+          if (isMenuOpen()) {
+            setActive(hintState.active + 1);
+            return;
+          }
+          return CodeMirror.Pass;
+        },
+        Esc: () => hideHints(),
+        "Ctrl-Space": (cm) => showHints(cm)
+      }
+    });
+    editor.setValue(IF_EXAMPLE);
+    window._pythonCodeMirror = editor;
+
+    const hintMenu = document.getElementById("typeHintMenu");
+    let hintState = null;
+
+    function hideHints() {
+      hintState = null;
+      hintMenu.hidden = true;
+      hintMenu.innerHTML = "";
+    }
+    function isMenuOpen() {
+      return Boolean(hintState) && !hintMenu.hidden;
+    }
+    function setActive(index) {
+      if (!hintState || hintState.items.length === 0) return;
+      hintState.active = (index + hintState.items.length) % hintState.items.length;
+      hintMenu.querySelectorAll("li").forEach((node, i) => {
+        node.classList.toggle("active", i === hintState.active);
+      });
+    }
+    function applyHint(cm, item) {
+      if (!hintState || !item) return;
+      cm.replaceRange(item.insert, hintState.from, hintState.to, "complete");
+      hideHints();
+    }
+    function positionMenu(cm) {
+      const coords = cm.cursorCoords(true, "window");
+      const menuW = Math.max(220, hintMenu.offsetWidth || 220);
+      const menuH = hintMenu.offsetHeight || 160;
+      let left = coords.left;
+      let top = coords.bottom + 6;
+      const maxLeft = window.innerWidth - menuW - 8;
+      if (left > maxLeft) left = Math.max(8, maxLeft);
+      if (top + menuH > window.innerHeight - 8) top = Math.max(8, coords.top - menuH - 6);
+      hintMenu.style.left = `${left}px`;
+      hintMenu.style.top = `${top}px`;
+    }
+
+    function suggestionContext(before) {
+      if (!before || isInsideString(before)) return null;
+      const field = before.match(/([A-Za-z_][A-Za-z0-9_]*)\s*\.\s*([A-Za-z_][A-Za-z0-9_]*)?$/);
+      if (field) return { kind: "field", head: field[1], token: field[2] || "" };
+      if (/(?:print|input)\s*\(\s*$/.test(before)) return { kind: "quote" };
+      const token = before.match(/[A-Za-z_][A-Za-z0-9_]*$/);
+      if (!token) return null;
+      return { kind: "name", token: token[0] };
+    }
+
+    function showHints(cm) {
+      const cur = cm.getCursor();
+      const before = cm.getLine(cur.line).slice(0, cur.ch);
+      const suggestion = suggestionContext(before);
+      if (!suggestion) {
+        hideHints();
+        return;
+      }
+      const token = suggestion.token || "";
+      const fromCh = suggestion.kind === "quote" ? cur.ch : cur.ch - token.length;
+      const filter = token.toLowerCase();
+      const items = [];
+      const add = (insert, label) => {
+        if (filter && !label.toLowerCase().startsWith(filter) && !insert.toLowerCase().startsWith(filter)) return;
+        items.push({ insert, label });
+      };
+      if (suggestion.kind === "quote") {
+        items.push({ insert: '"', label: '"text"' });
+      } else if (suggestion.kind === "field") {
+        const info = collectPythonSymbols(cm.getValue());
+        const className = suggestion.head === "self"
+          ? currentClassAt(cm, cur.line)
+          : info.instanceOf[suggestion.head];
+        const names = [];
+        const seenMembers = new Set();
+        let walk = className;
+        let guard = 0;
+        while (walk && info.classes[walk] && guard < 8) {
+          info.classes[walk].methods.forEach((name) => {
+            if (!seenMembers.has(name)) {
+              seenMembers.add(name);
+              names.push(name);
+            }
+          });
+          if (suggestion.head === "self" && walk === className) {
+            info.classes[walk].attrs.forEach((name) => {
+              if (!seenMembers.has(name)) {
+                seenMembers.add(name);
+                names.push(name);
+              }
+            });
+          }
+          walk = info.bases[walk];
+          guard += 1;
+        }
+        names.forEach((name) => add(name, name));
+        if (!className || info.lists.has(suggestion.head)) add("append", "append  list");
+      } else if (token.length > 0) {
+        const info = collectPythonSymbols(cm.getValue());
+        info.symbols.forEach((sym) => add(sym.name, `${sym.name}  ${sym.detail}`));
+        PY_BUILTINS.forEach((name) => add(name, name));
+        CIE_FUNCTIONS.forEach((name) => add(name, `${name}  CIE`));
+      }
+      if (items.length === 0) {
+        hideHints();
+        return;
+      }
+      hintState = {
+        items,
+        active: 0,
+        from: CodeMirror.Pos(cur.line, fromCh),
+        to: cur
+      };
+      hintMenu.innerHTML = "";
+      items.forEach((item, i) => {
+        const li = document.createElement("li");
+        li.textContent = item.label;
+        if (i === 0) li.classList.add("active");
+        li.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          applyHint(cm, item);
+          cm.focus();
+        });
+        hintMenu.appendChild(li);
+      });
+      hintMenu.hidden = false;
+      positionMenu(cm);
+    }
+
+    function currentClassAt(cm, lineNo) {
+      for (let i = lineNo; i >= 0; i -= 1) {
+        const match = cm.getLine(i).match(/^(\s*)class\s+([A-Za-z_][A-Za-z0-9_]*)/);
+        if (match && match[1].length === 0) return match[2];
+      }
+      return "";
+    }
+
+    function maybeShowHints(cm, change) {
+      if (change && (change.origin === "setValue" || change.origin === "complete")) return;
+      showHints(cm);
+    }
+    editor.on("inputRead", maybeShowHints);
+    editor.on("keyup", (cm, event) => {
+      const key = event && event.key;
+      if (["ArrowUp", "ArrowDown", "Enter", "Escape", "Tab"].includes(key)) return;
+      maybeShowHints(cm, { origin: "+input" });
+    });
+    editor.on("cursorActivity", (cm) => {
+      const cur = cm.getCursor();
+      const before = cm.getLine(cur.line).slice(0, cur.ch);
+      if (!suggestionContext(before)) hideHints();
+    });
+
+    const KNOWN = new Set([...PY_KEYWORDS, ...PY_BUILTINS, ...CIE_FUNCTIONS].map((w) => w.toLowerCase()));
+    const KNOWN_LIST = [...KNOWN];
+    let keywordMarks = [];
+    function editDistance(a, b) {
+      if (Math.abs(a.length - b.length) > 2) return 99;
+      const row = Array.from({ length: b.length + 1 }, (_, j) => j);
+      for (let i = 1; i <= a.length; i += 1) {
+        let prev = row[0];
+        row[0] = i;
+        for (let j = 1; j <= b.length; j += 1) {
+          const cur = row[j];
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + cost);
+          prev = cur;
+        }
+      }
+      return row[b.length];
+    }
+    function misspelled(word) {
+      const u = word.toLowerCase();
+      if (u.length < 3 || KNOWN.has(u)) return false;
+      return KNOWN_LIST.some((kw) => {
+        if (kw[0] !== u[0]) return false;
+        const d = editDistance(u, kw);
+        return (d === 1 && Math.abs(u.length - kw.length) <= 1) ||
+          (d === 2 && kw.length >= 7 && Math.abs(u.length - kw.length) <= 2);
+      });
+    }
+    function scanKeywordErrors() {
+      keywordMarks.forEach((mark) => mark.clear());
+      keywordMarks = [];
+      const text = editor.getValue().split(/\r?\n/);
+      text.forEach((line, lineNo) => {
+        let i = 0;
+        let quote = null;
+        while (i < line.length) {
+          const ch = line[i];
+          if (quote) {
+            if (ch === quote && line[i - 1] !== "\\") quote = null;
+            i += 1;
+            continue;
+          }
+          if (ch === "#") break;
+          if (ch === '"' || ch === "'") {
+            quote = ch;
+            i += 1;
+            continue;
+          }
+          if (/[A-Za-z_]/.test(ch)) {
+            const start = i;
+            i += 1;
+            while (i < line.length && /[A-Za-z0-9_]/.test(line[i])) i += 1;
+            const word = line.slice(start, i);
+            if (misspelled(word)) {
+              keywordMarks.push(editor.markText(
+                { line: lineNo, ch: start },
+                { line: lineNo, ch: i },
+                { className: "cm-kw-error" }
+              ));
+            }
+            continue;
+          }
+          i += 1;
+        }
+      });
+    }
+    let lintTimer = null;
+    editor.on("change", () => {
+      window.clearTimeout(lintTimer);
+      lintTimer = window.setTimeout(scanKeywordErrors, 300);
+    });
+    scanKeywordErrors();
+
+    let pyodide = null;
+    let preludeReady = false;
+
+    function printOutput(text, isError) {
+      output.textContent = text;
+      output.classList.toggle("error", Boolean(isError));
+    }
+
+    async function ensurePython() {
+      if (pyodide && preludeReady) return pyodide;
+      statusBar.textContent = "Loading Python runtime…";
+      runBtn.disabled = true;
+      pyodide = await loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"
+      });
+      pyodide.setStdout({ batched: (text) => {
+        output.classList.remove("error");
+        const chunk = text.endsWith("\n") ? text : `${text}\n`;
+        output.textContent += chunk;
+      } });
+      pyodide.setStdin({ stdin: () => {
+        const recent = output.textContent.split("\n").slice(-6).join("\n");
+        const typed = window.prompt(recent ? `${recent}\n\nInput:` : "Input:", "");
+        if (typed === null) {
+          const error = new Error("Input cancelled");
+          error.__cancel = true;
+          throw error;
+        }
+        output.textContent += `${typed}\n`;
+        return `${typed}\n`;
+      } });
+      await pyodide.runPythonAsync(PRELUDE);
+      preludeReady = true;
+      statusBar.textContent = "Python runtime ready.";
+      runBtn.disabled = false;
+      return pyodide;
+    }
+
+    runBtn.addEventListener("click", async () => {
+      const source = editor.getValue();
+      const problem = validateSyllabus(source);
+      if (problem) {
+        printOutput(problem, true);
+        return;
+      }
+      printOutput("", false);
+      try {
+        const runtime = await ensurePython();
+        await runtime.runPythonAsync(source);
+        if (!output.textContent) printOutput("(No output)", false);
+      } catch (error) {
+        const message = error && error.message ? error.message : String(error);
+        printOutput(message.replace(/^PythonError: /, ""), true);
+      }
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => printOutput("", false));
+    document.getElementById("clearEditorBtn").addEventListener("click", () => editor.setValue(""));
+    document.getElementById("loadIfBtn").addEventListener("click", () => editor.setValue(IF_EXAMPLE));
+    document.getElementById("loadClassBtn").addEventListener("click", () => editor.setValue(CLASS_EXAMPLE));
+    document.getElementById("loadFileBtn").addEventListener("click", () => editor.setValue(FILE_EXAMPLE));
+  </script>
+</body>
+</html>
